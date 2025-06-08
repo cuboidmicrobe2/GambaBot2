@@ -2,23 +2,43 @@
 
 namespace Debug;
 
-// Name            FG  BG
-// Black           30  40
-// Red             31  41
-// Green           32  42
-// Yellow          33  43
-// Blue            34  44
-// Magenta         35  45
-// Cyan            36  46
-// White           37  47
-// Bright Black    90  100
-// Bright Red      91  101
-// Bright Green    92  102
-// Bright Yellow   93  103
-// Bright Blue     94  104
-// Bright Magenta  95  105
-// Bright Cyan     96  106
-// Bright White    97  107
+enum CMD_FONT_COLOR : int {
+    case BLACK = 30;
+    case RED = 31;
+    case GREEN = 32;
+    case YELLOW = 33;
+    case BLUE = 34;
+    case MAGENTA = 35;
+    case CYAN = 36;
+    case WHITE = 37;
+    case BRIGHT_BLACK = 90;
+    case BRIGHT_RED = 91;
+    case BRIGHT_GREEN = 92;
+    case BRIGHT_YELLOW = 93;
+    case BRIGHT_BLUE = 94;
+    case BRIGHT_MAGENTA = 95;
+    case BRIGHT_CYAN = 96;
+    case BRIGHT_WHITE = 97;
+}
+
+enum CMD_BACKGROUND_COLOR : int {
+    case BLACK = 40;
+    case RED = 41;
+    case GREEN = 42;
+    case YELLOW = 43;
+    case BLUE = 44;
+    case MAGENTA = 45;
+    case CYAN = 46;
+    case WHITE = 47;
+    case BRIGHT_BLACK = 100;
+    case BRIGHT_RED = 101;
+    case BRIGHT_GREEN = 102;
+    case BRIGHT_YELLOW = 103;
+    case BRIGHT_BLUE = 104;
+    case BRIGHT_MAGENTA = 105;
+    case BRIGHT_CYAN = 106;
+    case BRIGHT_WHITE = 107;
+}
 
 final class CMDOutput {
     private string $output = '';
@@ -29,9 +49,9 @@ final class CMDOutput {
 
     }
 
-    public function add(string $text, ?int $fg = null, ?int $bg = null,) : self {
+    public function add(string $text, ?CMD_FONT_COLOR $fg = null, ?CMD_BACKGROUND_COLOR $bg = null,) : self {
 
-        $this->output .= "\x1B[" . $fg . 'm' . $text . "\033[0m";
+        $this->output .= "\x1B[" . $fg?->value . 'm' . $text . "\033[0m";
         return $this;
     }
 

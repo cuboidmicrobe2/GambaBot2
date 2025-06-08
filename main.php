@@ -1,5 +1,6 @@
 <?php declare(strict_types = 1);
 
+use Debug\CMD_FONT_COLOR;
 use Discord\Discord;
 use Discord\Parts\User\Activity;
 use Discord\WebSockets\Intents;
@@ -36,5 +37,5 @@ $discord->on('init', function(Discord $discord) {
         // interaction debug'n
     });
 
-    echo CMDOutput::new()->add('Online', 92), PHP_EOL;
+    echo CMDOutput::new()->add('Online', CMD_FONT_COLOR::BRIGHT_GREEN), PHP_EOL;
 });
