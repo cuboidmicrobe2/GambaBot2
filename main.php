@@ -2,13 +2,23 @@
 
 use Discord\Discord;
 use Discord\Parts\User\Activity;
-use Discord\WebSockets\Event;
 use Discord\WebSockets\Intents;
 use Symfony\Component\Dotenv\Dotenv;
+use Debug\CMDOutput;
+use Discord\Parts\Interactions\Interaction;
+use Discord\WebSockets\Event;
+
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/Includes/autoload.php';
+
+const AUTO_LOADER = new Autoloader(
+    flags:Autoloader::DO_OUTPUT
+);
+AUTO_LOADER->start();
 
 $dotenv = new Dotenv;
 $dotenv->load(__DIR__ . '/.env');
+
 
 $discord = new Discord([
     'token' => $_ENV['DISCORD_TOKEN'],
@@ -22,7 +32,9 @@ $discord->on('init', function(Discord $discord) {
         'name' => 'the long game',
     ]));
 
+    $discord->on(Event::INTERACTION_CREATE, function(Interaction $interaction) {
+        // interaction debug'n
+    });
 
-
-    echo 'GambaBot is online.';
+    echo CMDOutput::new()->add('Online', 92), PHP_EOL;
 });
