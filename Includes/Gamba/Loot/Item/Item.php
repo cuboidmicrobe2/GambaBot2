@@ -10,7 +10,6 @@ final readonly class Item implements JsonSerializable {
         public string $name,
         public Rarity $rarity,
         public int $price,
-        public string $id,
     ) {}
 
     public function jsonSerialize(): array {
