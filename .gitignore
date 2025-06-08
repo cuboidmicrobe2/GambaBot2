@@ -1,0 +1,36 @@
+# Composer dependencies
+/vendor/
+
+# Composer lock file (optional, if you don't want to commit it)
+/composer.lock
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# PHPStorm and VSCode project files
+.idea/
+.vscode/
+
+# Logs and cache
+*.log
+/cache/
+*.cache
+
+# Environment files
+.env
+.env.*
+
+# PHPUnit
+/phpunit.xml
+/phpunit.xml.dist
+
+# Coverage reports
+/coverage/
+
+# Node modules (if you use node for frontend)
+/node_modules/
+
+# Build artifacts
+/build/
+dist/

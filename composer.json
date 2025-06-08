@@ -1,0 +1,6 @@
+{
+    "require": {
+        "team-reflex/discord-php": "dev-master",
+        "symfony/dotenv": "^7.3"
+    }
+}
