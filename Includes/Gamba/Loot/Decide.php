@@ -2,6 +2,8 @@
 
 namespace Gamba\Loot;
 
+use Gamba\Loot\Item\Item;
+use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Rarity;
 
 abstract class Decide {
@@ -15,9 +17,9 @@ abstract class Decide {
         };
     }
     
-    public static function from(array $items) /* : Item */ {
-        mt_rand(1, $size);
-        // get id...
+    public static function fromCollection(ItemCollection $items) : Item {
+        $randKey = mt_rand(0, $items->size-1);
+        return $items[$randKey];
     }
 
 }
