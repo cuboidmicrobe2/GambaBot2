@@ -6,10 +6,11 @@ use Gamba\Loot\Rarity;
 use JsonSerializable;
 
 final readonly class Item implements JsonSerializable {
+
     public function __construct(
         public string $name,
         public Rarity $rarity,
-        public int $price,
+        public int $id
     ) {}
 
     public function jsonSerialize(): array {
