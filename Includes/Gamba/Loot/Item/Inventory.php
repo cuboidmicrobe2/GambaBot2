@@ -6,7 +6,7 @@ use PDO;
 
 class Inventory {
 
-    public function __construct(private string $owner, private PDO &$pdo) {}
+    public function __construct(private string $owner, private PDO &$pdo) { self::userMustExist($owner, $pdo); }
 
     public function addItem(Item|int $item, int $count = 1) : void {
         $itemId = ($item instanceof Item) ? $item->id : $item;
@@ -73,5 +73,17 @@ class Inventory {
         }
 
         return ['unique' => $uniqueItems, 'total' => $totalItemCount];
+    }
+
+    /**
+     * Create the user table if it does not exist
+     */
+    private static function userMustExist(string $uid, PDO $pdo) : void {
+        $pdo->query(<<<SQL
+            CREATE TABLE IF NOT EXISTS USER_{$uid}(
+                item_id TINYINT UNSIGNED PRIMARY KEY NOT NULL,
+                count INT UNSIGNED NOT NULL DEFAULT 0
+            );
+        SQL);
     }
 }

@@ -5,7 +5,7 @@ namespace Gamba\Loot\Item;
 use Gamba\Loot\Item\Inventory;
 use PDO;
 
-class InventoryManager {
+class InventoryManager { // mby dont need this (needs something to store pdo obj, so mby this?)
 
     private PDO $pdo;
 
@@ -15,20 +15,6 @@ class InventoryManager {
     }
 
     public function getInventory(string $uid) : Inventory {
-        self::userMustExist($uid, $this->pdo);
-
         return new Inventory($uid, $this->pdo);
-    }
-    
-    /**
-     * Create the user table if it does not exist
-     */
-    private static function userMustExist(string $uid, PDO $pdo) : void {
-        $pdo->query(<<<SQL
-            CREATE TABLE IF NOT EXISTS USER_$uid(
-                item_id MEDIUMINT PRIMARY KEY NOT NULL,
-                count INT NOT NULL DEFAULT 0
-            );
-        SQL);
     }
 }
