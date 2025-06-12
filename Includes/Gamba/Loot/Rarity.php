@@ -10,8 +10,8 @@ enum Rarity : int {
     public function getPrice() : int {
         return match($this) {
             Rarity::BLUE => 2,
-            Rarity::PURPLE => 13,
-            Rarity::GOLD => 157,
+            Rarity::PURPLE => 78,
+            Rarity::GOLD => 1570,
         };
     }
 }
