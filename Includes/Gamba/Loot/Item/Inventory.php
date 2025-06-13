@@ -6,7 +6,26 @@ use PDO;
 
 class Inventory {
 
-    public function __construct(private string $owner, private PDO &$pdo) { self::userMustExist($owner, $pdo); }
+    public function __construct(private string $owner, private PDO &$pdo) { self::userInventoryMustExist($owner, $pdo); }
+
+    public function addCoins(int $coins) : void {
+        $this->pdo->query(<<<SQL
+            INSERT INTO coin_inventory (uid, coins)
+            VALUE ({$this->owner}, {$coins})
+            ON DUPLICATE KEY
+                UPDATE coins = coins + {$coins};
+        SQL);
+    }
+
+    public function getCoins() : int {
+        $result = $this->pdo->query(<<<SQL
+            SELECT coins 
+            FROM coin_inventory
+            WHERE uid = {$this->owner};
+        SQL);
+
+        return $result->fetch(PDO::FETCH_ASSOC)['coins'] ?? 0;
+    }
 
     public function addItem(Item|int $item, int $count = 1) : void {
         $itemId = ($item instanceof Item) ? $item->id : $item;
@@ -14,7 +33,8 @@ class Inventory {
         $this->pdo->query(<<<SQL
             INSERT INTO USER_{$this->owner} (item_id, count)
             VALUES ({$itemId}, {$count})
-            ON DUPLICATE KEY UPDATE count = count + {$count}
+            ON DUPLICATE KEY 
+                UPDATE count = count + {$count};
         SQL);
     }
 
@@ -22,7 +42,8 @@ class Inventory {
         $stmt = $this->pdo->prepare(<<<SQL
             INSERT INTO USER_{$this->owner} (item_id, count)
             VALUES (:itemId, 1)
-            ON DUPLICATE KEY UPDATE count = count + 1
+            ON DUPLICATE KEY 
+                UPDATE count = count + 1
         SQL);
 
         foreach($items as $item) {
@@ -46,10 +67,8 @@ class Inventory {
             WHERE item_id = {$itemId};
         SQL);
 
-        $result->setFetchMode(PDO::FETCH_ASSOC);
-
         // Fine since result can and sould only be one row
-        return $result->fetch()['count'] ?? 0;
+        return $result->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
     }
 
     /**
@@ -78,7 +97,7 @@ class Inventory {
     /**
      * Create the user table if it does not exist
      */
-    private static function userMustExist(string $uid, PDO $pdo) : void {
+    private static function userInventoryMustExist(string $uid, PDO $pdo) : void {
         $pdo->query(<<<SQL
             CREATE TABLE IF NOT EXISTS USER_{$uid}(
                 item_id TINYINT UNSIGNED PRIMARY KEY NOT NULL,
