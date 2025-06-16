@@ -71,7 +71,6 @@ define('GOLD_MIN', 9801);
  */
 define('GOLD_MAX', PROB_MAX);
 
-var_dump(call_user_func(GOLD_RANGE_ADJUSTER, 80));
 abstract class Decide {
 
     // /**
@@ -104,7 +103,6 @@ abstract class Decide {
 
         $probValue = mt_rand(1, PROB_MAX);
         $adjustmet = ($goldPity > GOLD_SOFT_PITY) ? call_user_func(GOLD_RANGE_ADJUSTER, $goldPity) : 0;
-        var_dump(['p' => $probValue, 'g' => $goldPity, 'a' => $adjustmet]);
 
         if($probValue >= BLUE_MIN AND $probValue <= (BLUE_MAX - $adjustmet)) {
             return Rarity::BLUE;
@@ -118,7 +116,6 @@ abstract class Decide {
             return Rarity::GOLD;
         }
 
-        throw new Exception('probValue = '.$probValue);
         return null;
     }
 
@@ -126,5 +123,4 @@ abstract class Decide {
         $randKey = mt_rand(0, $items->size-1);
         return $items[$randKey];
     }
-
 }
