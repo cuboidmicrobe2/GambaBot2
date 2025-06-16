@@ -2,35 +2,45 @@
 
 namespace Gamba\Loot\Item;
 
-use PDO;
+use OutOfRangeException;
+use PDO\Mysql;
 
+/**
+ * @todo rename user_stats to stats and add rolls to it (set roll and coin default to 0 so table can be created with no data (or add to  self::userInventoryMustExist))
+ */
 class Inventory {
 
-    public function __construct(private string $owner, private PDO &$pdo) { self::userInventoryMustExist($owner, $pdo); }
+    public function __construct(private string $owner, private Mysql &$database) { self::userInventoryMustExist($owner, $database); }
 
-    public function addCoins(int $coins) : void {
-        $this->pdo->query(<<<SQL
-            INSERT INTO coin_inventory (uid, coins)
-            VALUE ({$this->owner}, {$coins})
-            ON DUPLICATE KEY
-                UPDATE coins = coins + {$coins};
+    /**
+     * @param int<0, max>   $coins
+     * 
+     * @throws OutOfRangeException  if coins < 0
+     */
+    public function setCoins(int $coins) : void {
+        if($coins < 0) throw new OutOfRangeException();
+        $this->database->query(<<<SQL
+            UPDATE user_stats
+            set coins = {$coins}
+            WHERE uid = {$this->owner};
         SQL);
     }
 
+
     public function getCoins() : int {
-        $result = $this->pdo->query(<<<SQL
+        $result = $this->database->query(<<<SQL
             SELECT coins 
-            FROM coin_inventory
+            FROM user_stats
             WHERE uid = {$this->owner};
         SQL);
 
-        return $result->fetch(PDO::FETCH_ASSOC)['coins'] ?? 0;
+        return $result->fetch(Mysql::FETCH_ASSOC)['coins'] ?? 0;
     }
 
     public function addItem(Item|int $item, int $count = 1) : void {
         $itemId = ($item instanceof Item) ? $item->id : $item;
 
-        $this->pdo->query(<<<SQL
+        $this->database->query(<<<SQL
             INSERT INTO USER_{$this->owner} (item_id, count)
             VALUES ({$itemId}, {$count})
             ON DUPLICATE KEY 
@@ -39,7 +49,7 @@ class Inventory {
     }
 
     public function addCollection(ItemCollection $items) : void {
-        $stmt = $this->pdo->prepare(<<<SQL
+        $stmt = $this->database->prepare(<<<SQL
             INSERT INTO USER_{$this->owner} (item_id, count)
             VALUES (:itemId, 1)
             ON DUPLICATE KEY 
@@ -54,32 +64,79 @@ class Inventory {
     public function removeItem(Item|int $item, int $count = 1) : void {
         $itemId = ($item instanceof Item) ? $item->id : $item;
 
-        $this->pdo->query(<<<SQL
+        $this->database->query(<<<SQL
             UPDATE USER_{$this->owner}
             SET count = count - {$count}
             WHERE item_id = {$itemId}
         SQL);
     }
 
-    public function itemCount(int $itemId) : int {
-        $result = $this->pdo->query(<<<SQL
+    public function getItemCount(int $itemId) : int {
+        $result = $this->database->query(<<<SQL
             SELECT count FROM USER_{$this->owner}
             WHERE item_id = {$itemId};
         SQL);
 
         // Fine since result can and sould only be one row
-        return $result->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+        return $result->fetch(Mysql::FETCH_ASSOC)['count'] ?? 0;
     }
+
+    /**
+     * @param int<0, max>   $newPity
+     * 
+     * @throws OutOfRangeException  if $newPity < 0
+     */
+    public function setGoldPity(int $newPity) : void {
+        if($newPity < 0) throw new OutOfRangeException();
+        
+        $this->database->query(<<<SQL
+            UPDATE user_stats
+            SET gold_pity = {$newPity}
+            WHERE uid = {$this->owner};
+        SQL);
+    }
+
+    /**
+     * @throws OutOfRangeException  if $newPity < 0
+     */
+    public function setPurplePity(int $newPity) : void {
+        if($newPity < 0) throw new OutOfRangeException();
+        
+        $this->database->query(<<<SQL
+            UPDATE user_stats
+            SET purple_pity = {$newPity}
+            WHERE uid = {$this->owner};
+        SQL);
+    }
+
+    public function getGoldPity() : int { 
+        $result = $this->database->query(<<<SQL
+            SELECT gold_pity FROM user_stats 
+            WHERE uid = {$this->owner};
+        SQL);
+
+        return $result->fetch(Mysql::FETCH_ASSOC)['gold_pity'] ?? 0;
+    }
+
+    public function getPurplePity() : int {
+        $result = $this->database->query(<<<SQL
+            SELECT purple_pity FROM user_stats 
+            WHERE uid = {$this->owner};
+        SQL);
+
+        return $result->fetch(Mysql::FETCH_ASSOC)['purple_pity'] ?? 0;
+    }
+
 
     /**
      * @return array{unique:int, total:int}
      */
     public function size() : array {
-        $result = $this->pdo->query(<<<SQL
+        $result = $this->database->query(<<<SQL
             SELECT count FROM USER_{$this->owner};
         SQL);
 
-        $result->setFetchMode(PDO::FETCH_ASSOC);
+        $result->setFetchMode(Mysql::FETCH_ASSOC);
 
         $uniqueItems = 0;
         $totalItemCount = 0;
@@ -97,12 +154,17 @@ class Inventory {
     /**
      * Create the user table if it does not exist
      */
-    private static function userInventoryMustExist(string $uid, PDO $pdo) : void {
-        $pdo->query(<<<SQL
+    private static function userInventoryMustExist(string $uid, Mysql $database) : void {
+        $database->query(<<<SQL
             CREATE TABLE IF NOT EXISTS USER_{$uid}(
                 item_id TINYINT UNSIGNED PRIMARY KEY NOT NULL,
                 count INT UNSIGNED NOT NULL DEFAULT 0
             );
+
+            INSERT INTO user_stats (uid)
+            VALUES ({$uid})
+            ON DUPLICATE KEY 
+                UPDATE uid = uid
         SQL);
     }
 }
