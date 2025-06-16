@@ -87,7 +87,7 @@ abstract class Decide {
     //     };
     // }
     
-    public static function rarity(int &$goldPity, int &$purplePity) : ?Rarity {
+    public static function rarity(int &$goldPity, int &$purplePity) : Rarity {
 
         $goldPity++;
         $purplePity++;
@@ -104,19 +104,16 @@ abstract class Decide {
         $probValue = mt_rand(1, PROB_MAX);
         $adjustmet = ($goldPity > GOLD_SOFT_PITY) ? call_user_func(GOLD_RANGE_ADJUSTER, $goldPity) : 0;
 
-        if($probValue >= BLUE_MIN AND $probValue <= (BLUE_MAX - $adjustmet)) {
-            return Rarity::BLUE;
+        if($probValue >= (GOLD_MIN - $adjustmet)) {
+            $goldPity = 0;
+            return Rarity::GOLD;
         }
         elseif($probValue >= (PURPLE_MIN - $adjustmet) AND $probValue <= (PURPLE_MAX - $adjustmet)) {
             $purplePity = 0;
             return Rarity::PURPLE;
         }
-        elseif($probValue >= (GOLD_MIN - $adjustmet)) {
-            $goldPity = 0;
-            return Rarity::GOLD;
-        }
 
-        return null;
+        return Rarity::BLUE;
     }
 
     public static function fromCollection(ItemCollection $items) : Item {
