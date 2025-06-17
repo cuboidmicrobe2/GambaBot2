@@ -18,7 +18,7 @@ define('GOLD_PITY_CAP', 80);
 define('PURPLE_PITY_CAP', 10);
 
 /**
- * Gold chance will increase after this value 
+ * Gold chance will increase with this value 
  */
 define('GOLD_SOFT_PITY', (int)floor(GOLD_PITY_CAP * 0.92));
 
@@ -72,20 +72,6 @@ define('GOLD_MIN', 9801);
 define('GOLD_MAX', PROB_MAX);
 
 abstract class Decide {
-
-    // /**
-    //  * Get a rarity
-    //  * 
-    //  * @return Rarity GOLD: 0.2% | PURPLE: 8% | BLUE: 91.8%
-    //  */
-    // public static function rarity() : Rarity {
-    //     $randVal = mt_rand(1, 500);
-    //     return match(true) {
-    //         $randVal == 500 => Rarity::GOLD,
-    //         $randVal <= 40 => Rarity::PURPLE,
-    //         default => Rarity::BLUE,
-    //     };
-    // }
     
     public static function rarity(int &$goldPity, int &$purplePity) : Rarity {
 
