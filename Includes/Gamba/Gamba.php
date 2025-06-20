@@ -10,14 +10,11 @@ use Pdo\Mysql;
 use PDOStatement;
 
 final class Gamba {
-
-    private Mysql $itemConn;
-
+    
     private PDOStatement $fetchRandItem;
 
     public function __construct(Mysql $itemConn) {
-        $this->itemConn = $itemConn;
-        $this->fetchRandItem = $this->itemConn->prepare(<<<SQL
+        $this->fetchRandItem = $itemConn->prepare(<<<SQL
             SELECT id, name 
             FROM items
             WHERE rarity = :rarity
