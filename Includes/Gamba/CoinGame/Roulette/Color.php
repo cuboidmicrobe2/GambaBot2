@@ -10,4 +10,12 @@ enum Color : int {
     public function isMatch(int $colorInt) : bool {
         return ($this->value == $colorInt);
     }
+
+    public static function getFromRoll(int $roll) : Color {
+        return match(true) {
+            ($roll == 0) => Color::GREEN,
+            ($roll % 2 == 0) => Color::BLACK,
+            default => Color::RED
+        };
+    }
 }
