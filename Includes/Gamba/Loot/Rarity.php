@@ -14,4 +14,13 @@ enum Rarity : int {
             Rarity::GOLD => 1570,
         };
     }
+
+    function getColor() : string {
+        return match($this) {
+            Rarity::BLUE => '00A2E8',
+            Rarity::PURPLE => 'E767E8',
+            Rarity::GOLD => 'FFC90E',
+            default => 'FFFFFF'
+        };
+    }
 }
