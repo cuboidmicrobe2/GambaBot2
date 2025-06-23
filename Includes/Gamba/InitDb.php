@@ -10,7 +10,8 @@ $tempDB->query(<<<SQL
     CREATE TABLE IF NOT EXISTS items (
         id TINYINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(64) NOT NULL,
-        rarity TINYINT NOT NULL
+        rarity TINYINT NOT NULL,
+        descr VARCHAR(256) DEFAULT ""
     );
 
     USE gamba_inventories;
@@ -21,5 +22,21 @@ $tempDB->query(<<<SQL
         purple_pity SMALLINT UNSIGNED DEFAULT 0,
         gold_pity SMALLINT UNSIGNED DEFAULT 0
     );
+    
+    USE gamba;
 SQL);
+
+$stmt = $tempDB->prepare(<<<SQL
+    INSERT INTO items (name, rarity, descr)
+    VALUES (:name, :rarity, :descr)
+SQL);
+
+foreach((include 'Loot/Item/ItemList.php') as $item) {
+    $stmt->execute([
+        'name' => $item['name'],
+        'rarity' => $item['rarity'],
+        'descr' => $item['description']
+    ]);
+}
+
 unset($tempDB);

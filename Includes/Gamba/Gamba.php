@@ -2,6 +2,8 @@
 
 namespace Gamba;
 
+use DateTime;
+use DateTimeZone;
 use Discord\Builders\MessageBuilder;
 
 use Gamba\CoinGame\Roulette\Roulette;
@@ -84,5 +86,24 @@ final class Gamba {
         $userInventory->addCollection($items);
 
         return $items;
+    }
+
+    public function daily(string $uid, MessageBuilder &$message) : void {
+        $userInventory = $this->inventoryManager->getInventory($uid);
+        $today = new DateTime('now', new DateTimeZone(TIME_ZONE));
+
+        $lastDaily = $userInventory->getLastDaily();
+        if(date('Y-m-d', $lastDaily) === $today->format('Y-m-d')) {
+            $nextReset = $today->modify('+1 day')->format('U');
+            $message->setContent("You have already claimed your daily coins. Next /daily <t:$nextReset:R>.");
+            return;
+        }
+
+        $min = 1000;
+        $max = mt_rand(1000, 2000);
+        $amount = mt_rand($min, $max);
+        $userInventory->setCoins($userInventory->getCoins() + $amount);
+        $message->setContent("You got $amount coins.");
+        $userInventory->updateDaily();
     }
 }
