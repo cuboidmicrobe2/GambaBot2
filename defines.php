@@ -1,0 +1,3 @@
+<?php
+
+define('COMMAND_LINK_DAILY', '</daily:1386666528983875695>');
