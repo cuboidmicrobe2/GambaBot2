@@ -124,6 +124,16 @@ class Inventory {
         return $result->fetch(Mysql::FETCH_ASSOC)['purple_pity'] ?? 0;
     }
 
+    public function getLastDaily() : int {
+        $result = $this->database->query(<<<SQL
+            SELECT last_daily
+            FROM user_stats
+            WHERE uid = {$this->owner};
+        SQL);
+
+        return $result->fetch(Mysql::FETCH_ASSOC)['last_daily'] ?? 0;
+    }
+
 
     /**
      * @return array{unique:int, total:int}
