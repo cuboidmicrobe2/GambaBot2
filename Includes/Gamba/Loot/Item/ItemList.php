@@ -1,6 +1,8 @@
 <?php
 use Gamba\Loot\Rarity;
-require_once 'E:\GambaBot2\GambaBot2\Includes\Gamba\Loot\Rarity.php';
+
+$rootDir = str_replace('\Includes\Gamba\Loot\Item', '', __DIR__);
+require_once $rootDir.'/Includes\Gamba\Loot\Rarity.php';
 
 return $itemList = [
     [
