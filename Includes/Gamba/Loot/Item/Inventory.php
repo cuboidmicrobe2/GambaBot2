@@ -137,9 +137,9 @@ class Inventory {
     public function updateDaily() : void {
         $time = time();
         $this->database->query(<<<SQL
-            INSERT INTO user_stats (last_daily)
-            VALUE ({$time})
-            WHERE uid = {$this->owner};
+            UPDATE user_stats
+            SET last_daily = {$time}
+            WHERE uid = {$this->owner}
         SQL);
     }
 
