@@ -10,6 +10,7 @@ use Gamba\CoinGame\Roulette\Roulette;
 use Gamba\CoinGame\Roulette\Color;
 
 use Gamba\Loot\Decide;
+use Gamba\Loot\Item\Inventory;
 use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Item\Item;
@@ -86,6 +87,23 @@ final class Gamba {
         $userInventory->addCollection($items);
 
         return $items;
+    }
+
+    /**
+     * @return array{coins:int, goldPity:int, purplePity:int}
+     */
+    public function getUserStats(string $uid) : array {
+        $userInventory = $this->inventoryManager->getInventory($uid);
+
+        return [
+            'coins' => $userInventory->getCoins(),
+            'goldPity' => $userInventory->getGoldPity(),
+            'purplePity' => $userInventory->getPurplePity()
+        ];
+    }
+
+    public function getInventory(string $uid) : Inventory {
+        return $this->inventoryManager->getInventory($uid);
     }
 
     public function daily(string $uid, MessageBuilder &$message) : void {

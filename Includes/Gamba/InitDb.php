@@ -20,7 +20,8 @@ $tempDB->query(<<<SQL
         uid BIGINT UNSIGNED PRIMARY KEY NOT NULL,
         coins BIGINT UNSIGNED DEFAULT 0,
         purple_pity SMALLINT UNSIGNED DEFAULT 0,
-        gold_pity SMALLINT UNSIGNED DEFAULT 0
+        gold_pity SMALLINT UNSIGNED DEFAULT 0,
+        last_daily MEDIUMINT UNSIGNED DEFAULT 0
     );
     
     USE gamba;
