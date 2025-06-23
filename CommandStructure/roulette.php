@@ -18,7 +18,7 @@ $discord = new Discord([
 ]);
 $discord->on('init', function(Discord $discord) {
 
-    $discord->application->commands->delete('1385704701559050400')->then(function() use ($discord) {
+   // $discord->application->commands->delete('1385704701559050400')->then(function() use ($discord) {
         $discord->application->commands->save(
             $discord->application->commands->create(CommandBuilder::new()
                 ->setName('roulette')
@@ -59,5 +59,5 @@ $discord->on('init', function(Discord $discord) {
     });
     
 
-});
+//});
 
