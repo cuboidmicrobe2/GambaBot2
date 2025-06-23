@@ -134,6 +134,15 @@ class Inventory {
         return $result->fetch(Mysql::FETCH_ASSOC)['last_daily'] ?? 0;
     }
 
+    public function updateDaily() : void {
+        $time = time();
+        $this->database->query(<<<SQL
+            INSERT INTO user_stats (last_daily)
+            VALUE ({$time})
+            WHERE uid = {$this->owner};
+        SQL);
+    }
+
 
     /**
      * @return array{unique:int, total:int}
