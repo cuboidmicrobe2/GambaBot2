@@ -15,6 +15,8 @@ use Infrastructure\FileManager;
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/Includes/autoload.php';
 
+const TIME_ZONE = 'Europe/Stockholm';
+
 const AUTO_LOADER = new Autoloader(
     flags:Autoloader::DO_OUTPUT
 );
