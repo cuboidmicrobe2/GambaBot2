@@ -9,8 +9,9 @@ final readonly class Item implements JsonSerializable {
 
     public function __construct(
         public string $name,
-        public Rarity $rarity,
-        public int $id
+        public ?Rarity $rarity,
+        public ?int $id = null,
+        public ?string $description = null
     ) {}
 
     public function jsonSerialize(): array {
