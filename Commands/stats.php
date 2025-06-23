@@ -4,11 +4,13 @@ use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 
+use function GambaBot\getUserId;
+
 global $discord, $gamba;
 
 
 $discord->listenCommand('stats', function(Interaction $interaction) use ($gamba, $discord) {
-    $stats = $gamba->getUserStats($interaction->member->user->id);
+    $stats = $gamba->getUserStats(getUserId($interaction));
 
     $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
         ->setTitle('Stats')
