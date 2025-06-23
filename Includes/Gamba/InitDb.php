@@ -21,7 +21,7 @@ $tempDB->query(<<<SQL
         coins BIGINT UNSIGNED DEFAULT 0,
         purple_pity SMALLINT UNSIGNED DEFAULT 0,
         gold_pity SMALLINT UNSIGNED DEFAULT 0,
-        last_daily MEDIUMINT UNSIGNED DEFAULT 0
+        last_daily BIGINT UNSIGNED DEFAULT 0
     );
     
     USE gamba;
