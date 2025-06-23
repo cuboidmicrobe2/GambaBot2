@@ -13,6 +13,8 @@ use Gamba\Loot\Item\InventoryManager;
 use Infrastructure\FileManager;
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/defines.php';
 require_once __DIR__ . '/Includes/autoload.php';
 
 const EMBED_COLOR_PINK = 'F9C6CE';
@@ -35,7 +37,7 @@ $discord = new Discord([
 ]);
 
 $gamba = new Gamba(
-    itemConn:           PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']),
+    gambaConn:           PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']),
     inventoryManager:   new InventoryManager(PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba_inventories', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']))
 );
 
