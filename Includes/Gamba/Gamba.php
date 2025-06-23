@@ -14,22 +14,48 @@ use Gamba\Loot\Item\Inventory;
 use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Item\Item;
-
+use Gamba\Loot\Rarity;
 use Pdo\Mysql;
 use PDOStatement;
 
 final class Gamba {
     
     private PDOStatement $fetchRandItem;
+    private Mysql $gambaConn;
 
-    public function __construct(Mysql $itemConn, private InventoryManager $inventoryManager) {
-        $this->fetchRandItem = $itemConn->prepare(<<<SQL
+    public function __construct(Mysql $gambaConn, public private(set) InventoryManager $inventoryManager) {
+        $this->gambaConn = $gambaConn;
+        $this->fetchRandItem = $gambaConn->prepare(<<<SQL
             SELECT id, name 
             FROM items
             WHERE rarity = :rarity
             ORDER BY RAND()
             LIMIT 1;
         SQL);
+    }
+
+    public function getHistory(string $uid, int $amount) : ItemCollection {
+        $result = $this->gambaConn->query(<<<SQL
+            SELECT name, rarity, descr 
+            FROM history 
+            JOIN items 
+            ON items.id = item_id 
+            WHERE uid = {$uid}
+            LIMIT {$amount};
+        SQL);
+
+        $items = new ItemCollection($amount);
+        $i = 0;
+        while($row = $result->fetch(Mysql::FETCH_ASSOC)) {
+            $items[$i] = new Item(
+                name: $row['name'],
+                rarity: Rarity::tryFrom($row['rarity']),
+                description: $row['descr']
+            );
+            $i++;
+        }
+
+        return $items;
     }
 
     public function roulette(string $uid, int $wager, int $bet, ?MessageBuilder &$message = null) : void {
@@ -39,8 +65,8 @@ final class Gamba {
 
         if($coins < $wager) {
             $messageContent = match($coins) {
-                0 => 'You do not have any coins! try </daily:1386666528983875695>',
-                default => 'You do not have enough coins for that! ('.$coins.' coins)'
+                0 => 'You do not have any coins! try '.COMMAND_LINK_DAILY,
+                default => 'You do not have enough coins for that! (`'.$coins.'` coins)'
             };
             $message?->setContent($messageContent);
             return;
@@ -50,7 +76,7 @@ final class Gamba {
 
         if($color->isMatch($bet)) {
             $winAmount = match($color) {
-                Color::GREEN => $wager * 38,
+                Color::GREEN => $wager * 39,
                 default => $wager * 2
             };
 
@@ -106,9 +132,9 @@ final class Gamba {
         ];
     }
 
-    public function getInventory(string $uid) : Inventory {
-        return $this->inventoryManager->getInventory($uid);
-    }
+    // public function getInventory(string $uid) : Inventory {
+    //     return $this->inventoryManager->getInventory($uid);
+    // }
 
     public function daily(string $uid, MessageBuilder &$message) : void {
         $userInventory = $this->inventoryManager->getInventory($uid);
@@ -123,8 +149,8 @@ final class Gamba {
             return;
         }
 
-        $min = 1000;
-        $max = mt_rand($min, 5000);
+        $min = 500;
+        $max = mt_rand($min, 1300);
         $amount = mt_rand($min, $max);
         $userInventory->setCoins($userInventory->getCoins() + $amount);
         $message->setContent("You got $amount coins.");
