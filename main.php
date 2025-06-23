@@ -30,9 +30,10 @@ $discord = new Discord([
     'intents' => Intents::getDefaultIntents() | Intents::GUILDS | Intents::GUILD_MEMBERS,
 ]);
 
-$gamba = new Gamba(PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']));
-
-$inventoryManager = new InventoryManager(PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba_inventories', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']));
+$gamba = new Gamba(
+    itemConn:           PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']),
+    inventoryManager:   new InventoryManager(PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba_inventories', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']))
+);
 
 $discord->on('init', function(Discord $discord) {
     $discord->updatePresence(new Activity($discord, [

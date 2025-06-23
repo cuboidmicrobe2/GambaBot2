@@ -5,9 +5,6 @@ namespace Gamba\Loot\Item;
 use OutOfRangeException;
 use PDO\Mysql;
 
-/**
- * @todo rename user_stats to stats and add rolls to it (set roll and coin default to 0 so table can be created with no data (or add to  self::userInventoryMustExist))
- */
 class Inventory {
 
     public function __construct(private string $owner, private Mysql &$database) { self::userInventoryMustExist($owner, $database); }
