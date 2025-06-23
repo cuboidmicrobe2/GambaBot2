@@ -38,7 +38,11 @@ final class Gamba {
         $coins = $userInventory->getCoins();
 
         if($coins < $wager) {
-            $message?->setContent('You do not have enough coins for that! ('.$coins.' coins)');
+            $messageContent = match($coins) {
+                0 => 'You do not have any coins! try </daily:1386666528983875695>',
+                default => 'You do not have enough coins for that! ('.$coins.' coins)'
+            };
+            $message?->setContent($messageContent);
             return;
         } 
     
@@ -46,7 +50,7 @@ final class Gamba {
 
         if($color->isMatch($bet)) {
             $winAmount = match($color) {
-                Color::GREEN => $wager * 13,
+                Color::GREEN => $wager * 38,
                 default => $wager * 2
             };
 
@@ -112,13 +116,15 @@ final class Gamba {
 
         $lastDaily = $userInventory->getLastDaily();
         if(date('Y-m-d', $lastDaily) === $today->format('Y-m-d')) {
-            $nextReset = $today->modify('+1 day')->format('U');
-            $message->setContent("You have already claimed your daily coins. Next /daily <t:$nextReset:R>.");
+            $tomorrow = $today->modify('+1 day');
+            $nextReset = preg_replace('/[0-9]{2}(:[0-9]{2}){2}/', '00:00:00', $tomorrow->format('c'));
+            $unix = strtotime($nextReset);
+            $message->setContent("You have already claimed your daily coins. Next /daily <t:$unix:R>.");
             return;
         }
 
         $min = 1000;
-        $max = mt_rand(1000, 2000);
+        $max = mt_rand($min, 5000);
         $amount = mt_rand($min, $max);
         $userInventory->setCoins($userInventory->getCoins() + $amount);
         $message->setContent("You got $amount coins.");
