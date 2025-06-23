@@ -14,6 +14,12 @@ $tempDB->query(<<<SQL
         descr VARCHAR(256) DEFAULT ""
     );
 
+    CREATE TABLE IF NOT EXISTS history (
+        id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+        item_id TINYINT UNSIGNED,
+        uid BIGINT UNSIGNED
+    );
+
     USE gamba_inventories;
 
     CREATE TABLE IF NOT EXISTS user_stats (
