@@ -43,16 +43,17 @@ class Request {
             throw new Exception('No url bound to this Request');
         }
         elseif($requests == 1) {
-            curl_exec($this->curls[0]);
-            curl_close($this->curls[0]);
-            $this->curls->detach($this->curls[0]);
+            $ch = $this->curls->current();
+            curl_exec($ch);
+            curl_close($ch);
+            $this->curls->detach($ch);
         }
-        else {
-            $running = null;
-            do {
-                curl_multi_exec($this->mh, $running);
-            } while($running);
-        }
+
+        $running = null;
+        do {
+            curl_multi_exec($this->mh, $running);
+        } while($running);
+
 
         $this->executed = true;
     }
@@ -61,16 +62,18 @@ class Request {
         if($this->executed == false) throw new Exception('Cannot fetch before executing requests');
 
         if(count($this->curls) == 1) {
-            $data = curl_exec($this->curls[0]);
-            curl_close($this->curls[0]);
-            $this->curls->detach($this->curls[0]);
+            $ch = $this->curls->current();
+            $data = curl_exec();
+            curl_close($ch);
+            $this->curls->detach($ch);
             return $data;
         } 
-
-        foreach($this->curls as $ch) {
+        
+        while($this->curls->valid()) {
+            $ch = $this->curls->current();
             yield curl_multi_getcontent($ch);
-            $this->curls->detach($ch);
             curl_close($ch);
+            $this->curls->detach($ch);
         }
     }
 }
