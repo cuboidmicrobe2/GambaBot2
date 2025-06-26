@@ -63,7 +63,7 @@ class Request {
 
         if(count($this->curls) == 1) {
             $ch = $this->curls->current();
-            $data = curl_exec();
+            $data = curl_exec($ch);
             curl_close($ch);
             $this->curls->detach($ch);
             return $data;
