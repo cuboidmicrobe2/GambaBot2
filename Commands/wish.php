@@ -10,9 +10,6 @@ use Gamba\Tools\ButtonCollectionManager;
 
 use function GambaBot\getUserId;
 
-define('WISH_PRICE', 1000);
-
-
 global $discord, $gamba;
 
 // $wishButtons = new ButtonCollectionManager(60*5);
@@ -28,29 +25,17 @@ global $discord, $gamba;
 
 // move all inside $gamba::wish()
 $discord->listenCommand('wish', function(Interaction $interaction) use ($gamba, $discord) {
-    $uid = getUserId($interaction);
-    $coins = $gamba->inventoryManager->getInventory($uid)->getcoins();
-    $rolls = $interaction->data->options->offsetGet('amount')->value;
-    if($coins < $rolls * WISH_PRICE) {
-        $interaction->respondWithMessage(MessageBuilder::new()->setContent('You do not have enough coins for that! (`'.$coins.'` coins) use '.COMMAND_LINK_DAILY.' for free daily coins'));
-        return;
-    }
-
-    $items = $gamba->wish(
-        uid:    $uid,
-        rolls:  $rolls
+    $interaction->respondWithMessage(MessageBuilder::new()->setContent('Working on this atm dont touch :)'), true);
+    return;
+    $message = MessageBuilder::new();
+    
+    $gamba->wish(
+        uid:        getUserId($interaction),
+        rolls:      $interaction->data->options->offsetGet('amount')->value,
+        discord:    $discord,
+        message:    $message
     );
 
-    $embeds = [];
-    foreach($items as $item) {
-        $embeds[] = new Embed($discord)->setTitle($item->name)->setColor($item->rarity->getColor());
-    }
-    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(...$embeds));
+    $interaction->respondWithMessage($message);
 
-//     $buttonId = (string)hrtime(true) . (string)mt_rand(100, 999);
-//     $button = Button::new(Button::STYLE_PREMIUM)->setLabel('->')->setCustomId($buttonId)->setListener(function(Interaction $interaction) use ($wishButtons) {
-
-//     }, $discord);
-//     Button::new(Button::STYLE_DANGER, )
-//     $row = ActionRow::new()->addComponent();
 });
