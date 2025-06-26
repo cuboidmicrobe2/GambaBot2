@@ -15,6 +15,7 @@ use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Item\Item;
 use Gamba\Loot\Rarity;
+use OutOfRangeException;
 use Pdo\Mysql;
 use PDOStatement;
 
@@ -156,4 +157,5 @@ final class Gamba {
         $message->setContent("You got $amount coins.");
         $userInventory->updateDaily();
     }
+
 }
