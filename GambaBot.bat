@@ -9,9 +9,9 @@ goto :EOF
 
 
 :main
-    CALL :botLoop
+    CALL :BotLoop
 goto :EOF
 
-:botLoop
+:BotLoop
     PHP %dir%%botFile%
-goto :botLoop
+goto :BotLoop
