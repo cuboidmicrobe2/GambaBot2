@@ -17,10 +17,6 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/defines.php';
 require_once __DIR__ . '/Includes/autoload.php';
 
-const EMBED_COLOR_PINK = 'F9C6CE';
-
-const TIME_ZONE = 'Europe/Stockholm';
-
 const AUTO_LOADER = new Autoloader(
     flags:Autoloader::DO_OUTPUT
 );
