@@ -13,8 +13,6 @@ goto :EOF
     pause
 goto :EOF
 
-
-
 :CreateShortcut
     echo Creating desktop shortcut...
     set TARGET=%dir%GambaBot.bat
@@ -31,4 +29,4 @@ goto :EOF
     echo Creating database...
     php %dir%\Includes\Gamba\InitDb.php
     echo Database has been created!
-pause
+goto :EOF
