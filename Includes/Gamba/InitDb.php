@@ -1,5 +1,14 @@
 <?php
 
+use Symfony\Component\Dotenv\Dotenv;
+
+$rootDir = str_replace('\Includes\Gamba', '', __DIR__);
+require_once $rootDir.'/vendor/autoload.php';
+
+$dotenv = new Dotenv;
+$dotenv->load($rootDir.'/.env');
+
+
 $tempDB = PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'], $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
 $tempDB->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $tempDB->query(<<<SQL
