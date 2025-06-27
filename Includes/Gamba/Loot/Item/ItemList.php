@@ -4,8 +4,11 @@ use Gamba\Loot\Rarity;
 $rootDir = str_replace('\Includes\Gamba\Loot\Item', '', __DIR__);
 require_once $rootDir.'/Includes\Gamba\Loot\Rarity.php';
 
-return $itemList = [
-    [
+$id = 1;
+
+$itemList = [
+    [   
+        'id' => $id++,
         'name' => 'Revenant',
         'rarity' => Rarity::PURPLE->value,
         'description' => <<<DESC
@@ -14,6 +17,7 @@ return $itemList = [
         DESC 
     ],
     [
+        'id' => $id++,
         'name' => 'Crowbar',
         'rarity' => Rarity::BLUE->value,
         'description' => <<<DESC
@@ -21,6 +25,7 @@ return $itemList = [
         DESC 
     ],
     [
+        'id' => $id++,
         'name' => '57 Leaf Clover',
         'rarity' => Rarity::GOLD->value,
         'description' => <<<DESC
@@ -28,6 +33,7 @@ return $itemList = [
         DESC 
     ],
     [
+        'id' => $id++,
         'name' => 'Bloodbath',
         'rarity' => Rarity::GOLD->value,
         'description' => <<<DESC
@@ -35,3 +41,5 @@ return $itemList = [
         DESC 
     ],
 ];
+
+return $itemList;
