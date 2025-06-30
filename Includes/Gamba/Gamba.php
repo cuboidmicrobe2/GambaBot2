@@ -94,15 +94,15 @@ final class Gamba {
         }
     }
 
-    public function wish(string $uid, int $rolls, Discord $discord, ?MessageBuilder $message = null) : ?ItemCollection {
+    /**
+     * @todo dont do dc stuff in here
+     */
+    public function wish(string $uid, int $rolls, /*Discord $discord,*/ ?MessageBuilder $message = null) : ?ItemCollection {
         
         $userInventory = $this->inventoryManager->getInventory($uid);
         $coins = $userInventory->getcoins();
         $wishPrice = $rolls * WISH_PRICE;
-        if($coins < $wishPrice) {
-            $message?->setContent('You do not have enough coins for that! (`'.$coins.'` coins) use '.COMMAND_LINK_DAILY.' for free daily coins');
-            return null;
-        }
+        if($coins < $wishPrice) return null;
 
         $goldPity = $userInventory->getGoldPity();
         $purplePity = $userInventory->getPurplePity();
@@ -127,12 +127,12 @@ final class Gamba {
         $userInventory->addCollection($items);
         $userInventory->setCoins($coins - $wishPrice);
 
-        $embeds = [];
-        foreach($items as $item) {
-            $embeds[] = new Embed($discord)->setTitle($item->name)->setColor($item->rarity->getColor());
-        }
+        // $embeds = [];
+        // foreach($items as $item) {
+        //     $embeds[] = new Embed($discord)->setTitle($item->name)->setColor($item->rarity->getColor());
+        // }
 
-        $message?->setContent('')->addEmbed(...$embeds);
+        // $message?->setContent('')->addEmbed(...$embeds);
 
         return $items;
     }
