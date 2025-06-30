@@ -43,12 +43,15 @@ $tempDB->query(<<<SQL
 SQL);
 
 $stmt = $tempDB->prepare(<<<SQL
-    INSERT INTO items (name, rarity, descr)
-    VALUES (:name, :rarity, :descr)
+    INSERT INTO items (id, name, rarity, descr)
+    VALUES (:id, :name, :rarity, :descr)
+    ON DUPLICATE KEY 
+    UPDATE name = :name, rarity = :rarity, descr = :descr
 SQL);
 
 foreach((include 'Loot/Item/ItemList.php') as $item) {
     $stmt->execute([
+        'id' => $item['id'],
         'name' => $item['name'],
         'rarity' => $item['rarity'],
         'descr' => $item['description']
