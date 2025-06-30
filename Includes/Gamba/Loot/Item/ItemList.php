@@ -45,7 +45,7 @@ $itemList = [
         'name' => 'Rock',
         'rarity' => Rarity::BLUE->value,
         'description' => <<<DESC
-        Maybe if you can throw is far enough...
+        Maybe if you throw it hard enough...
         DESC 
     ],
     [
