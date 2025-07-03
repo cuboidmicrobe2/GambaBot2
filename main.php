@@ -37,7 +37,7 @@ $gamba = new Gamba(
     inventoryManager:   new InventoryManager(PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba_inventories', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']))
 );
 
-$discord->on('init', function(Discord $discord) {
+$discord->on('init', function(Discord $discord) use ($gamba) {
     $discord->updatePresence(new Activity($discord, [
         'type' => Activity::TYPE_GAME,
         'name' => 'the long game',
@@ -45,6 +45,10 @@ $discord->on('init', function(Discord $discord) {
 
     $discord->on(Event::INTERACTION_CREATE, function(Interaction $interaction) {
         // interaction debug'n
+    });
+
+    $discord->on('heartbeat', function() use ($gamba) {
+        //$gamba->tradeManager->clean();
     });
 
     FileManager::loadAllFromDir('Commands', '.php', true);
