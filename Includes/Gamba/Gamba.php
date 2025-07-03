@@ -16,15 +16,20 @@ use Gamba\Loot\Item\Inventory;
 use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Item\Item;
+use Gamba\Loot\Item\Trading\TradeManager;
 use Gamba\Loot\Rarity;
 use OutOfRangeException;
 use Pdo\Mysql;
 use PDOStatement;
 
+/**
+ * @todo add wakeupDB() (in InventoryManager too)
+ */
 final class Gamba {
     
     private PDOStatement $fetchRandItem;
     private Mysql $gambaConn;
+    public private(set) TradeManager $tradeManager;
 
     public function __construct(Mysql $gambaConn, public private(set) InventoryManager $inventoryManager) {
         $this->gambaConn = $gambaConn;
@@ -35,6 +40,8 @@ final class Gamba {
             ORDER BY RAND()
             LIMIT 1;
         SQL);
+
+        $this->tradeManager = new TradeManager;
     }
 
     public function getHistory(string $uid, int $amount) : ItemCollection {
@@ -102,7 +109,10 @@ final class Gamba {
         $userInventory = $this->inventoryManager->getInventory($uid);
         $coins = $userInventory->getcoins();
         $wishPrice = $rolls * WISH_PRICE;
-        if($coins < $wishPrice) return null;
+        if($coins < $wishPrice) {
+            $message?->setContent('You do not have enough coins for that! (`'.$coins.'` coins) use '.COMMAND_LINK_DAILY.' for free daily coins');
+            return null;
+        } 
 
         $goldPity = $userInventory->getGoldPity();
         $purplePity = $userInventory->getPurplePity();
