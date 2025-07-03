@@ -33,9 +33,6 @@ $discord->listenCommand('wish', function(Interaction $interaction) use ($gamba, 
 
         $message->setContent('')->addEmbed(...$embeds);
     }
-    else {
-        $message?->setContent('You do not have enough coins for that! (`'.$coins.'` coins) use '.COMMAND_LINK_DAILY.' for free daily coins');
-    }
 
     $interaction->respondWithMessage($message);
 });
