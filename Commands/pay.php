@@ -1,7 +1,6 @@
 <?php
 
 use Discord\Builders\MessageBuilder;
-use Discord\Parts\Channel\Message;
 use Discord\Parts\Interactions\Interaction;
 
 use function GambaBot\getUserId;
@@ -14,9 +13,7 @@ $discord->listenCommand('pay', function(Interaction $interaction) use ($gamba) {
     $payAmount = getOptionValue('amount', $interaction);
 
     $authorId = getUserId($interaction);
-
     $authorInventory = $gamba->inventoryManager->getInventory($authorId);
-
     $authorCoins = $authorInventory->getCoins();
 
     if($authorCoins < $payAmount) {
