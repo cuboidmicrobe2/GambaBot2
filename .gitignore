@@ -19,17 +19,3 @@ Thumbs.db
 
 # Environment files
 .env
-
-# PHPUnit
-/phpunit.xml
-/phpunit.xml.dist
-
-# Coverage reports
-/coverage/
-
-# Node modules (if you use node for frontend)
-/node_modules/
-
-# Build artifacts
-/build/
-dist/
