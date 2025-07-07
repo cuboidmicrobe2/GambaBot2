@@ -7,7 +7,7 @@ use Exception;
 use Generator;
 use SplObjectStorage;
 
-class Request {
+final class Request {
 
     private CurlMultiHandle $mh;
     private SplObjectStorage $curls;
@@ -34,6 +34,7 @@ class Request {
         $this->curls->attach($ch);
 
         curl_multi_add_handle($this->mh, $ch);
+        $this->executed = false;
         return $this;
     }
 
@@ -75,5 +76,7 @@ class Request {
             curl_close($ch);
             $this->curls->detach($ch);
         }
+
+        $this->executed = false;
     }
 }
