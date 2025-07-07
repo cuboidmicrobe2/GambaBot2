@@ -4,6 +4,7 @@ use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
 
 use function GambaBot\getUserId;
+use function GambaBot\getOptionValue;
 
 global $discord, $gamba;
 
@@ -12,8 +13,8 @@ $discord->listenCommand('roulette', function(Interaction $interaction) use ($gam
 
     $gamba->roulette(
         uid:        getUserId($interaction),
-        wager:      $interaction->data->options->offsetGet('amount')->value,
-        bet:        $interaction->data->options->offsetGet('color')->value,
+        wager:      getOptionValue('amount', $interaction),
+        bet:        getOptionValue('color', $interaction),
         message:    $message
     );
 

@@ -1,26 +1,22 @@
 <?php
 
-use Discord\Builders\Components\ActionRow;
-use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
 use Gamba\Loot\Item\ItemCollection;
-use Gamba\Loot\Rarity;
-use Gamba\Tools\ButtonCollectionManager;
 
 use function GambaBot\getUserId;
+use function GambaBot\getOptionValue;
 
 global $discord, $gamba;
 
 $discord->listenCommand('wish', function(Interaction $interaction) use ($gamba, $discord) {
-    // $interaction->respondWithMessage(MessageBuilder::new()->setContent('Working on this atm dont touch :)'), true);
-    // return;
+
     $message = MessageBuilder::new();
     
     $items = $gamba->wish(
         uid:        getUserId($interaction),
-        rolls:      $interaction->data->options->offsetGet('amount')->value,
+        rolls:      getOptionValue('amount', $interaction),
         //discord:    $discord,
         message:    $message
     );

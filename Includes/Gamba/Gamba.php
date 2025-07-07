@@ -5,20 +5,15 @@ namespace Gamba;
 use DateTime;
 use DateTimeZone;
 use Discord\Builders\MessageBuilder;
-use Discord\Discord;
-use Discord\Parts\Embed\Embed;
-
-use Gamba\CoinGame\Roulette\Roulette;
-use Gamba\CoinGame\Roulette\Color;
+use Gamba\CoinGame\GameHandler;
+use Gamba\CoinGame\Games\Roulette\Roulette;
+use Gamba\CoinGame\Games\Roulette\Color;
 
 use Gamba\Loot\Decide;
-use Gamba\Loot\Item\Inventory;
 use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Item\Item;
-use Gamba\Loot\Item\Trading\TradeManager;
 use Gamba\Loot\Rarity;
-use OutOfRangeException;
 use Pdo\Mysql;
 use PDOStatement;
 
@@ -29,7 +24,8 @@ final class Gamba {
     
     private PDOStatement $fetchRandItem;
     private Mysql $gambaConn;
-    public private(set) TradeManager $tradeManager;
+    // public private(set) TradeManager $tradeManager;
+    public private(set) GameHandler $games;
 
     public function __construct(Mysql $gambaConn, public private(set) InventoryManager $inventoryManager) {
         $this->gambaConn = $gambaConn;
@@ -41,7 +37,8 @@ final class Gamba {
             LIMIT 1;
         SQL);
 
-        $this->tradeManager = new TradeManager;
+        // $this->tradeManager = new TradeManager;
+        $this->games = new GameHandler;
     }
 
     public function getHistory(string $uid, int $amount) : ItemCollection {
