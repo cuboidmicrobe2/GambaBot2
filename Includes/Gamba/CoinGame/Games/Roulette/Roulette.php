@@ -1,6 +1,6 @@
 <?php
 
-namespace Gamba\CoinGame\Roulette;
+namespace Gamba\CoinGame\Games\Roulette;
 
 abstract class Roulette {
     public static function roll() : int {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gamba\CoinGame\Roulette;
+namespace Gamba\CoinGame\Games\Roulette;
 
 enum Color : int {
     case BLACK = 1;
