@@ -48,7 +48,7 @@ $discord->on('init', function(Discord $discord) use ($gamba) {
     });
 
     $discord->on('heartbeat', function() use ($gamba) {
-        //$gamba->tradeManager->clean();
+        // $gamba->gameHandler->clean();
     });
 
     FileManager::loadAllFromDir('Commands', '.php', true);
