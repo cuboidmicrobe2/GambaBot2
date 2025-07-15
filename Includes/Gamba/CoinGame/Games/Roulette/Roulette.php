@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Gamba\CoinGame\Games\Roulette;
 
 abstract class Roulette {

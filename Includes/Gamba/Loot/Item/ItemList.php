@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 use Gamba\Loot\Rarity;
 
 $rootDir = str_replace('\Includes\Gamba\Loot\Item', '', __DIR__);

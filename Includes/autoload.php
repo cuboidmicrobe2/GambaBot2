@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 const PHP_FILENAME_EXTENSION = '.php';
 
 class Autoloader {

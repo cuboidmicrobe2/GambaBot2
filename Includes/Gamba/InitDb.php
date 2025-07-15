@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 use Symfony\Component\Dotenv\Dotenv;
 
 $rootDir = str_replace('\Includes\Gamba', '', __DIR__);

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php 
+
+declare(strict_types = 1);
 
 use Debug\CMD_FONT_COLOR;
 use Discord\Discord;
@@ -48,7 +50,8 @@ $discord->on('init', function(Discord $discord) use ($gamba) {
     });
 
     $discord->on('heartbeat', function() use ($gamba) {
-        // $gamba->gameHandler->clean();
+        // var_dump($gamba->games);
+        $gamba->games->clean();
     });
 
     FileManager::loadAllFromDir('Commands', '.php', true);

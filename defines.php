@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * Time zone used in DateTimeZone
  */
@@ -47,7 +49,7 @@ define('SOFT_PITY_ADDER', 0.1 * PROB_MAX);
  * 
  * @return int  Value that will adjust the rng ranges
  */
-define('GOLD_RANGE_ADJUSTER', static fn(int $value) : int => ($value - GOLD_SOFT_PITY) * SOFT_PITY_ADDER);
+define('GOLD_RANGE_ADJUSTER', static fn(float $value) : int => (int)(($value - GOLD_SOFT_PITY) * SOFT_PITY_ADDER));
 
 /**
  * Min blue roll

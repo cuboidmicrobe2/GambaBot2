@@ -1,12 +1,21 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Gamba\CoinGame;
 
+use Debug\Debug;
+use Exception;
 use Gamba\CoinGame\GameInstance;
 use SplObjectStorage;
 use WeakMap;
 
+/**
+ * @todo need to unset button listeners before unset GameInstance ( or not? )
+ */
 final class GameHandler {
+    use Debug;
+
     private SplObjectStorage $games;
     private WeakMap $gameData;
 
@@ -16,13 +25,25 @@ final class GameHandler {
     }
 
     public function addGame(GameInstance &$game, GameData $data) : void {
+
+        if($this->IdExists($data->id)) throw new Exception('a GameInstance with the id ' . $data->id . ' already exists');
+        if($this->userIsPlaying($data->owner, $game::class)) throw new Exception('the user is already playing that game');
+        
         $this->games->attach($game);
+        $data->setType($game::class);
         $this->gameData[$game] = $data;
     }
 
-    public function closeGame(string $interactionId) : bool {
-        $game = $this->getGameFromKey('interaction', $interactionId);
-        if($game === null) return false; //something...
+    /**
+     * 
+     */
+    public function closeGame(GameInstance|string $game) : bool {
+        if(!$game instanceof GameInstance) {
+            $game = $this->getFromId($game);
+            if($game === null) return false; //something...
+        }
+
+        echo self::createUpdateMessage('', 'removed game ' . json_encode($this->gameData[$game])), PHP_EOL;
 
         $this->games->detach($game);
         unset($game);
@@ -30,22 +51,68 @@ final class GameHandler {
     }
 
     public function getGame(string $interactionId) : ?GameInstance {
-        return $this->getGameFromKey('interaction', $interactionId);
+        return $this->getFromId($interactionId);
+    }
+
+    /**
+     * Only works of you used the ComponentIdCreator
+     */
+    public function getGameFromButtonId($id) : ?GameInstance {
+        $gameId = explode(':', $id);
+        return $this->getFromId($gameId[0]);
+    }
+
+    public function getGameData(GameInstance $game) : ?GameData {
+        return $this->gameData[$game] ?? null;
+    }
+
+    /**
+     *  Get GameInstance|false or bool if user is playing a specific or any game
+     */
+    public function userIsPlaying(string $uid, ?string $game = null, bool $returnGameInstance = false) : GameInstance|bool {
+
+        if($returnGameInstance AND $game === null) throw new Exception('must specify game to return GameInstance');
+
+        if($game === null) {
+            foreach($this->gameData as $_ => $data) {
+                if($data->owner == $uid) return true;
+            }
+            return false;
+        }
+
+        foreach($this->gameData as $game => $data) {
+            if($data->owner == $uid AND $game == $data->gameType) return $returnGameInstance ? $game : true;
+        }
+
+        return false;
     }
 
     public function clean() : void {
-        foreach($this->gameData as $game => $_) {
+        foreach($this->gameData as $game => $data) {
             if($game->expired()) {
+                echo self::createUpdateMessage('', 'removed old game ' . json_encode($data)), PHP_EOL;
                 $this->games->detach($game);
                 unset($game);
             }
         } 
     }
 
-    private function getGameFromKey(string $key, string $value) : ?GameInstance {
+    private function getFromId(string $id) : ?GameInstance {
         foreach($this->gameData as $game => $data) {
-            if($data[$key] == $value) return $game;
+            if($data->id == $id) return $game;
         }
         return null;
     }
+
+    private function IdExists(string $id) : bool {
+        foreach($this->gameData as $_ => $data) {
+            if($data->id == $id) return true;
+        }
+        return false;
+    }
 }
+
+
+/**
+ * make close all games command
+ */
