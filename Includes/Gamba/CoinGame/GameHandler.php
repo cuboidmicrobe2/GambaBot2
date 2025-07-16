@@ -4,9 +4,11 @@ declare(strict_types = 1);
 
 namespace Gamba\CoinGame;
 
+use Discord\Builders\Components\ActionRow;
 use Debug\Debug;
-use Exception;
 use Gamba\CoinGame\GameInstance;
+use Deprecated;
+use Exception;
 use SplObjectStorage;
 use WeakMap;
 
@@ -50,6 +52,7 @@ final class GameHandler {
         return true;
     }
 
+    // #[NoDiscard]
     public function getGame(string $interactionId) : ?GameInstance {
         return $this->getFromId($interactionId);
     }
@@ -57,13 +60,26 @@ final class GameHandler {
     /**
      * Only works of you used the ComponentIdCreator
      */
+    #[Deprecated('use GameHandler::getGame()')]
     public function getGameFromButtonId($id) : ?GameInstance {
         $gameId = explode(':', $id);
         return $this->getFromId($gameId[0]);
     }
 
+    // #[NoDiscard]
     public function getGameData(GameInstance $game) : ?GameData {
         return $this->gameData[$game] ?? null;
+    }
+
+    // #[NoDiscard]
+    public function getNewActionRow(GameInstance $game) : ActionRow {
+        $row = new ActionRow;
+
+        foreach($this->gameData[$game]->buttons as $button) {
+            $row->addComponent($button);
+        }
+
+        return $row;
     }
 
     /**
