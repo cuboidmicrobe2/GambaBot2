@@ -19,6 +19,8 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/defines.php';
 require_once __DIR__ . '/Includes/autoload.php';
 
+date_default_timezone_set(TIME_ZONE);
+
 const AUTO_LOADER = new Autoloader(
     flags:Autoloader::DO_OUTPUT
 );
