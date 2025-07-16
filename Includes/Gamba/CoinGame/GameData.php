@@ -9,32 +9,37 @@ use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
+use Exception;
+use InvalidArgumentException;
 use JsonSerializable;
 use React\Promise\PromiseInterface;
+
+use function GambaBot\getUserId;
 
 final class GameData implements JsonSerializable {
     use Debug;
 
+    public readonly string $id;
+    public readonly string $owner;
+
     public private(set) int $timeOfCreation;
-
     public private(set) string $gameType;
-
     private ?MessageBuilder $lastMessage = null;
 
-    private array $buttons;
+    private ?array $buttons;
 
-    private function __construct(
-        public private(set) string $id, 
-        public private(set) string $owner, 
-        public readonly Interaction $interaction,
-        ?ButtonCollection $buttons = null,
-    ) {
-        $this->timeOfCreation = time();
+    private function __construct(private Interaction $interaction, ?ButtonCollection $buttons = null,) {
+
+        $this->id = $this->interaction->id;
+        $this->owner = getUserId($this->interaction);
+        
         if($buttons) {
             foreach($buttons as $button) {
                 $this->buttons[$button->getCustomId()] = $button; 
             }
         }
+
+        $this->timeOfCreation = time();
     }
 
     public function __destruct() {
@@ -51,9 +56,8 @@ final class GameData implements JsonSerializable {
 
     }
 
-    public static function create(string $id, string $owner, ?ButtonCollection $buttons = null, Interaction $interaction) : self {
-        $s = new self($id, $owner, $interaction, $buttons);
-        return $s;
+    public static function create(Interaction $interaction, ?ButtonCollection $buttons = null, ) : self {
+        return new self($interaction, $buttons);
     }
 
     public function setType(string $type) : void {
@@ -64,11 +68,22 @@ final class GameData implements JsonSerializable {
         $this->buttons[] = $button;
     }
 
+    /**
+     * @throws InvalidArgumentException Button does not exist
+     */
+    public function removeButton(string $id) : void {
+        if(!isset($this->buttons[$id])) throw new InvalidArgumentException('Button with id: ' . $id . ' does not exist');
+        $button = $this->buttons[$id];
+        unset($this->buttons[$id]);
+        $button->removeListener();
+        echo self::createUpdateMessage('', 'removed button ' . $this->id . ' ' . $button->getCustomId()), PHP_EOL;
+    }   
+
     public function removeButtonListeners() : void {
         foreach($this->buttons as $button) {
             $button->removeListener();
             $button->setDisabled(true);
-            echo self::createUpdateMessage('', 'removed listener from ' . $button->getCustomId()), PHP_EOL;
+            echo self::createUpdateMessage('', 'removed listener from ' . $this->id . ' ' . $button->getCustomId()), PHP_EOL;
         }
     }
 
@@ -83,6 +98,7 @@ final class GameData implements JsonSerializable {
             'owner' => $this->owner,
             'gameType' => $this->gameType,
             'timeOfCreation' => $this->timeOfCreation,
+            'buttons' => count($this->buttons),
         ];
     }
 }
