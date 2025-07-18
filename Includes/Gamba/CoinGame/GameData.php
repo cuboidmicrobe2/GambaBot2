@@ -9,12 +9,11 @@ use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
-use Exception;
 use InvalidArgumentException;
 use JsonSerializable;
 use React\Promise\PromiseInterface;
 
-use function GambaBot\getUserId;
+use function GambaBot\Interaction\getUserId;
 
 final class GameData implements JsonSerializable {
     use Debug;

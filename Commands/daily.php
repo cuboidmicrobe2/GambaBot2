@@ -3,7 +3,7 @@
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
 
-use function GambaBot\getUserId;
+use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 

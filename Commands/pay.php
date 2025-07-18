@@ -3,8 +3,9 @@
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
 
-use function GambaBot\getUserId;
-use function GambaBot\getOptionValue;
+use function GambaBot\Interaction\getUserId;
+use function GambaBot\Interaction\getOptionValue;
+use function GambaBot\Discord\mention;
 
 global $discord, $gamba;
 
@@ -33,5 +34,5 @@ $discord->listenCommand('pay', function(Interaction $interaction) use ($gamba) {
     $authorInventory->setCoins($authorCoins - $payAmount);
     $receiverInventory->setCoins($receiverInventory->getCoins() + $payAmount);
 
-    $interaction->respondWithMessage(MessageBuilder::new()->setContent('<@' . $receiverId . '> was paid `' . $payAmount . '` coins'));
+    $interaction->respondWithMessage(MessageBuilder::new()->setContent(mention($receiverId) . ' was paid `' . $payAmount . '` coins'));
 });
