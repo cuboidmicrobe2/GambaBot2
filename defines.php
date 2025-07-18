@@ -13,6 +13,16 @@ define('TIME_ZONE', 'Europe/Stockholm');
 define('EMBED_COLOR_PINK', 'F9C6CE');
 
 /**
+ * Hex color value (pastel red)
+ */
+define('EMBED_COLOR_RED', 'FF6961');
+
+/**
+ * Hex color value (pastel green)
+ */
+define('EMBED_COLOR_GREEN', '77DD77');
+
+/**
  * The price of one /wish
  */
 define('WISH_PRICE', 1000);
