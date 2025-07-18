@@ -7,12 +7,12 @@ use Discord\Parts\Interactions\Interaction;
 use Debug\CMD_FONT_COLOR;
 use Debug\CMDOutput;
 
-use function GambaBot\getCommandStrings;
+use function GambaBot\Interaction\getCommandStrings;
 
 global $discord;
 
 $discord->listenCommand('news', function(Interaction $interaction) {
-
+    
     $news = getCommandStrings($interaction)['content'] ?? 'No news found...';
     
     $interaction->respondWithMessage(MessageBuilder::new()->setContent($news), ephemeral: true);
