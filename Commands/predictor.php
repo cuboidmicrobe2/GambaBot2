@@ -11,8 +11,11 @@ use Gamba\CoinGame\ComponentIdCreator;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\ColorGame\ColorGame;
 
-use function GambaBot\getUserId;
-use function GambaBot\getOptionValue;
+use function GambaBot\Discord\TextStyle\code;
+use function GambaBot\Discord\TextStyle\bold;
+use function GambaBot\Interaction\getUserId;
+use function GambaBot\Interaction\getOptionValue;
+use function GambaBot\Interaction\getUsername;
 
 global $gamba, $discord;
 
@@ -55,13 +58,40 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
                     inline: true
                 );
             $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed($embed));
-            return $result;
+
+            return $result; 
         }
 
-        $gamba->games->closeGame($game);
         $embed = new Embed($discord)->setColor(EMBED_COLOR_PINK)->setTitle('Wrong!')->setDescription('You lost');
-
         $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed($embed));
+
+        $wagerTitleStyled = bold('Wager');
+        $rewardTitleStyled = bold('Reward');
+        $wagerValueStyled = code($game->wager);
+        $noWinValueStyled = code('0');
+
+        $interaction->channel->sendMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
+            ->setTitle('/predictor results for ' . getUsername($interaction))
+            ->setDescription(bold('Guesses:') . ' ' . $game->historyAsString())
+            ->addFieldValues('',
+                <<<NAME
+                {$wagerTitleStyled}
+                {$rewardTitleStyled}
+                NAME,
+                inline: true
+            )
+            ->addFieldValues('',
+                <<<VALUES
+                {$wagerValueStyled}
+                {$noWinValueStyled}
+                VALUES,
+                inline: true
+            )
+            ->setColor(EMBED_COLOR_RED)
+        ));
+
+        $gamba->games->closeGame($game);
+        
         return $result;
     };
 
@@ -110,14 +140,39 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
         $inventory = $gamba->inventoryManager->getInventory(getUserId($interaction));
         $game = $gamba->games->getGame($interaction->id);
         $finalWin = $game->winnings;
+        $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('Game ended! You won: ' . $finalWin . ' coins'));
 
+        $wagerTitleStyled = bold('Wager');
+        $rewardTitleStyled = bold('Reward');
+        $wagerValueStyled = code($game->wager);
+        $rewardValueStyled = code($game->winnings);
+
+        $interaction->channel->sendMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
+            ->setTitle('/predictor results for ' . getUsername($interaction))
+            ->setDescription(bold('Guesses:'). ' ' . $game->historyAsString())
+            ->addFieldValues('',
+                <<<NAME
+                {$wagerTitleStyled}
+                {$rewardTitleStyled}
+                NAME,
+                inline: true
+            )
+            ->addFieldValues('',
+                <<<VALUES
+                {$wagerValueStyled}
+                {$rewardValueStyled}
+                VALUES,
+                inline: true
+            )
+            ->setColor(EMBED_COLOR_GREEN)
+        ));
         $gamba->games->closeGame($game);
 
         $coins = $inventory->getCoins();
 
         $inventory->setCoins($coins + $finalWin);
         
-        $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('Game ended! You won: ' . $finalWin . ' coins'));
+        
     }, $discord);
     $buttons[2] = $endButton;
     $row->addComponent($endButton);
