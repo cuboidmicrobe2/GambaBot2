@@ -6,7 +6,7 @@ namespace Gamba\CoinGame;
 
 abstract class GameInstance {
 
-    protected int $_age;
+    protected int $_age = 0;
     protected int $_lifeTime = 600;
 
     protected function __construct() {
