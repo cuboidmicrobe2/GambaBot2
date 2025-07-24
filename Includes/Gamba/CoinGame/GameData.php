@@ -25,9 +25,9 @@ final class GameData implements JsonSerializable {
     public private(set) string $gameType;
     private ?MessageBuilder $lastMessage = null;
 
-    private ?array $buttons;
+    public private(set) ?array $buttons;
 
-    private function __construct(private Interaction $interaction, ?ButtonCollection $buttons = null,) {
+    private function __construct(private Interaction $interaction, ?ButtonCollection $buttons = null, public ?array $data = null) {
 
         $this->id = $this->interaction->id;
         $this->owner = getUserId($this->interaction);
@@ -55,8 +55,8 @@ final class GameData implements JsonSerializable {
 
     }
 
-    public static function create(Interaction $interaction, ?ButtonCollection $buttons = null, ) : self {
-        return new self($interaction, $buttons);
+    public static function create(Interaction $interaction, ?ButtonCollection $buttons = null, ?array $data = null) : self {
+        return new self($interaction, $buttons, $data);
     }
 
     public function setType(string $type) : void {
