@@ -47,6 +47,10 @@ $discord->listenCommand('rps', function(Interaction $interaction) use ($discord,
 
     $gameLogic = function(RpsMove $move, Interaction $buttonInteraction) use ($interaction, $gamba, $discord, $p1, $p2) {
         $player = buttonPresserId($buttonInteraction);
+
+        /**
+         * @var ?RockPaperScissors
+         */
         $game = $gamba->games->getGame($interaction->id);
         $gameData = $gamba->games->getGameData($game);
 
@@ -140,6 +144,9 @@ $discord->listenCommand('rps', function(Interaction $interaction) use ($discord,
     $buttonStart = Button::success($idCreator->createId('accept'))->setLabel('Accept')->setListener(function(Interaction $buttonInteraction) use ($p1, $p2, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet) {
         if(!buttonPressedByUser($p2, $buttonInteraction)) return;
 
+        /**
+         * @var ?RockPaperScissors
+         */
         $game = $gamba->games->getGame($interaction->id);
 
         $p1Coins = $p1Inv->getCoins();
@@ -176,17 +183,17 @@ $discord->listenCommand('rps', function(Interaction $interaction) use ($discord,
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent(italic('The match was declined')));
     }, $discord);
 
-    $buttonRock = Button::secondary($idCreator->createId('rock'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function(Interaction $buttonInteraction) use ($p2, $gamba, $interaction, $gameLogic) {
+    $buttonRock = Button::secondary($idCreator->createId('rock'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function(Interaction $buttonInteraction) use ($p2, $gameLogic) {
         if(!buttonPressedByOwner($buttonInteraction) AND !buttonPressedByUser($p2, $buttonInteraction)) return;
         $gameLogic(RpsMove::ROCK, $buttonInteraction);
     }, $discord);
 
-    $buttonPaper = Button::secondary($idCreator->createId('paper'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function(Interaction $buttonInteraction) use ($p2, $gamba, $interaction, $gameLogic) {
+    $buttonPaper = Button::secondary($idCreator->createId('paper'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function(Interaction $buttonInteraction) use ($p2, $gameLogic) {
         if(!buttonPressedByOwner($buttonInteraction) AND !buttonPressedByUser($p2, $buttonInteraction)) return;
         $gameLogic(RpsMove::PAPER, $buttonInteraction);
     }, $discord);
 
-    $buttonScissors = Button::secondary($idCreator->createId('scissors'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function(Interaction $buttonInteraction) use ($p2, $gamba, $interaction, $gameLogic) {
+    $buttonScissors = Button::secondary($idCreator->createId('scissors'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function(Interaction $buttonInteraction) use ($p2, $gameLogic) {
         if(!buttonPressedByOwner($buttonInteraction) AND !buttonPressedByUser($p2, $buttonInteraction)) return; 
         $gameLogic(RpsMove::SICSSORS, $buttonInteraction);
     }, $discord);
