@@ -10,10 +10,10 @@ enum Rarity : int {
     case GOLD = 3;
 
     public function getPrice() : int {
-        return match($this) {
-            Rarity::BLUE => 2,
-            Rarity::PURPLE => 78,
-            Rarity::GOLD => 1570,
+        return (int)match($this) {
+            Rarity::BLUE => WISH_PRICE * 0.4,
+            Rarity::PURPLE => WISH_PRICE * 2.6,
+            Rarity::GOLD => WISH_PRICE * 12,
         };
     }
 
