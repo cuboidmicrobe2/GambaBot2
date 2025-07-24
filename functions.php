@@ -7,15 +7,18 @@ namespace GambaBot\Interaction {
     use Debug\CMD_FONT_COLOR;
     use Debug\CMDOutput;
     use Discord\Parts\Interactions\Interaction;
+    use InvalidArgumentException;
+    use Discord\Parts\User\User;
 
     function getUserId(Interaction $interaction) : string {
         return $interaction->member->user->id ?? $interaction->user->id;
     }
 
-    function getUsername(Interaction $interaction) : string {
-        if(isset($interaction->member)) return $interaction->member->user->global_name ?? $interaction->member->user->username;
+    function getUsername(Interaction|User $part) : string {
+        if($part instanceof User) return $part->global_name ?? $part->username;
 
-        return $interaction->user->global_name ?? $interaction->user->username;
+        if(isset($part->member)) return $part->member->user->global_name ?? $part->member->user->username;
+        return $part->user->global_name ?? $part->user->username;  
     }
 
     function getOptionValue(string $offset, Interaction $interaction) : mixed {
@@ -31,6 +34,30 @@ namespace GambaBot\Interaction {
         echo CMDOutput::new()->add('strings.json is missing from ' . __DIR__. '/content', CMD_FONT_COLOR::YELLOW), PHP_EOL;
 
         return null;
+    }
+
+    function buttonPresserId(Interaction $buttonInteraction) : string {
+        //return $buttonInteraction->message->interaction_metadata->user->id;
+        return $buttonInteraction->member->user->id ?? $buttonInteraction->user->id;
+    }
+
+    function getButtonOwnerId(Interaction $buttonInteraction) : string {
+        return $buttonInteraction->message->interaction_metadata->user->id;
+    }
+
+    /**
+     * @throws InvalidArgumentException if the Interaction does not belong to a valid component
+     */
+    function buttonPressedByOwner(Interaction $buttonInteraction) : bool {
+        //var_dump($buttonInteraction);
+        $buttonPresserId = buttonPresserId($buttonInteraction);
+        if($buttonPresserId === null) throw new InvalidArgumentException('This interaction does not contain $interaction-->message->interaction_metadata->user->id');
+
+        return (getButtonOwnerId($buttonInteraction) === $buttonPresserId);
+    }
+
+    function buttonPressedByUser(string $uid, Interaction $buttonInteraction) : bool {
+        return (buttonPresserId($buttonInteraction) == $uid);
     }
 }
 
