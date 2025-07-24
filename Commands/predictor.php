@@ -13,9 +13,12 @@ use Gamba\CoinGame\Games\ColorGame\ColorGame;
 
 use function GambaBot\Discord\TextStyle\code;
 use function GambaBot\Discord\TextStyle\bold;
+use function GambaBot\Discord\TextStyle\strikeThrough;
+use function GambaBot\Interaction\buttonPressedByOwner;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUsername;
+
 
 global $gamba, $discord;
 
@@ -66,11 +69,11 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
         $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed($embed));
 
         $wagerTitleStyled = bold('Wager');
-        $rewardTitleStyled = bold('Reward');
+        $rewardTitleStyled = strikeThrough(bold('Reward'));
         $wagerValueStyled = code($game->wager);
         $noWinValueStyled = code('0');
 
-        $interaction->channel->sendMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
+        $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
             ->setTitle('/predictor results for ' . getUsername($interaction))
             ->setDescription(bold('Guesses:') . ' ' . $game->historyAsString())
             ->addFieldValues('',
@@ -115,16 +118,19 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
 
     $row = new ActionRow;
 
-    $idCreator = new ComponentIdCreator($interaction);
     $buttons = new ButtonCollection(3);
 
+    $idCreator = new ComponentIdCreator($interaction);
+
     $greenButton = Button::success($idCreator->createId('green'))->setLabel('Green')->setListener(function(Interaction $buttonInteraction) use ($interaction, $actions, $discord) {
+        if(!buttonPressedByOwner($buttonInteraction)) return;
         $result = $actions('green', $interaction, $discord);
     }, $discord);
     $buttons[0] = $greenButton;
     $row->addComponent($greenButton);
 
     $redButton = Button::danger($idCreator->createId('red'))->setLabel('Red')->setListener(function(Interaction $buttonInteraction) use ($interaction, $actions, $discord) {
+        if(!buttonPressedByOwner($buttonInteraction)) return;
         $result = $actions('red', $interaction, $discord);
     }, $discord);
     $buttons[1] = $redButton;
@@ -137,6 +143,7 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
     
 
     $endButton = Button::secondary($idCreator->createId('end_game'))->setLabel('End Game')->setListener(function (Interaction $buttonInteraction) use ($gamba, $interaction, $discord) {
+        if(!buttonPressedByOwner($buttonInteraction)) return;
         $inventory = $gamba->inventoryManager->getInventory(getUserId($interaction));
         $game = $gamba->games->getGame($interaction->id);
         $finalWin = $game->winnings;
@@ -147,7 +154,7 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
         $wagerValueStyled = code($game->wager);
         $rewardValueStyled = code($game->winnings);
 
-        $interaction->channel->sendMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
+        $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
             ->setTitle('/predictor results for ' . getUsername($interaction))
             ->setDescription(bold('Guesses:'). ' ' . $game->historyAsString())
             ->addFieldValues('',
@@ -179,7 +186,7 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
 
     $gamba->games->addGame($game, GameData::create($interaction, $buttons));
 
-    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed)->addComponent($row), true);
+    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed)->addComponent($row));
 
 //--------------------------------------------------------------------------------------------------------------
 
