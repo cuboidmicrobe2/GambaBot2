@@ -18,7 +18,7 @@ $discord = new Discord([
 ]);
 $discord->on('init', function(Discord $discord) {
 
-    //$discord->application->commands->delete('1385704701559050400')->then(function() use ($discord) {
+    // $discord->application->commands->delete('1397588468124614737')->then(function() use ($discord) {
         $discord->application->commands->save(
             $discord->application->commands->create(CommandBuilder::new()
                 ->setName('rps')
@@ -27,6 +27,7 @@ $discord->on('init', function(Discord $discord) {
                 ->addOption(new Option($discord)
                     ->setName('bet')
                     ->setDescription('amount of coins to bet')
+                    ->setMinValue(10)
                     ->setType(Option::INTEGER)
                     ->setRequired(true)
                 )
@@ -42,4 +43,4 @@ $discord->on('init', function(Discord $discord) {
             )
         );
     });
-//});
+// });
