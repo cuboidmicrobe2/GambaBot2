@@ -40,6 +40,9 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
 
     $actions = function(string $color, Interaction $interaction, Discord $discord) use ($gamba) : array {
         
+        /**
+         * @var ?ColorGame
+         */
         $game = $gamba->games->getGame($interaction->id);
 
         $result = $game->guess($color);
@@ -145,6 +148,10 @@ $discord->listenCommand('predictor', function(Interaction $interaction) use ($di
     $endButton = Button::secondary($idCreator->createId('end_game'))->setLabel('End Game')->setListener(function (Interaction $buttonInteraction) use ($gamba, $interaction, $discord) {
         if(!buttonPressedByOwner($buttonInteraction)) return;
         $inventory = $gamba->inventoryManager->getInventory(getUserId($interaction));
+
+        /**
+         * @var ?ColorGame
+         */
         $game = $gamba->games->getGame($interaction->id);
         $finalWin = $game->winnings;
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('Game ended! You won: ' . $finalWin . ' coins'));
