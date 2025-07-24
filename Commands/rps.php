@@ -31,6 +31,12 @@ $discord->listenCommand('rps', function(Interaction $interaction) use ($discord,
     
     $p1 = getUserId($interaction);
     $p2 = getOptionValue('opponent', $interaction);
+
+    if($p1 == $p2) {
+        $interaction->respondWithMessage(MessageBuilder::new()->setContent(italic('Do you not have any friends?')), ephemeral: true);
+        return;
+    }
+
     $bet = getOptionValue('bet', $interaction);
 
     $p1Inv = $gamba->inventoryManager->getInventory($p1);
