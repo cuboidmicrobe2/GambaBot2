@@ -21,6 +21,10 @@ require_once __DIR__ . '/Includes/autoload.php';
 
 date_default_timezone_set(TIME_ZONE);
 
+set_exception_handler(function(Throwable $e) {
+    echo CMDOutput::new()->add($e->getMessage(), CMD_FONT_COLOR::YELLOW), PHP_EOL;
+});
+
 const AUTO_LOADER = new Autoloader(
     flags:Autoloader::DO_OUTPUT
 );
@@ -28,7 +32,6 @@ AUTO_LOADER->start();
 
 $dotenv = new Dotenv;
 $dotenv->load(__DIR__ . '/.env');
-
 
 $discord = new Discord([
     'token' => $_ENV['DISCORD_TOKEN'],
@@ -42,17 +45,13 @@ $gamba = new Gamba(
 );
 
 $discord->on('init', function(Discord $discord) use ($gamba) {
+
     $discord->updatePresence(new Activity($discord, [
         'type' => Activity::TYPE_GAME,
         'name' => 'the long game',
     ]));
 
-    $discord->on(Event::INTERACTION_CREATE, function(Interaction $interaction) {
-        // interaction debug'n
-    });
-
     $discord->on('heartbeat', function() use ($gamba) {
-        // var_dump($gamba->games);
         $gamba->games->clean();
     });
 
