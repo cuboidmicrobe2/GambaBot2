@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
@@ -9,8 +11,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-
-$discord->listenCommand('stats', function(Interaction $interaction) use ($gamba, $discord) {
+$discord->listenCommand('stats', function (Interaction $interaction) use ($gamba, $discord) {
     $stats = $gamba->getUserStats(getUserId($interaction));
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;
