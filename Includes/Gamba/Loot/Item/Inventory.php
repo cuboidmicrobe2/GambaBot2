@@ -1,23 +1,29 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gamba\Loot\Item;
 
 use OutOfRangeException;
 use PDO\Mysql;
 
-class Inventory {
-
-    public function __construct(private string $owner, private Mysql &$database) { self::userInventoryMustExist($owner, $database); }
+final class Inventory
+{
+    public function __construct(private string $owner, private Mysql &$database)
+    {
+        self::userInventoryMustExist($owner, $database);
+    }
 
     /**
-     * @param int<0, max>   $coins
-     * 
-     * @throws OutOfRangeException  if coins < 0
+     * @param  int<0, max>  $coins
+     *
+     * @throws OutOfRangeException if coins < 0
      */
-    public function setCoins(int $coins) : void {
-        if($coins < 0) throw new OutOfRangeException();
+    public function setCoins(int $coins): void
+    {
+        if ($coins < 0) {
+            throw new OutOfRangeException();
+        }
         $this->database->query(<<<SQL
             UPDATE user_stats
             set coins = {$coins}
@@ -25,8 +31,8 @@ class Inventory {
         SQL);
     }
 
-
-    public function getCoins() : int {
+    public function getCoins(): int
+    {
         $result = $this->database->query(<<<SQL
             SELECT coins 
             FROM user_stats
@@ -36,7 +42,8 @@ class Inventory {
         return $result->fetch(Mysql::FETCH_ASSOC)['coins'] ?? 0;
     }
 
-    public function addItem(Item|int $item, int $count = 1) : void {
+    public function addItem(Item|int $item, int $count = 1): void
+    {
         $itemId = ($item instanceof Item) ? $item->id : $item;
 
         $this->database->query(<<<SQL
@@ -47,7 +54,8 @@ class Inventory {
         SQL);
     }
 
-    public function addCollection(ItemCollection $items) : void {
+    public function addCollection(ItemCollection $items): void
+    {
         $stmt = $this->database->prepare(<<<SQL
             INSERT INTO USER_{$this->owner} (item_id, count)
             VALUES (:itemId, 1)
@@ -55,12 +63,13 @@ class Inventory {
                 UPDATE count = count + 1
         SQL);
 
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $stmt->execute(['itemId' => $item->id]);
         }
     }
 
-    public function removeItem(Item|int $item, int $count = 1) : void {
+    public function removeItem(Item|int $item, int $count = 1): void
+    {
         $itemId = ($item instanceof Item) ? $item->id : $item;
 
         $this->database->query(<<<SQL
@@ -70,7 +79,8 @@ class Inventory {
         SQL);
     }
 
-    public function getItemCount(int $itemId) : int {
+    public function getItemCount(int $itemId): int
+    {
         $result = $this->database->query(<<<SQL
             SELECT count FROM USER_{$this->owner}
             WHERE item_id = {$itemId};
@@ -81,13 +91,16 @@ class Inventory {
     }
 
     /**
-     * @param int<0, max>   $newPity
-     * 
-     * @throws OutOfRangeException  if $newPity < 0
+     * @param  int<0, max>  $newPity
+     *
+     * @throws OutOfRangeException if $newPity < 0
      */
-    public function setGoldPity(int $newPity) : void {
-        if($newPity < 0) throw new OutOfRangeException();
-        
+    public function setGoldPity(int $newPity): void
+    {
+        if ($newPity < 0) {
+            throw new OutOfRangeException();
+        }
+
         $this->database->query(<<<SQL
             UPDATE user_stats
             SET gold_pity = {$newPity}
@@ -96,11 +109,14 @@ class Inventory {
     }
 
     /**
-     * @throws OutOfRangeException  if $newPity < 0
+     * @throws OutOfRangeException if $newPity < 0
      */
-    public function setPurplePity(int $newPity) : void {
-        if($newPity < 0) throw new OutOfRangeException();
-        
+    public function setPurplePity(int $newPity): void
+    {
+        if ($newPity < 0) {
+            throw new OutOfRangeException();
+        }
+
         $this->database->query(<<<SQL
             UPDATE user_stats
             SET purple_pity = {$newPity}
@@ -108,7 +124,8 @@ class Inventory {
         SQL);
     }
 
-    public function getGoldPity() : int { 
+    public function getGoldPity(): int
+    {
         $result = $this->database->query(<<<SQL
             SELECT gold_pity FROM user_stats 
             WHERE uid = {$this->owner};
@@ -117,7 +134,8 @@ class Inventory {
         return $result->fetch(Mysql::FETCH_ASSOC)['gold_pity'] ?? 0;
     }
 
-    public function getPurplePity() : int {
+    public function getPurplePity(): int
+    {
         $result = $this->database->query(<<<SQL
             SELECT purple_pity FROM user_stats 
             WHERE uid = {$this->owner};
@@ -126,7 +144,8 @@ class Inventory {
         return $result->fetch(Mysql::FETCH_ASSOC)['purple_pity'] ?? 0;
     }
 
-    public function getLastDaily() : int {
+    public function getLastDaily(): int
+    {
         $result = $this->database->query(<<<SQL
             SELECT last_daily
             FROM user_stats
@@ -136,7 +155,8 @@ class Inventory {
         return $result->fetch(Mysql::FETCH_ASSOC)['last_daily'] ?? 0;
     }
 
-    public function updateDaily() : void {
+    public function updateDaily(): void
+    {
         $time = time();
         $this->database->query(<<<SQL
             UPDATE user_stats
@@ -145,11 +165,11 @@ class Inventory {
         SQL);
     }
 
-
     /**
      * @return array{unique:int, total:int}
      */
-    public function size() : array {
+    public function size(): array
+    {
         $result = $this->database->query(<<<SQL
             SELECT count FROM USER_{$this->owner};
         SQL);
@@ -159,8 +179,8 @@ class Inventory {
         $uniqueItems = 0;
         $totalItemCount = 0;
 
-        foreach($result as $row) {
-            if($row['count'] > 0) {
+        foreach ($result as $row) {
+            if ($row['count'] > 0) {
                 $uniqueItems++;
                 $totalItemCount += $row['count'];
             }
@@ -172,7 +192,8 @@ class Inventory {
     /**
      * Create the user table if it does not exist
      */
-    private static function userInventoryMustExist(string $uid, Mysql $database) : void {
+    private static function userInventoryMustExist(string $uid, Mysql $database): void
+    {
         $database->query(<<<SQL
             CREATE TABLE IF NOT EXISTS USER_{$uid}(
                 item_id TINYINT UNSIGNED PRIMARY KEY NOT NULL,

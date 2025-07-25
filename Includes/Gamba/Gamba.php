@@ -1,20 +1,19 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gamba;
 
-use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use Discord\Builders\MessageBuilder;
 use Gamba\CoinGame\GameHandler;
-use Gamba\CoinGame\Games\Roulette\Roulette;
 use Gamba\CoinGame\Games\Roulette\Color;
-
+use Gamba\CoinGame\Games\Roulette\Roulette;
 use Gamba\Loot\Decide;
 use Gamba\Loot\Item\InventoryManager;
-use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Item\Item;
+use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Rarity;
 use Pdo\Mysql;
 use PDOStatement;
@@ -22,16 +21,19 @@ use PDOStatement;
 /**
  * @todo add wakeupDB() (in InventoryManager too)
  */
-final class Gamba {
-    
-    private PDOStatement $fetchRandItem;
-    private Mysql $gambaConn;
+final class Gamba
+{
     // public private(set) TradeManager $tradeManager;
     public private(set) GameHandler $games;
 
-    public function __construct(Mysql $gambaConn, public private(set) InventoryManager $inventoryManager) {
+    private PDOStatement $fetchRandItem;
+
+    private Mysql $gambaConn;
+
+    public function __construct(Mysql $gambaConn, public private(set) InventoryManager $inventoryManager)
+    {
         $this->gambaConn = $gambaConn;
-        $this->fetchRandItem = $gambaConn->prepare(<<<SQL
+        $this->fetchRandItem = $gambaConn->prepare(<<<'SQL'
             SELECT id, name 
             FROM items
             WHERE rarity = :rarity
@@ -43,7 +45,8 @@ final class Gamba {
         $this->games = new GameHandler;
     }
 
-    public function getHistory(string $uid, int $amount) : ItemCollection {
+    public function getHistory(string $uid, int $amount): ItemCollection
+    {
         $result = $this->gambaConn->query(<<<SQL
             SELECT name, rarity, descr 
             FROM history 
@@ -55,7 +58,7 @@ final class Gamba {
 
         $items = new ItemCollection($amount);
         $i = 0;
-        while($row = $result->fetch(Mysql::FETCH_ASSOC)) {
+        while ($row = $result->fetch(Mysql::FETCH_ASSOC)) {
             $items[$i] = new Item(
                 name: $row['name'],
                 rarity: Rarity::tryFrom($row['rarity']),
@@ -67,69 +70,73 @@ final class Gamba {
         return $items;
     }
 
-    public function roulette(string $uid, int $wager, int $bet, ?MessageBuilder &$message = null) : void {
+    public function roulette(string $uid, int $wager, int $bet, ?MessageBuilder &$message = null): void
+    {
         $userInventory = $this->inventoryManager->getInventory($uid);
 
         $coins = $userInventory->getCoins();
 
-        if($coins < $wager) {
-            $messageContent = match($coins) {
+        if ($coins < $wager) {
+            $messageContent = match ($coins) {
                 0 => 'You do not have any coins! try '.COMMAND_LINK_DAILY,
                 default => 'You do not have enough coins for that! (`'.$coins.'` coins)'
             };
             $message?->setContent($messageContent);
+
             return;
-        } 
-    
+        }
+
         $color = Color::getFromRoll(Roulette::roll());
 
-        if($color->isMatch($bet)) {
-            $winAmount = match($color) {
+        if ($color->isMatch($bet)) {
+            $winAmount = match ($color) {
                 Color::GREEN => $wager * 39,
                 default => $wager * 2
             };
 
             $userInventory->setCoins($coins + $winAmount);
-            $message?->setContent('You rolled ' . $color->name . ' and won ' . $winAmount . ' coins!');
+            $message?->setContent('You rolled '.$color->name.' and won '.$winAmount.' coins!');
+
             return;
         }
-        else {
-            $userInventory->setCoins($coins - $wager);
-            $message?->setContent('You rolled ' . $color->name . ' and lost ' . $wager . ' coins!');
-            return;
-        }
+
+        $userInventory->setCoins($coins - $wager);
+        $message?->setContent('You rolled '.$color->name.' and lost '.$wager.' coins!');
+
     }
 
     /**
      * @todo dont do dc stuff in here
      */
-    public function wish(string $uid, int $rolls, /*Discord $discord,*/ ?MessageBuilder $message = null) : ?ItemCollection {
-        
+    public function wish(string $uid, int $rolls, /* Discord $discord, */ ?MessageBuilder $message = null): ?ItemCollection
+    {
+
         $userInventory = $this->inventoryManager->getInventory($uid);
         $coins = $userInventory->getcoins();
         $wishPrice = $rolls * WISH_PRICE;
-        if($coins < $wishPrice) {
+        if ($coins < $wishPrice) {
             $message?->setContent('You do not have enough coins for that! (`'.$coins.'` coins) use '.COMMAND_LINK_DAILY.' for free daily coins');
+
             return null;
-        } 
+        }
 
         $goldPity = $userInventory->getGoldPity();
         $purplePity = $userInventory->getPurplePity();
 
         $items = new ItemCollection($rolls);
 
-        for($i = 0; $i < $rolls; $i++) {
+        for ($i = 0; $i < $rolls; $i++) {
             $itemRarity = Decide::rarity($goldPity, $purplePity);
 
             $this->fetchRandItem->execute(['rarity' => $itemRarity->value]);
             $result = $this->fetchRandItem->fetch(Mysql::FETCH_ASSOC);
 
             $items[$i] = new Item(
-                name:   $result['name'],
+                name: $result['name'],
                 rarity: $itemRarity,
-                id:     $result['id']
+                id: $result['id']
             );
-        };
+        }
 
         $userInventory->setGoldPity($goldPity);
         $userInventory->setPurplePity($purplePity);
@@ -149,13 +156,14 @@ final class Gamba {
     /**
      * @return array{coins:int, goldPity:int, purplePity:int}
      */
-    public function getUserStats(string $uid) : array {
+    public function getUserStats(string $uid): array
+    {
         $userInventory = $this->inventoryManager->getInventory($uid);
 
         return [
             'coins' => $userInventory->getCoins(),
             'goldPity' => $userInventory->getGoldPity(),
-            'purplePity' => $userInventory->getPurplePity()
+            'purplePity' => $userInventory->getPurplePity(),
         ];
     }
 
@@ -163,16 +171,18 @@ final class Gamba {
     //     return $this->inventoryManager->getInventory($uid);
     // }
 
-    public function daily(string $uid, MessageBuilder &$message) : void {
+    public function daily(string $uid, MessageBuilder &$message): void
+    {
         $userInventory = $this->inventoryManager->getInventory($uid);
-        $today = new DateTime('now', new DateTimeZone(TIME_ZONE));
+        $today = new DateTimeImmutable('now', new DateTimeZone(TIME_ZONE));
 
         $lastDaily = $userInventory->getLastDaily();
-        if(date('Y-m-d', $lastDaily) === $today->format('Y-m-d')) {
+        if (date('Y-m-d', $lastDaily) === $today->format('Y-m-d')) {
             $tomorrow = $today->modify('+1 day');
             $nextReset = preg_replace('/[0-9]{2}(:[0-9]{2}){2}/', '00:00:00', $tomorrow->format('c'));
             $unix = strtotime($nextReset);
             $message->setContent("You have already claimed your daily coins. Next /daily <t:$unix:R>.");
+
             return;
         }
 
@@ -183,5 +193,4 @@ final class Gamba {
         $message->setContent("You got $amount coins.");
         $userInventory->updateDaily();
     }
-
 }

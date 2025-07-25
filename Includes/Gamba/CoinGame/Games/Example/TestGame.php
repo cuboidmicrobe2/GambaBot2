@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gamba\CoinGame\Games\Example;
 
 use Gamba\CoinGame\GameInstance;
@@ -7,8 +9,8 @@ use Gamba\CoinGame\GameInstance;
 /**
  * Minimum game components
  */
-final class TestGame extends GameInstance {
-
+final class TestGame extends GameInstance
+{
     private int $itemIterator = 0;
 
     private array $content = [
@@ -19,18 +21,23 @@ final class TestGame extends GameInstance {
         'array',
     ];
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
 
         $this->_lifeTime = 20;
     }
 
-    public function getNext() : string {
+    public function getNext(): string
+    {
         $this->renew();
 
-        if(!isset($this->content[$this->itemIterator])) $this->itemIterator = 0;
+        if (! isset($this->content[$this->itemIterator])) {
+            $this->itemIterator = 0;
+        }
         $item = $this->content[$this->itemIterator];
         $this->itemIterator++;
+
         return $item;
     }
 }
