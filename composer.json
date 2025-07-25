@@ -2,5 +2,9 @@
     "require": {
         "team-reflex/discord-php": "10.17.3",
         "symfony/dotenv": "^7.3"
+    },
+    "require-dev": {
+        "rector/rector": "^2.1",
+        "laravel/pint": "^1.24"
     }
 }

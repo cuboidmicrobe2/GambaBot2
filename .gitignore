@@ -21,3 +21,9 @@ Thumbs.db
 .env
 
 /Commands/testing.php
+
+# Pint
+pint.json
+
+# Rector
+rector.php
