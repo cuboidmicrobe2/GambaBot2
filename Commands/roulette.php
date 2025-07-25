@@ -16,7 +16,7 @@ $discord->listenCommand('roulette', function (Interaction $interaction) use ($ga
     $gamba->roulette(
         uid: getUserId($interaction),
         wager: getOptionValue('amount', $interaction),
-        bet: getOptionValue('color', $interaction),
+        bet: (int)getOptionValue('color', $interaction),
         message: $message
     );
 
