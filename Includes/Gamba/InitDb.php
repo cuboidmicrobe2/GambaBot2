@@ -50,7 +50,7 @@ $stmt = $tempDB->prepare(<<<'SQL'
     UPDATE name = :name, rarity = :rarity, descr = :descr
 SQL);
 
-foreach ((include 'Loot/Item/ItemList.php') as $item) {
+foreach ((include __DIR__ . '/Loot/Item/ItemList.php') as $item) {
     $stmt->execute([
         'id' => $item['id'],
         'name' => $item['name'],

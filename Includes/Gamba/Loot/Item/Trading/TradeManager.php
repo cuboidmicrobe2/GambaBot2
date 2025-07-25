@@ -20,7 +20,7 @@ final class TradeManager
         ItemCollection $formItems,
         ItemCollection $toItems
     ): bool {
-        $key = self::createKey($from, $to);
+        $key = $this->createKey($from, $to);
         if (array_key_exists($key, $this->offers[$key])) {
             return false;
         } // offer exists
@@ -35,7 +35,7 @@ final class TradeManager
         return true;
     }
 
-    public function clean(Discord $discord): void
+    public function clean(): void
     {
         foreach ($this->offers as $key => $tradeOffer) {
             if ($tradeOffer->isOld()) {
@@ -45,7 +45,7 @@ final class TradeManager
         }
     }
 
-    private static function createKey(string $from, string $to): string
+    private function createKey(string $from, string $to): string
     {
         return $from.'->'.$to;
     }

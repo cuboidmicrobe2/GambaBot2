@@ -8,14 +8,9 @@ use HTTP\Request;
 use OutOfRangeException;
 use Pdo\Mysql;
 
-final class InventoryManager
-{ // mby dont need this (needs something to store pdo obj, so mby this?)
-
-    private Mysql $conn;
-
-    public function __construct(Mysql $conn)
+final readonly class InventoryManager
+{ public function __construct(private Mysql $conn)
     {
-        $this->conn = $conn;
         $this->conn->setAttribute(Mysql::ATTR_ERRMODE, Mysql::ERRMODE_EXCEPTION);
     }
 
@@ -56,7 +51,7 @@ final class InventoryManager
         $i = 0;
         foreach ($requests->fetch() as $userData) {
             $userInfo = json_decode($userData, true);
-            $name = isset($userInfo['global_name']) ? $userInfo['global_name'] : (isset($userInfo['username']) ? $userInfo['username'] : 'CURL_ERROR');
+            $name = $userInfo['global_name'] ?? $userInfo['username'] ?? 'CURL_ERROR';
             $data[$i]['user'] = $name;
             $i++;
         }

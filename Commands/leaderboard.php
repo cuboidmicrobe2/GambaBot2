@@ -8,12 +8,13 @@ use Discord\Parts\Interactions\Interaction;
 
 global $discord, $gamba;
 
-$discord->listenCommand('leaderboard', function (Interaction $interaction) use ($gamba, $discord) {
-    $interaction->acknowledgeWithResponse()->then(function () use ($interaction, $gamba, $discord) {
+$discord->listenCommand('leaderboard', function (Interaction $interaction) use ($gamba, $discord): void {
+    $interaction->acknowledgeWithResponse()->then(function () use ($interaction, $gamba, $discord): void {
         $leaderboard = $gamba->inventoryManager->leaderboard(10);
 
         $text = '';
-        for ($i = 0; $i < count($leaderboard); $i++) {
+        $counter = count($leaderboard);
+        for ($i = 0; $i < $counter; $i++) {
             $text .= $leaderboard[$i]['user'].' - '.$leaderboard[$i]['coins'].PHP_EOL;
         }
 

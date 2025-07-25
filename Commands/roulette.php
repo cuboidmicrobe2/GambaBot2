@@ -10,7 +10,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('roulette', function (Interaction $interaction) use ($gamba) {
+$discord->listenCommand('roulette', function (Interaction $interaction) use ($gamba): void {
     $message = MessageBuilder::new()->setContent('Something went wrong');
 
     $gamba->roulette(

@@ -12,7 +12,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('wish', function (Interaction $interaction) use ($gamba, $discord) {
+$discord->listenCommand('wish', function (Interaction $interaction) use ($gamba, $discord): void {
 
     $message = MessageBuilder::new();
 

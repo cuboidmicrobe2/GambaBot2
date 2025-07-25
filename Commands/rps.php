@@ -27,7 +27,7 @@ use function GambaBot\Interaction\getUsername;
 
 global $discord, $gamba;
 
-$discord->listenCommand('rps', function (Interaction $interaction) use ($discord, $gamba) {
+$discord->listenCommand('rps', function (Interaction $interaction) use ($discord, $gamba): void {
 
     $p1 = getUserId($interaction);
     $p2 = getOptionValue('opponent', $interaction);
@@ -43,7 +43,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
     $p1Inv = $gamba->inventoryManager->getInventory($p1);
     $p2Inv = $gamba->inventoryManager->getInventory($p2);
 
-    if ($p1Inv->getCoins() < $bet or $p2Inv->getCoins() < $bet) {
+    if ($p1Inv->getCoins() < $bet || $p2Inv->getCoins() < $bet) {
         $interaction->respondWithMessage(MessageBuilder::new()->setContent('One or two players does not have enough coins to play'), ephemeral: true);
 
         return;
@@ -53,7 +53,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
     $startGameOptions = new ActionRow;
     $idCreator = new ComponentIdCreator($interaction);
 
-    $gameLogic = function (RpsMove $move, Interaction $buttonInteraction) use ($interaction, $gamba, $discord, $p1, $p2) {
+    $gameLogic = function (RpsMove $move, Interaction $buttonInteraction) use ($interaction, $gamba, $discord, $p1, $p2): void {
         $player = buttonPresserId($buttonInteraction);
 
         /**
@@ -82,7 +82,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
                     ));
 
                     $winnerUsername = '$name';
-                    $discord->users->fetch($winner)->then(function (User $user) use (&$winnerUsername) {
+                    $discord->users->fetch($winner)->then(function (User $user) use (&$winnerUsername): void {
                         $winnerUsername = getUsername($user);
                     });
 
@@ -96,7 +96,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
                     $p1MoveHistory = '';
                     $p2MoveHistory = '';
 
-                    foreach ($game->roundData as $round => $moves) {
+                    foreach ($game->roundData as $moves) {
                         $p1MoveHistory .= $moves[$p1]?->getEmoji().' ';
                         $p2MoveHistory .= $moves[$p2]?->getEmoji().' ';
                     }
@@ -154,7 +154,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         }
     };
 
-    $buttonStart = Button::success($idCreator->createId('accept'))->setLabel('Accept')->setListener(function (Interaction $buttonInteraction) use ($p1, $p2, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet) {
+    $buttonStart = Button::success($idCreator->createId('accept'))->setLabel('Accept')->setListener(function (Interaction $buttonInteraction) use ($p1, $p2, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
@@ -166,7 +166,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
 
         $p1Coins = $p1Inv->getCoins();
         $p2Coins = $p2Inv->getCoins();
-        if ($p1Coins < $bet or $p2Coins < $bet) {
+        if ($p1Coins < $bet || $p2Coins < $bet) {
             $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('A player no longer has enough coins to play'));
             $gamba->games->closeGame($game);
 
@@ -191,7 +191,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         ));
     }, $discord);
 
-    $buttonDecline = Button::danger($idCreator->createId('decline'))->setLabel('Decline')->setListener(function (Interaction $buttonInteraction) use ($p2, $gamba, $interaction) {
+    $buttonDecline = Button::danger($idCreator->createId('decline'))->setLabel('Decline')->setListener(function (Interaction $buttonInteraction) use ($p2, $gamba, $interaction): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
@@ -201,22 +201,22 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent(italic('The match was declined')));
     }, $discord);
 
-    $buttonRock = Button::secondary($idCreator->createId('rock'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic) {
-        if (! buttonPressedByOwner($buttonInteraction) and ! buttonPressedByUser($p2, $buttonInteraction)) {
+    $buttonRock = Button::secondary($idCreator->createId('rock'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
+        if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::ROCK, $buttonInteraction);
     }, $discord);
 
-    $buttonPaper = Button::secondary($idCreator->createId('paper'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic) {
-        if (! buttonPressedByOwner($buttonInteraction) and ! buttonPressedByUser($p2, $buttonInteraction)) {
+    $buttonPaper = Button::secondary($idCreator->createId('paper'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
+        if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::PAPER, $buttonInteraction);
     }, $discord);
 
-    $buttonScissors = Button::secondary($idCreator->createId('scissors'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic) {
-        if (! buttonPressedByOwner($buttonInteraction) and ! buttonPressedByUser($p2, $buttonInteraction)) {
+    $buttonScissors = Button::secondary($idCreator->createId('scissors'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
+        if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::SICSSORS, $buttonInteraction);
@@ -226,10 +226,10 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
 
     $p1Name = '$name';
     $p2Name = '$name';
-    $discord->users->fetch($p1)->then(function (User $user) use (&$p1Name) {
+    $discord->users->fetch($p1)->then(function (User $user) use (&$p1Name): void {
         $p1Name = getUsername($user);
     });
-    $discord->users->fetch($p2)->then(function (User $user) use (&$p2Name) {
+    $discord->users->fetch($p2)->then(function (User $user) use (&$p2Name): void {
         $p2Name = getUsername($user);
     });
 

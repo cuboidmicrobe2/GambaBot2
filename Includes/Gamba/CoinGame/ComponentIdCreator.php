@@ -9,7 +9,7 @@ use Exception;
 
 final class ComponentIdCreator
 {
-    private string $id;
+    private readonly string $id;
 
     private array $customIds;
 

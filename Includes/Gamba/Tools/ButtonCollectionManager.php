@@ -7,7 +7,9 @@ use Discord\Builders\Components\Button;
 final class ButtonCollectionManager {
     private array $buttons;
 
-    public function __construct(private int $removeAfter) {}
+    public function __construct()
+    {
+    }
 
     public function add(Button $button, string $id, array $assocData): void 
     {

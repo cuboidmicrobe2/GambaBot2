@@ -25,7 +25,7 @@ global $gamba, $discord;
 
 // i hate this code
 
-$discord->listenCommand('predictor', function (Interaction $interaction) use ($discord, $gamba) {
+$discord->listenCommand('predictor', function (Interaction $interaction) use ($discord, $gamba): void {
 
     $uid = getUserId($interaction);
     $inventory = $gamba->inventoryManager->getInventory($uid);
@@ -75,7 +75,7 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
 
         $wagerTitleStyled = bold('Wager');
         $rewardTitleStyled = strikeThrough(bold('Reward'));
-        $wagerValueStyled = code($game->wager);
+        $wagerValueStyled = code((string)$game->wager);
         $noWinValueStyled = code('0');
 
         $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
@@ -127,7 +127,7 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
 
     $idCreator = new ComponentIdCreator($interaction);
 
-    $greenButton = Button::success($idCreator->createId('green'))->setLabel('Green')->setListener(function (Interaction $buttonInteraction) use ($interaction, $actions, $discord) {
+    $greenButton = Button::success($idCreator->createId('green'))->setLabel('Green')->setListener(function (Interaction $buttonInteraction) use ($interaction, $actions, $discord): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -136,7 +136,7 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
     $buttons[0] = $greenButton;
     $row->addComponent($greenButton);
 
-    $redButton = Button::danger($idCreator->createId('red'))->setLabel('Red')->setListener(function (Interaction $buttonInteraction) use ($interaction, $actions, $discord) {
+    $redButton = Button::danger($idCreator->createId('red'))->setLabel('Red')->setListener(function (Interaction $buttonInteraction) use ($interaction, $actions, $discord): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -150,7 +150,7 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
     // }, $discord);
     // $buttons[2] = $redButton;
 
-    $endButton = Button::secondary($idCreator->createId('end_game'))->setLabel('End Game')->setListener(function (Interaction $buttonInteraction) use ($gamba, $interaction, $discord) {
+    $endButton = Button::secondary($idCreator->createId('end_game'))->setLabel('End Game')->setListener(function (Interaction $buttonInteraction) use ($gamba, $interaction, $discord): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -165,8 +165,8 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
 
         $wagerTitleStyled = bold('Wager');
         $rewardTitleStyled = bold('Reward');
-        $wagerValueStyled = code($game->wager);
-        $rewardValueStyled = code($game->winnings);
+        $wagerValueStyled = code((string)$game->wager);
+        $rewardValueStyled = code((string)$game->winnings);
 
         $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
             ->setTitle('/predictor results for '.getUsername($interaction))
@@ -191,7 +191,7 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
 
         $coins = $inventory->getCoins();
 
-        $inventory->setCoins($coins + $finalWin);
+        $inventory->setCoins($coins + (int)$finalWin);
 
     }, $discord);
     $buttons[2] = $endButton;

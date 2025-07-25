@@ -11,7 +11,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('pay', function (Interaction $interaction) use ($gamba) {
+$discord->listenCommand('pay', function (Interaction $interaction) use ($gamba): void {
 
     $payAmount = getOptionValue('amount', $interaction);
 

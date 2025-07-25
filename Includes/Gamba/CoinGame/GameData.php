@@ -37,7 +37,7 @@ final class GameData implements JsonSerializable
         $this->id = $this->interaction->id;
         $this->owner = getUserId($this->interaction);
 
-        if ($buttons) {
+        if ($buttons instanceof ButtonCollection) {
             foreach ($buttons as $button) {
                 $this->buttons[$button->getCustomId()] = $button;
             }

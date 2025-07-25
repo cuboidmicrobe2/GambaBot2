@@ -26,14 +26,11 @@ final class Gamba
     // public private(set) TradeManager $tradeManager;
     public private(set) GameHandler $games;
 
-    private PDOStatement $fetchRandItem;
+    private readonly PDOStatement $fetchRandItem;
 
-    private Mysql $gambaConn;
-
-    public function __construct(Mysql $gambaConn, public private(set) InventoryManager $inventoryManager)
+    public function __construct(private readonly Mysql $gambaConn, public private(set) InventoryManager $inventoryManager)
     {
-        $this->gambaConn = $gambaConn;
-        $this->fetchRandItem = $gambaConn->prepare(<<<'SQL'
+        $this->fetchRandItem = $this->gambaConn->prepare(<<<'SQL'
             SELECT id, name 
             FROM items
             WHERE rarity = :rarity
@@ -179,8 +176,8 @@ final class Gamba
         $lastDaily = $userInventory->getLastDaily();
         if (date('Y-m-d', $lastDaily) === $today->format('Y-m-d')) {
             $tomorrow = $today->modify('+1 day');
-            $nextReset = preg_replace('/[0-9]{2}(:[0-9]{2}){2}/', '00:00:00', $tomorrow->format('c'));
-            $unix = strtotime($nextReset);
+            $nextReset = preg_replace('/\d{2}(:\d{2}){2}/', '00:00:00', $tomorrow->format('c'));
+            $unix = strtotime((string) $nextReset);
             $message->setContent("You have already claimed your daily coins. Next /daily <t:$unix:R>.");
 
             return;

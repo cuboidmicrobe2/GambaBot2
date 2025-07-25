@@ -9,9 +9,9 @@ use PDO\Mysql;
 
 final class Inventory
 {
-    public function __construct(private string $owner, private Mysql &$database)
+    public function __construct(private readonly string $owner, private Mysql &$database)
     {
-        self::userInventoryMustExist($owner, $database);
+        $this->userInventoryMustExist($owner, $database);
     }
 
     /**
@@ -192,7 +192,7 @@ final class Inventory
     /**
      * Create the user table if it does not exist
      */
-    private static function userInventoryMustExist(string $uid, Mysql $database): void
+    private function userInventoryMustExist(string $uid, Mysql $database): void
     {
         $database->query(<<<SQL
             CREATE TABLE IF NOT EXISTS USER_{$uid}(

@@ -9,7 +9,7 @@ use function GambaBot\Interaction\getCommandStrings;
 
 global $discord;
 
-$discord->listenCommand('news', function (Interaction $interaction) {
+$discord->listenCommand('news', function (Interaction $interaction): void {
 
     $news = getCommandStrings($interaction)['content'] ?? 'No news found...';
 

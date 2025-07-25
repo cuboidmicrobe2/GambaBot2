@@ -32,7 +32,7 @@ final class RockPaperScissors extends GameInstance
         }
     }
 
-    public function __construct(public private(set) string $p1Uid, private Inventory $p1Inv, public private(set) string $p2Uid, private Inventory $p2Inv, public private(set) int $bet)
+    public function __construct(public private(set) string $p1Uid, private readonly Inventory $p1Inv, public private(set) string $p2Uid, private readonly Inventory $p2Inv, public private(set) int $bet)
     {
         parent::__construct();
         $this->newRound();
@@ -40,13 +40,13 @@ final class RockPaperScissors extends GameInstance
 
     public function __destruct()
     {
-        if ($this->p1Points === $this->p2Points and $this->started) {
-            if ($this->roundData[$this->round][$this->p1Uid] !== null and $this->roundData[$this->round][$this->p2Uid] === null) {
+        if ($this->p1Points === $this->p2Points && $this->started) {
+            if ($this->roundData[$this->round][$this->p1Uid] !== null && $this->roundData[$this->round][$this->p2Uid] === null) {
                 $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
 
                 return;
             }
-            if ($this->roundData[$this->round][$this->p2Uid] !== null and $this->roundData[$this->round][$this->p1Uid] === null) {
+            if ($this->roundData[$this->round][$this->p2Uid] !== null && $this->roundData[$this->round][$this->p1Uid] === null) {
                 $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
 
                 return;
@@ -71,7 +71,7 @@ final class RockPaperScissors extends GameInstance
 
     public function makeMove(string $uid, RpsMove $move): bool
     {
-        if ($uid !== $this->p1Uid and $uid !== $this->p2Uid) {
+        if ($uid !== $this->p1Uid && $uid !== $this->p2Uid) {
             throw new InvalidArgumentException($uid.' is not a player in this game');
         }
 
@@ -87,11 +87,7 @@ final class RockPaperScissors extends GameInstance
 
     public function movesDone(): bool
     {
-        if ($this->roundData[$this->round][$this->p1Uid] instanceof RpsMove and $this->roundData[$this->round][$this->p2Uid] instanceof RpsMove) {
-            return true;
-        }
-
-        return false;
+        return $this->roundData[$this->round][$this->p1Uid] instanceof RpsMove && $this->roundData[$this->round][$this->p2Uid] instanceof RpsMove;
     }
 
     public function executeRound(): ?string
@@ -100,7 +96,7 @@ final class RockPaperScissors extends GameInstance
         $p1Move = $this->roundData[$this->round][$this->p1Uid];
         $p2Move = $this->roundData[$this->round][$this->p2Uid];
 
-        $res = self::calcWin($p1Move, $p2Move);
+        $res = $this->calcWin($p1Move, $p2Move);
         $winner = null;
         switch ($res) {
             case 'draw':
@@ -116,7 +112,6 @@ final class RockPaperScissors extends GameInstance
             default:
                 // fucking explode or smtn
                 throw new Exception(self::class.'::calcWin() returned a non valid string (fix it)');
-                break;
         }
 
         $this->newRound();
@@ -136,7 +131,7 @@ final class RockPaperScissors extends GameInstance
         return null;
     }
 
-    private static function calcWin(RpsMove $p1Move, RpsMove $p2Move): string
+    private function calcWin(RpsMove $p1Move, RpsMove $p2Move): string
     {
         if ($p1Move === $p2Move) {
             return 'draw';
@@ -147,8 +142,9 @@ final class RockPaperScissors extends GameInstance
             RpsMove::SICSSORS,
             RpsMove::ROCK,
         ];
+        $counter = count($moveLogic);
 
-        for ($i = 0; $i < count($moveLogic); $i++) {
+        for ($i = 0; $i < $counter; $i++) {
             if ($moveLogic[$i] !== $p1Move) {
                 continue;
             }

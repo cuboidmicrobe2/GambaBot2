@@ -9,7 +9,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('daily', function (Interaction $interaction) use ($gamba) {
+$discord->listenCommand('daily', function (Interaction $interaction) use ($gamba): void {
     $message = MessageBuilder::new()->setContent('Something went wrong');
 
     $gamba->daily(

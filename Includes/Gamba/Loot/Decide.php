@@ -34,7 +34,7 @@ abstract class Decide
 
             return Rarity::GOLD;
         }
-        if ($probValue >= (PURPLE_MIN - $adjustmet) and $probValue <= (PURPLE_MAX - $adjustmet)) {
+        if ($probValue >= PURPLE_MIN - $adjustmet && $probValue <= PURPLE_MAX - $adjustmet) {
             $purplePity = 0;
 
             return Rarity::PURPLE;

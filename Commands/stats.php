@@ -11,7 +11,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('stats', function (Interaction $interaction) use ($gamba, $discord) {
+$discord->listenCommand('stats', function (Interaction $interaction) use ($gamba, $discord): void {
     $stats = $gamba->getUserStats(getUserId($interaction));
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;

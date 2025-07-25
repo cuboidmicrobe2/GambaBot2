@@ -47,7 +47,7 @@ final class GameHandler
     {
         if (! $game instanceof GameInstance) {
             $game = $this->getFromId($game);
-            if ($game === null) {
+            if (!$game instanceof GameInstance) {
                 return false;
             } // something...
         }
@@ -72,7 +72,7 @@ final class GameHandler
     #[Deprecated('use GameHandler::getGame()')]
     public function getGameFromButtonId($id): ?GameInstance
     {
-        $gameId = explode(':', $id);
+        $gameId = explode(':', (string) $id);
 
         return $this->getFromId($gameId[0]);
     }
@@ -101,12 +101,12 @@ final class GameHandler
     public function userIsPlaying(string $uid, ?string $game = null, bool $returnGameInstance = false): GameInstance|bool
     {
 
-        if ($returnGameInstance and $game === null) {
+        if ($returnGameInstance && $game === null) {
             throw new Exception('must specify game to return GameInstance');
         }
 
         if ($game === null) {
-            foreach ($this->gameData as $_ => $data) {
+            foreach ($this->gameData as $data) {
                 if ($data->owner === $uid) {
                     return true;
                 }
@@ -116,7 +116,7 @@ final class GameHandler
         }
 
         foreach ($this->gameData as $game => $data) {
-            if ($data->owner === $uid and $game === $data->gameType) {
+            if ($data->owner === $uid && $game === $data->gameType) {
                 return $returnGameInstance ? $game : true;
             }
         }
@@ -148,7 +148,7 @@ final class GameHandler
 
     private function IdExists(string $id): bool
     {
-        foreach ($this->gameData as $_ => $data) {
+        foreach ($this->gameData as $data) {
             if ($data->id === $id) {
                 return true;
             }
