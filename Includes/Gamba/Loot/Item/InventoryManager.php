@@ -4,19 +4,28 @@ declare(strict_types=1);
 
 namespace Gamba\Loot\Item;
 
+use Database\PersistentConnection;
+use Debug\Debug;
 use HTTP\Request;
 use OutOfRangeException;
 use Pdo\Mysql;
 
-final readonly class InventoryManager
-{ public function __construct(private Mysql $conn)
-    {
-        $this->conn->setAttribute(Mysql::ATTR_ERRMODE, Mysql::ERRMODE_EXCEPTION);
+final class InventoryManager
+{
+    use Debug;
+    private readonly PersistentConnection $conn;
+    public function __construct(
+        string $dsn,
+        ?string $username = null,
+        ?string $password = null,
+        ?array $options = null,
+    ) {
+        $this->conn = PersistentConnection::connect('InventoryManager', $dsn, $username, $password, $options);
     }
 
     public function getInventory(string $uid): Inventory
     {
-        return new Inventory($uid, $this->conn);
+        return new Inventory($uid, $this->conn->getConnection());
     }
 
     public function leaderboard(int $top): array
@@ -25,7 +34,7 @@ final readonly class InventoryManager
             throw new OutOfRangeException('leaderboard $top cannot be less than 1');
         }
 
-        $result = $this->conn->query(<<<SQL
+        $result = $this->conn->getConnection()->query(<<<SQL
             SELECT uid, coins
             FROM user_stats
             ORDER BY coins DESC

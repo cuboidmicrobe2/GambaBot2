@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gamba;
 
+use Database\PersistentConnection;
 use DateTimeImmutable;
 use DateTimeZone;
 use Discord\Builders\MessageBuilder;
@@ -23,28 +24,36 @@ use PDOStatement;
  */
 final class Gamba
 {
+
+    private const string RAND_ITEM_STMT = <<<'SQL'
+        SELECT id, name 
+        FROM items
+        WHERE rarity = :rarity
+        ORDER BY RAND()
+        LIMIT 1;
+    SQL;
     // public private(set) TradeManager $tradeManager;
     public private(set) GameHandler $games;
 
-    private readonly PDOStatement $fetchRandItem;
-
-    public function __construct(private readonly Mysql $gambaConn, public private(set) InventoryManager $inventoryManager)
-    {
-        $this->fetchRandItem = $this->gambaConn->prepare(<<<'SQL'
-            SELECT id, name 
-            FROM items
-            WHERE rarity = :rarity
-            ORDER BY RAND()
-            LIMIT 1;
-        SQL);
-
-        // $this->tradeManager = new TradeManager;
+    //private readonly PDOStatement $fetchRandItem;
+    private readonly PersistentConnection $gambaConn;
+    public private(set) InventoryManager $inventoryManager;
+    public function __construct(        
+        string $gambaDsn,
+        string $inventoryManagerDsn,
+        ?string $username = null,
+        ?string $password = null,
+        ?array $gambaOptions = null,
+        ?array $inventoryManagerOptions = null,
+    ) {
+        $this->gambaConn = PersistentConnection::connect('GambaConnection', $gambaDsn, $username, $password, $gambaOptions);
+        $this->inventoryManager = new InventoryManager($inventoryManagerDsn, $username, $password, $inventoryManagerOptions);
         $this->games = new GameHandler;
     }
 
     public function getHistory(string $uid, int $amount): ItemCollection
     {
-        $result = $this->gambaConn->query(<<<SQL
+        $result = $this->gambaConn->getConnection()->query(<<<SQL
             SELECT name, rarity, descr 
             FROM history 
             JOIN items 
@@ -125,8 +134,10 @@ final class Gamba
         for ($i = 0; $i < $rolls; $i++) {
             $itemRarity = Decide::rarity($goldPity, $purplePity);
 
-            $this->fetchRandItem->execute(['rarity' => $itemRarity->value]);
-            $result = $this->fetchRandItem->fetch(Mysql::FETCH_ASSOC);
+            $fetchRandItem = $this->gambaConn->getConnection()->prepare(self::RAND_ITEM_STMT);
+
+            $fetchRandItem->execute(['rarity' => $itemRarity->value]);
+            $result = $fetchRandItem->fetch(Mysql::FETCH_ASSOC);
 
             $items[$i] = new Item(
                 name: $result['name'],

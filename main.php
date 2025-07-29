@@ -2,6 +2,7 @@
 
 declare(strict_types = 1);
 
+use Database\PersistentConnection;
 use Debug\CMD_FONT_COLOR;
 use Discord\Discord;
 use Discord\Parts\User\Activity;
@@ -40,8 +41,10 @@ $discord = new Discord([
 ]);
 
 $gamba = new Gamba(
-    gambaConn:           PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']),
-    inventoryManager:   new InventoryManager(PDO::connect('mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba_inventories', $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']))
+    gambaDsn: 'mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba',
+    inventoryManagerDsn: 'mysql:host='.$_ENV['DB_HOSTNAME'].';dbname=gamba_inventories',
+    username: $_ENV['DB_USERNAME'],
+    password: $_ENV['DB_PASSWORD'],
 );
 
 $discord->on('init', function(Discord $discord) use ($gamba) {
