@@ -9,7 +9,7 @@ use PDO\Mysql;
 
 final class Inventory
 {
-    public function __construct(private readonly string $owner, private Mysql &$database)
+    public function __construct(private readonly string $owner, private Mysql $database)
     {
         $this->userInventoryMustExist($owner, $database);
     }
