@@ -17,7 +17,7 @@ trait Debug {
 
         $sender = preg_replace('/[^\\\\]*\\\\/', '', self::class); // temp test
 
-        if($type & MessageType::WARNING) return new CMDOutput()->add('['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message, 33);
+        if($type & MessageType::WARNING) return new CMDOutput()->add('['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message, CMD_FONT_COLOR::YELLOW);
         
         return '['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message;
 
