@@ -10,6 +10,8 @@ namespace GambaBot\Interaction {
     use Discord\Parts\User\User;
     use InvalidArgumentException;
 
+    use stdClass;
+
     function getUserId(Interaction $interaction): string
     {
         return $interaction->member->user->id ?? $interaction->user->id;
@@ -33,17 +35,26 @@ namespace GambaBot\Interaction {
         return $interaction->data->options->offsetExists($offset) ? $interaction->data->options->offsetGet($offset)->value : null;
     }
 
-    function getCommandStrings(Interaction $interaction): ?array
+    function getCommandStrings(Interaction $interaction): ?stdClass
     {
         if (file_exists(__DIR__.'/Commands/content/strings.json')) {
-            $strings = json_decode(file_get_contents(__DIR__.'/Commands/content/strings.json'), true);
+            $strings = json_decode(file_get_contents(__DIR__.'/Commands/content/strings.json'));
 
-            return $strings[$interaction->data->name] ?? null;
+            return $strings->{$interaction->data->name} ?? null;
         }
         echo CMDOutput::new()->add('strings.json is missing from '.__DIR__.'/content', CMD_FONT_COLOR::YELLOW), PHP_EOL;
 
         return null;
     }
+
+    function insertStringValues(string $commandString, array $values): string
+    {
+        $patters = []; 
+        foreach (array_keys($values) as $key) {
+            $patters[] = '/\$('.$key.')/';
+        }
+        return preg_replace($patters, $values, $commandString);
+    }    
 
     function buttonPresserId(Interaction $buttonInteraction): string
     {
