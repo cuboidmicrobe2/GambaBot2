@@ -11,7 +11,7 @@ global $discord;
 
 $discord->listenCommand('news', function (Interaction $interaction): void {
 
-    $news = getCommandStrings($interaction)['content'] ?? 'No news found...';
+    $news = getCommandStrings($interaction);
 
-    $interaction->respondWithMessage(MessageBuilder::new()->setContent($news), ephemeral: true);
+    $interaction->respondWithMessage(MessageBuilder::new()->setContent($news?->content ?? 'No news'), ephemeral: true);
 });
