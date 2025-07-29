@@ -16,9 +16,9 @@ $discord->listenCommand('stats', function (Interaction $interaction) use ($gamba
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;
 
-    $coins = code($stats['coins'] ?? '$error');
-    $goldPity = code($stats['goldPity'] ?? '$error');
-    $purplePity = code($stats['purplePity'] ?? '$error');
+    $coins = code((string) $stats['coins'] ?? '$error');
+    $goldPity = code((string) $stats['goldPity'] ?? '$error');
+    $purplePity = code((string) $stats['purplePity'] ?? '$error');
 
     $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
         ->setTitle('Stats')
