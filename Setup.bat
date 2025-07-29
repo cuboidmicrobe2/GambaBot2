@@ -27,6 +27,6 @@ goto :EOF
 
 :CreateDatabase
     echo Creating database...
-    php %dir%\Includes\Gamba\InitDb.php
+    php %dir%\Includes\Database\InitDb.php
     echo Database has been created!
 goto :EOF
