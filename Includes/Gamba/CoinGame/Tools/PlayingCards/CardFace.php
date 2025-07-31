@@ -38,6 +38,4 @@ enum CardFace
             self::ACE => 'A',
         };
     }
-    
-    
 }
