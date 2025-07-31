@@ -7,19 +7,24 @@ namespace Gamba\CoinGame\Tools\PlayingCards;
 use ArrayAccess;
 use ArrayIterator;
 use Countable;
+use Gamba\CoinGame\Tools\PlayingCards\CardCollection;
 use IteratorAggregate;
 use Traversable;
 
 final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
 {
     private array $cards;
-    private readonly array $deckBp;
+    private readonly CardCollection $cardPool;
 
     private int $cardIterator = 0;
 
     public function __construct(int $size = 52)
     {
         $addedCards = 0;
+
+        /**
+         * @var Card[] $tempDeck
+         */
         $tempDeck = [];
         while ($addedCards < $size) {
             foreach (CardSuit::cases() as $suit) {
@@ -41,7 +46,8 @@ final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
 
             $this->cards = [];
         }
-        $this->deckBp = $tempDeck;
+        $this->cardPool = new CardCollection(count($tempDeck));
+        $this->cardPool->insert(...$tempDeck);
         $this->resetDeck();
     }
 
@@ -87,7 +93,16 @@ final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
 
     public function resetDeck(): void
     {
-        $this->cards = $this->deckBp;
+        $this->cards = [];
+
+        /**
+         * @var Card $card
+         */
+        foreach ($this->cardPool as $card) {
+            $this->cards[] = $card;
+        }
+
+        $this->shuffle();
     }
 
     public function offsetExists(mixed $offset): bool
