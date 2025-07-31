@@ -10,19 +10,17 @@ use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
 final class BlackJack extends GameInstance
 {
     private CardDeck $deck;
-    private readonly int $bet;
-    private int $wonBet;
+    public private(set) int $wonBet;
     private array $dealerHand = [
         'hidden' => [],
         'visible' => [],
     ];
-    private array $playerHand = [];
+    private array $playerHand = []; // make hand obj
 
-    public function __construct(int $bet)
+    public function __construct(public private(set) readonly int $bet)
     {
         parent::__construct();
 
-        $this->bet = $bet;
         $this->deck = new CardDeck(size: 52);
 
         $this->playerHand[] = $this->deck->pickCard();
