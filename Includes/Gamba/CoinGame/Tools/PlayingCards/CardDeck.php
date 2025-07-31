@@ -8,7 +8,6 @@ use ArrayAccess;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use ReflectionClass;
 use Traversable;
 
 final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
