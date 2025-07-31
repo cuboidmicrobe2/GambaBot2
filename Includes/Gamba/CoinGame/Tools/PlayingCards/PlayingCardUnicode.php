@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Tools\PlayingCards;
 
-use Gamba\CoinGame\Tools\PlayingCards\CardSuit;
-use Gamba\CoinGame\Tools\PlayingCards\CardFace;
-use Gamba\CoinGame\Tools\PlayingCards\Card;
-
 abstract class PlayingCardUnicode
 {
     private const array SYMBOLS = [
