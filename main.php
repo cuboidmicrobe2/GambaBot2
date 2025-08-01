@@ -2,17 +2,13 @@
 
 declare(strict_types = 1);
 
-use Database\PersistentConnection;
 use Debug\CMD_FONT_COLOR;
 use Discord\Discord;
 use Discord\Parts\User\Activity;
 use Discord\WebSockets\Intents;
 use Symfony\Component\Dotenv\Dotenv;
 use Debug\CMDOutput;
-use Discord\Parts\Interactions\Interaction;
-use Discord\WebSockets\Event;
 use Gamba\Gamba;
-use Gamba\Loot\Item\InventoryManager;
 use Infrastructure\FileManager;
 
 require_once __DIR__ . '/vendor/autoload.php';
@@ -50,8 +46,9 @@ $gamba = new Gamba(
 $discord->on('init', function(Discord $discord) use ($gamba) {
 
     $discord->updatePresence(new Activity($discord, [
-        'type' => Activity::TYPE_GAME,
-        'name' => 'the long game',
+        'type' => Activity::TYPE_CUSTOM,
+        'name' => 'customStatus',
+        'state' => 'Gambling🥰😍',
     ]));
 
     $discord->on('heartbeat', function() use ($gamba) {
