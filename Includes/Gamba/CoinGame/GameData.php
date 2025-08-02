@@ -12,10 +12,11 @@ use Discord\Parts\Interactions\Interaction;
 use InvalidArgumentException;
 use JsonSerializable;
 use React\Promise\PromiseInterface;
+use Stringable;
 
 use function GambaBot\Interaction\getUserId;
 
-final class GameData implements JsonSerializable
+final class GameData implements JsonSerializable, Stringable
 {
     use Debug;
 
@@ -27,6 +28,9 @@ final class GameData implements JsonSerializable
 
     public private(set) string $gameType;
 
+    /**
+     * @var null|array<int, Button>
+     */
     public private(set) ?array $buttons;
 
     private ?MessageBuilder $lastMessage = null;
@@ -99,6 +103,15 @@ final class GameData implements JsonSerializable
         }
     }
 
+    public function setButtonDisabledState(string $buttonName, bool $disabled): void
+    {
+        if (isset($this->buttons[$this->id.':'.$buttonName])) {
+            $this->buttons[$this->id.':'.$buttonName]->isDisabled($disabled);
+        } else {
+            throw new InvalidArgumentException('Button: '.$this->id.':'.$buttonName.' does not exists in '.$this);
+        }
+    }
+
     public function updateMessage(MessageBuilder $message): PromiseInterface
     {
         $this->lastMessage = $message;
@@ -115,5 +128,10 @@ final class GameData implements JsonSerializable
             'timeOfCreation' => $this->timeOfCreation,
             'buttons' => count($this->buttons),
         ];
+    }
+
+    public function __toString(): string
+    {
+        return self::class.'<'.$this->gameType.', '.$this->owner.'>';
     }
 }
