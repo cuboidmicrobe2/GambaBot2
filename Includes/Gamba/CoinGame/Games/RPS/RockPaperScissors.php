@@ -40,33 +40,28 @@ final class RockPaperScissors extends GameInstance
 
     public function __destruct()
     {
-        if ($this->p1Points === $this->p2Points && $this->started) {
-            if ($this->roundData[$this->round][$this->p1Uid] !== null && $this->roundData[$this->round][$this->p2Uid] === null) {
+        if ($this->started) {
+            if ($this->p1Points >= self::WIN_CON) {
                 $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
-
                 return;
             }
-            if ($this->roundData[$this->round][$this->p2Uid] !== null && $this->roundData[$this->round][$this->p1Uid] === null) {
+            elseif ($this->p2Points >= self::WIN_CON) {
                 $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
-
+                return;
+            }
+            elseif ($this->roundData[$this->round][$this->p1Uid] !== null && $this->roundData[$this->round][$this->p2Uid] === null) {
+                $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
+                return;
+            }
+            elseif ($this->roundData[$this->round][$this->p2Uid] !== null && $this->roundData[$this->round][$this->p1Uid] === null) {
+                $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
                 return;
             }
 
-            $this->p1Inv->setCoins($this->p1Inv->getCoins() + $this->bet);
-            $this->p2Inv->setCoins($this->p2Inv->getCoins() + $this->bet);
-
-            return;
+            return; // game has started but no one has made a move this round so both lose :)
         }
-        if ($this->p1Points > $this->p2Points) {
-            $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
-
-            return;
-        }
-        if ($this->p1Points < $this->p2Points) {
-            $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
-
-            return;
-        }
+        $this->p1Inv->setCoins($this->p1Inv->getCoins() + $this->bet);
+        $this->p2Inv->setCoins($this->p2Inv->getCoins() + $this->bet);
     }
 
     public function makeMove(string $uid, RpsMove $move): bool
