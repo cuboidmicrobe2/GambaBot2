@@ -21,6 +21,8 @@ final class Hand implements Countable, Stringable
 
     public private(set) bool $playable = true;
 
+    public private(set) bool $double = false;
+
     /**
      * @var CardCollection<int, Card>
      */
@@ -109,6 +111,12 @@ final class Hand implements Countable, Stringable
     {
         return count($this->cards);
     }
+
+    public function double(): void
+    {
+        $this->double = true;
+    }
+
 
     private function getCardValue(Card $card): int
     {
