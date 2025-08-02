@@ -150,6 +150,16 @@ final class BlackJack extends GameInstance
             }
         }
     }
+
+    public function showPlayerHand(): string
+    {
+        return (string) $this->playerHands[$this->handIterator];
+    }
+
+    public function showDealerHand(): string
+    {
+        return (string) $this->dealerHand;
+    }
     
     /**
      * Get an array of bools for the result of every hand
