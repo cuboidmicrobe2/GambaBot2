@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Games\BlackJack;
 
 use Countable;
-use Exception;
 use Gamba\CoinGame\Tools\PlayingCards\Card;
 use Gamba\CoinGame\Tools\PlayingCards\CardCollection;
 use Gamba\CoinGame\Tools\PlayingCards\CardFace;
+use LogicException;
 use Stringable;
 
 final class Hand implements Countable, Stringable
@@ -21,6 +21,9 @@ final class Hand implements Countable, Stringable
 
     public private(set) bool $playable = true;
 
+    /**
+     * @var CardCollection<int, Card>
+     */
     public private(set) CardCollection $cards;
 
     public function __construct(private readonly bool $dealer = false)
@@ -28,14 +31,20 @@ final class Hand implements Countable, Stringable
         $this->cards = new CardCollection(11);
     }
 
+    /**
+     * If you can split: return **CardCollection[1]** and remove it from the hand
+     */
+    public function removeForSplit(): Card
+    {
+        $card = $this->cards[1];
+        unset($this->cards[1]);
+        return $card;
+    }
+
     public function __toString(): string
     {
         $string = '';
 
-        /**
-         * @var int $key
-         * @var Card $card
-         */
         foreach ($this->cards as $key => $card) {
             if ($this->dealer && $key === 0) {
                 $string .= '?? ';
@@ -51,12 +60,21 @@ final class Hand implements Countable, Stringable
     public function addCard(Card $card): void
     {
         if ($this->playable === false) {
-            throw new Exception('Cannot add card to a locked hand');
+            throw new LogicException('Cannot add card to a locked hand');
+        }
+
+        if ($this->getValue() >= 21) {
+            $this->lock();
         }
 
         $this->cards->insert($card);
     }
 
+    /**
+     * Get value of the cards in the hand
+     * 
+     * @return int  Value of hand
+     */
     public function getValue(): int
     {
         $value = 0;

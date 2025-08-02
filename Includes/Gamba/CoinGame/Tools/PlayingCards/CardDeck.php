@@ -13,7 +13,14 @@ use Traversable;
 
 final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
 {
+    /**
+     * @var Card[]
+     */
     private array $cards;
+
+    /**
+     * @var CardCollection<int, Card>
+     */
     private readonly CardCollection $cardPool;
 
     private int $cardIterator = 0;

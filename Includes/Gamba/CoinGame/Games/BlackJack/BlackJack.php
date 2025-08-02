@@ -5,25 +5,39 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Games\BlackJack;
 
 use Gamba\CoinGame\GameInstance;
-use Gamba\CoinGame\Tools\PlayingCards\Card;
 use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
-use React\EventLoop\Loop;
+use Gamba\CoinGame\Games\BlackJack\Hand;
+use LogicException;
 
 final class BlackJack extends GameInstance
 {
+
+    /**
+     * @var CardDeck<int, Card>
+     */
     private CardDeck $deck;
-    public private(set) int $wonBet;
+
+    public private(set) int $wonBet; // pointless? 
 
     private Hand $dealerHand;
 
+    /**
+     * @var Hand[]
+     */
     private array $playerHands = [];
+
     private int $handIterator = 0;
 
-    public function __construct(public private(set) readonly int $bet)
+    public function __construct(public readonly int $bet, int $decks)
     {
+        if ($decks <= 0) {
+            throw new LogicException('Cannot play '.self::class.' with '.$decks. ' decks');
+        }
+
         parent::__construct();
 
-        $this->deck = new CardDeck(size: 52);
+        $cardCount = 52 * $decks;
+        $this->deck = new CardDeck($cardCount);
         $this->playerHands[$this->handIterator] = new Hand;
         $this->dealerHand = new Hand(dealer: true);
 
@@ -33,6 +47,9 @@ final class BlackJack extends GameInstance
         $this->dealerHand->addcard($this->deck->pickCard());
     }
 
+    /**
+     * Gives the player a new card.
+     */
     public function hit(): void
     {
         $this->renew();
@@ -41,32 +58,49 @@ final class BlackJack extends GameInstance
         $this->advanceIterator();
     }
 
+    /**
+     * Locks current hand
+     */
     public function stand(): void
     {
         $this->renew();
         $this->playerHands[$this->handIterator]->lock();
-        $this->dealerHand['visible'][] = $this->deck->pickCard(); //Stops the current round and lets the dealer get dealt his cards.
 
         $this->advanceIterator();
     }
 
+    /**
+     * Give the player a new card without the possibility to gain more cards, in order to gain triple the initial bet.
+     */
     public function double(): void
     {
         $this->renew();
-        $this->playerHands[$this->handIterator]->addCard($this->deck->pickCard()); //Give the player a new card without the possibility to gain more cards, in order to gain triple the initial bet.
+        $this->playerHands[$this->handIterator]->addCard($this->deck->pickCard());
         $this->playerHands[$this->handIterator]->lock();
 
         $this->advanceIterator();
     }
 
+    /**
+     * Create new hand with the split card. If the cards have the same card face.
+     */
     public function split(): void
     {
         $this->renew();
 
+        if (! $this->splitCheck()) {
+            throw new LogicException('Cannot split on this '.Hand::class);
+        }
 
-        $this->playerHands[] = new Hand;
+        $card = $this->playerHands[$this->handIterator]->removeForSplit();
+        $this->playerHands[$this->handIterator]->addCard($this->deck->pickCard());
 
-        //Create new hand with the split card. If the cards have the same card face.
+        $newHand = new Hand();
+        $newHand->addCard($card);
+        $newHand->addCard($this->deck->pickCard());
+
+
+        $this->playerHands[] = $newHand;
 
         $this->advanceIterator();
     }
@@ -89,7 +123,6 @@ final class BlackJack extends GameInstance
      */
     public function playableHands(): bool
     {
-        /** @var Hand $hand */
         foreach ($this->playerHands as $hand) {
             if ($hand->playable === true) {
                 return true;
@@ -99,7 +132,10 @@ final class BlackJack extends GameInstance
         return false;
     }
 
-    public function isBlackJack(): bool
+    /**
+     * Check if the dealer has Black Jack
+     */
+    public function dealerBlackJack(): bool
     {
         return ($this->dealerHand->getValue() >= 21);
     }
@@ -115,11 +151,16 @@ final class BlackJack extends GameInstance
         }
     }
     
+    /**
+     * Get an array of bools for the result of every hand
+     * 
+     * @return array<int, bool>
+     */
     public function calcResult(): array
     {
         $dealerValue = $this->dealerHand->getValue();
         $result = [];
-        /** @var Hand $hand */
+
         foreach ($this->playerHands as $hand) {
             $handValue = $hand->getValue();
             if ($handValue > $dealerValue || $handValue < 21) {
