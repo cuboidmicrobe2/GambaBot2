@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Games\BlackJack;
 
+use Countable;
 use Exception;
 use Gamba\CoinGame\Tools\PlayingCards\Card;
 use Gamba\CoinGame\Tools\PlayingCards\CardCollection;
 use Gamba\CoinGame\Tools\PlayingCards\CardFace;
 
-final class Hand
+final class Hand implements Countable
 {
-    private CardCollection $cards;
-
     public private(set) bool $playable = true;
 
-    public function __construct()
+    public private(set) CardCollection $cards;
+    
+    public function __construct(private bool $dealer = false)
     {
         $this->cards = new CardCollection(11);
     }
@@ -56,10 +57,15 @@ final class Hand
         $this->playable = false;
     }
 
+    public function count(): int
+    {
+        return count($this->cards);
+    }
+
     private function getCardValue(Card $card): int
     {
         return match ($card->face) {
-            CardFace::ACE => 1,
+            CardFace::ACE => 11,
             CardFace::TWO => 2,
             CardFace::THREE => 3,
             CardFace::FOUR => 4,
