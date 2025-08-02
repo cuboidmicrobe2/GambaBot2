@@ -76,6 +76,7 @@ final class BlackJack extends GameInstance
     {
         $this->renew();
         $this->playerHands[$this->handIterator]->addCard($this->deck->pickCard());
+        $this->playerHands[$this->handIterator]->double();
         $this->playerHands[$this->handIterator]->lock();
 
         $this->advanceIterator();
@@ -154,7 +155,7 @@ final class BlackJack extends GameInstance
     /**
      * Get an array of bools for the result of every hand
      * 
-     * @return array<int, bool>
+     * @return array<int, HandResult>
      */
     public function calcResult(): array
     {
@@ -164,10 +165,18 @@ final class BlackJack extends GameInstance
         foreach ($this->playerHands as $hand) {
             $handValue = $hand->getValue();
             if ($handValue > $dealerValue || $handValue < 21) {
-                $result[] = false;
+                $result[] = HandResult::LOSS;
                 continue;
             }
-            $result[] = true;
+            if ($handValue === $dealerValue) {
+                $result[] = HandResult::TIE;
+                continue;
+            }
+            if ($hand->double) {
+                $result[] = HandResult::DOUBLE_WIN;
+                continue;
+            }
+            $result[] = HandResult::WIN;
         }
         
         return $result;
