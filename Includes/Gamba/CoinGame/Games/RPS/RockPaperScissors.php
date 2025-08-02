@@ -43,18 +43,22 @@ final class RockPaperScissors extends GameInstance
         if ($this->started) {
             if ($this->p1Points >= self::WIN_CON) {
                 $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
-            elseif ($this->p2Points >= self::WIN_CON) {
+            if ($this->p2Points >= self::WIN_CON) {
                 $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
-            elseif ($this->roundData[$this->round][$this->p1Uid] !== null && $this->roundData[$this->round][$this->p2Uid] === null) {
+            if ($this->roundData[$this->round][$this->p1Uid] !== null && $this->roundData[$this->round][$this->p2Uid] === null) {
                 $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
-            elseif ($this->roundData[$this->round][$this->p2Uid] !== null && $this->roundData[$this->round][$this->p1Uid] === null) {
+            if ($this->roundData[$this->round][$this->p2Uid] !== null && $this->roundData[$this->round][$this->p1Uid] === null) {
                 $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
 
