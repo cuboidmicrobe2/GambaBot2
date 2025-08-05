@@ -29,7 +29,7 @@ final class GameData implements JsonSerializable, Stringable
     public private(set) string $gameType;
 
     /**
-     * @var null|array<int, Button>
+     * @var null|array<string, Button>
      */
     public private(set) ?array $buttons;
 
