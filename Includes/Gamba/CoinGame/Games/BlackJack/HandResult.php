@@ -6,8 +6,9 @@ namespace Gamba\CoinGame\Games\BlackJack;
 
 enum HandResult
 {
-    case LOSS;
     case WIN;
     case DOUBLE_WIN;
+    case LOSS;
+    case DOUBLE_LOSS;
     case TIE;
 }

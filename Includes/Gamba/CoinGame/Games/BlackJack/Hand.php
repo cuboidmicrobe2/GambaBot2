@@ -49,11 +49,21 @@ final class Hand implements Countable, Stringable
 
         foreach ($this->cards as $key => $card) {
             if ($this->dealer && $key === 0) {
-                $string .= '?? ';
+                $string .= '[??] ';
                 continue;
             }
 
-            $string .= $card->asString(emoji: true).' ';
+            $string .= '['.$card->asString().'] ';
+        }
+
+        return $string;
+    }
+
+    public function getFullHandString(): string
+    {
+        $string = '';
+        foreach ($this->cards as $card) {
+            $string .= '['.$card->asString().'] ';
         }
 
         return $string;
@@ -64,12 +74,12 @@ final class Hand implements Countable, Stringable
         if ($this->playable === false) {
             throw new LogicException('Cannot add card to a locked hand');
         }
+        
+        $this->cards->insert($card);
 
         if ($this->getValue() >= 21) {
             $this->lock();
         }
-
-        $this->cards->insert($card);
     }
 
     /**
@@ -108,8 +118,14 @@ final class Hand implements Countable, Stringable
     }
 
     public function count(): int
-    {
-        return count($this->cards);
+    {   
+        $cardCount = 0;
+        foreach ($this->cards as $card) {
+            if ($card !== null) {
+                $cardCount++;
+            }
+        }
+        return $cardCount;
     }
 
     public function double(): void

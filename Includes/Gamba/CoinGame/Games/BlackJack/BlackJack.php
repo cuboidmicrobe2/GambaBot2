@@ -145,10 +145,11 @@ final class BlackJack extends GameInstance
     {
         $dealLoop = true;
         while ($dealLoop) {
-            $this->dealerHand->addcard($this->deck->pickCard());
-            if ($this->dealerHand->getValue() < 17) {
+            if ($this->dealerHand->getValue() >= 17) {
                 $dealLoop = false;
-            }
+                continue;
+            }  
+            $this->dealerHand->addcard($this->deck->pickCard());
         }
     }
 
@@ -157,9 +158,43 @@ final class BlackJack extends GameInstance
         return (string) $this->playerHands[$this->handIterator];
     }
 
-    public function showDealerHand(): string
+    /**
+     * @return null|string[]
+     */
+    public function showOtherPlayerHands(): ?array
     {
-        return (string) $this->dealerHand;
+        $hands = [];
+        foreach ($this->playerHands as $key => $hand) {
+            if ($key === $this->handIterator) {
+                continue;
+            }
+
+            $hands[] = $hand->getFullHandString(); 
+        }
+
+        return (count($hand) > 0) ? $hands : null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAllPlayerHandStrings(): array
+    {
+        $handStrings = [];
+        foreach ($this->playerHands as $hand) {
+            $handStrings[] = $hand->getFullHandString();
+        }
+
+        return $handStrings;
+    }
+
+    public function showDealerHand(bool $redactFirst = true): string
+    {
+        if ($redactFirst) {
+            return (string) $this->dealerHand;
+        }
+        
+        return (string) $this->dealerHand->getFullHandString();
     }
     
     /**
@@ -174,7 +209,12 @@ final class BlackJack extends GameInstance
 
         foreach ($this->playerHands as $hand) {
             $handValue = $hand->getValue();
-            if ($handValue > $dealerValue || $handValue < 21) {
+            if (($handValue < $dealerValue && $dealerValue <= 21) || $handValue > 21) {
+                if ($hand->double) {
+                    $result[] = HandResult::DOUBLE_LOSS;
+                    continue;
+                }
+
                 $result[] = HandResult::LOSS;
                 continue;
             }
@@ -196,15 +236,16 @@ final class BlackJack extends GameInstance
     {
         $lookingForHand = $this->playableHands();
         while ($lookingForHand) {
+            $this->handIterator++;
+
             if (! isset($this->playerHands[$this->handIterator])) {
                 $this->handIterator = 0;
+                $lookingForHand = false;
             }
 
             if ($this->playerHands[$this->handIterator]->playable === true) {
                 $lookingForHand = false;
             }
-
-            $this->handIterator++;
         }   
     }
 }
