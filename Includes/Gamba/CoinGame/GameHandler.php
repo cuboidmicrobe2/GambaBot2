@@ -20,6 +20,9 @@ final class GameHandler
 
     private SplObjectStorage $games;
 
+    /**
+     * @var WeakMap<GameInstance, GameData>
+     */
     private WeakMap $gameData;
 
     public function __construct()
