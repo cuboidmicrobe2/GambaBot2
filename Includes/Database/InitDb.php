@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use Symfony\Component\Dotenv\Dotenv;
 
-$rootDir = str_replace('\Includes\Gamba', '', __DIR__);
+echo __DIR__, PHP_EOL;
+
+$rootDir = str_replace('\Includes\Database', '', __DIR__);
+echo $rootDir;
+die;
 require_once $rootDir.'/vendor/autoload.php';
 
 $dotenv = new Dotenv;
@@ -50,7 +54,7 @@ $stmt = $tempDB->prepare(<<<'SQL'
     UPDATE name = :name, rarity = :rarity, descr = :descr
 SQL);
 
-foreach ((include __DIR__ . '/Loot/Item/ItemList.php') as $item) {
+foreach ((include $rootDir.'/Includes/Gamba/Loot/Item/ItemList.php') as $item) {
     $stmt->execute([
         'id' => $item['id'],
         'name' => $item['name'],
