@@ -12,7 +12,10 @@ use ReturnTypeWillChange;
 use SplFixedArray;
 
 /**
+ * 
  * A fixed array contaning a single type
+ * 
+ * @template TValue
  */
 class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable {
     
@@ -36,6 +39,8 @@ class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable 
 
     /**
      * Insert data into next empty offsets
+     * 
+     * @param TValue|array<TValue>  $values
      */
     public function insert(mixed ...$values) : void {
         $inserted = 0;
@@ -86,10 +91,16 @@ class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable 
         return array_key_exists($offset, $this->_data->toArray());
     }
 
+    /**
+     * @return TValue
+     */
     public function offsetGet(mixed $offset): mixed {
         return $this->_data[$offset];
     }
 
+    /**
+     * @param TValue    $value
+     */
     public function offsetSet(mixed $offset, mixed $value): void {
         $valueType = gettype($value);
         if($valueType == 'object') $valueType = get_class($value);
