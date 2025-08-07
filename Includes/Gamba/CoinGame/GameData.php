@@ -9,6 +9,9 @@ use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
+use Gamba\CoinGame\Tools\Components\ButtonCollection;
+use Gamba\CoinGame\Tools\Components\ComponentIdMap;
+use Exception;
 use InvalidArgumentException;
 use JsonSerializable;
 use React\Promise\PromiseInterface;
@@ -35,13 +38,21 @@ final class GameData implements JsonSerializable, Stringable
 
     private ?MessageBuilder $lastMessage = null;
 
-    private function __construct(private Interaction $interaction, ?ButtonCollection $buttons = null, public ?array $data = null)
-    {
+    private function __construct(
+        private Interaction $interaction, 
+        ?ButtonCollection $buttons = null,
+        private ?ComponentIdMap $idMap = null,
+        public ?array $data = null
+    ) {
 
         $this->id = $this->interaction->id;
         $this->owner = getUserId($this->interaction);
 
         if ($buttons instanceof ButtonCollection) {
+            if (! $idMap instanceof ComponentIdMap) {
+                throw new Exception('missing ComponentIdMap');
+            }
+
             foreach ($buttons as $button) {
                 $this->buttons[$button->getCustomId()] = $button;
             }
@@ -65,9 +76,9 @@ final class GameData implements JsonSerializable, Stringable
 
     }
 
-    public static function create(Interaction $interaction, ?ButtonCollection $buttons = null, ?array $data = null): self
+    public static function create(Interaction $interaction, ?ButtonCollection $buttons = null, ?ComponentIdMap $idMap = null, ?array $data = null): self
     {
-        return new self($interaction, $buttons, $data);
+        return new self($interaction, $buttons, $idMap, $data);
     }
 
     public function setType(string $type): void
@@ -75,22 +86,30 @@ final class GameData implements JsonSerializable, Stringable
         $this->gameType = $type;
     }
 
+    /**
+     * Button id and name must already exist in the ComponentIdMap
+     */
     public function addButton(Button $button): void
     {
         $this->buttons[] = $button;
     }
 
+    public function getButtonId(string $componentName): string
+    {
+        return $this->idMap->get($componentName);
+    }
+
     /**
      * @throws InvalidArgumentException Button does not exist
      */
-    public function removeButton(string $id): void
+    public function removeButton(string $componentName): void
     {
-        if (! isset($this->buttons[$id])) {
-            throw new InvalidArgumentException('Button with id: '.$id.' does not exist');
-        }
+        $id = $this->idMap->getAndRemove($componentName);
+
         $button = $this->buttons[$id];
         unset($this->buttons[$id]);
         $button->removeListener();
+        
         echo self::createUpdateMessage('', 'removed button '.$this->id.' '.$button->getCustomId()), PHP_EOL;
     }
 
@@ -105,10 +124,16 @@ final class GameData implements JsonSerializable, Stringable
 
     public function setButtonDisabledState(string $buttonName, bool $disabled): void
     {
-        if (isset($this->buttons[$this->id.':'.$buttonName])) {
-            $this->buttons[$this->id.':'.$buttonName]->isDisabled($disabled);
-        } else {
-            throw new InvalidArgumentException('Button: '.$this->id.':'.$buttonName.' does not exists in '.$this);
+        $this->buttons[$this->idMap->get($buttonName)]->setDisabled($disabled);
+    }
+
+    /**
+     * @param array<string, bool> $states [buttonName => bool]
+     */
+    public function setButtonDisabledStateArray(array $states): void
+    {
+        foreach ($states as $buttonName => $state) {
+            $this->setButtonDisabledState($buttonName, $state);
         }
     }
 
