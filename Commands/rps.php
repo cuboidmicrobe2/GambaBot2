@@ -9,8 +9,8 @@ use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Emoji;
 use Discord\Parts\Interactions\Interaction;
 use Discord\Parts\User\User;
-use Gamba\CoinGame\ButtonCollection;
-use Gamba\CoinGame\ComponentIdCreator;
+use Gamba\CoinGame\Tools\Components\ButtonCollection;
+use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\RPS\RockPaperScissors;
 use Gamba\CoinGame\Games\RPS\RpsMove;
@@ -233,7 +233,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $p2Name = getUsername($user);
     });
 
-    $gamba->games->addGame($game, GameData::create($interaction, $buttons, data: [$p1 => $p1Name, $p2 => $p2Name]));
+    $gamba->games->addGame($game, GameData::create($interaction, $buttons, $idCreator->exportIdMap(), data: [$p1 => $p1Name, $p2 => $p2Name]));
 
     $startGameOptions->addComponent($buttonStart);
     $startGameOptions->addComponent($buttonDecline);

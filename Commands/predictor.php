@@ -8,8 +8,8 @@ use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
-use Gamba\CoinGame\ButtonCollection;
-use Gamba\CoinGame\ComponentIdCreator;
+use Gamba\CoinGame\Tools\Components\ButtonCollection;
+use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\ColorGame\ColorGame;
 
@@ -197,7 +197,7 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
     $buttons[2] = $endButton;
     $row->addComponent($endButton);
 
-    $gamba->games->addGame($game, GameData::create($interaction, $buttons));
+    $gamba->games->addGame($game, GameData::create($interaction, $buttons, $idCreator->exportIdMap()));
 
     $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed)->addComponent($row));
 
