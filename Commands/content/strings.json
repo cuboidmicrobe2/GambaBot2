@@ -1,5 +1,8 @@
 {
     "news": {
-        "content": "New multiplayer game Rock paper scissors (/rps) added!"
+        "content": "New game /blackjack!"
+    },
+    "testname": {
+        "bool": 1
     }
 }
