@@ -2,15 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Gamba\CoinGame;
+namespace Gamba\CoinGame\Tools\Components;
 
 use Discord\Parts\Interactions\Interaction;
 use Exception;
 
+/**
+ * @template TKey of string
+ * @template TValue of string
+ */
 final class ComponentIdCreator
 {
     private readonly string $id;
 
+    /**
+     * @var array<TKey, TValue>
+     */
     private array $customIds;
 
     public function __construct(Interaction $interaction)
@@ -18,12 +25,12 @@ final class ComponentIdCreator
         $this->id = $interaction->id;
     }
 
+    /**
+     * @param TKey $componentName string without ":"
+     */
     public function createId(string $componentName): string
     {
-        if (str_contains($componentName, ':')) {
-            throw new Exception('component name cannot contain ":"');
-        }
-        $id = $this->id.':'.$componentName;
+        $id = $this->id.'/'.$componentName.'/'.hrtime(true);
         $this->customIds[$componentName] = $id;
 
         return $id;
@@ -37,5 +44,16 @@ final class ComponentIdCreator
     public function getAllCustom(): array
     {
         return $this->customIds;
+    }
+
+    public function exportIdMap(): ComponentIdMap
+    {
+        $map = new ComponentIdMap;
+
+        foreach ($this->customIds as $key => $value) {
+            $map->add($key, $value);
+        }
+
+        return $map;
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gamba\CoinGame;
+namespace Gamba\CoinGame\Tools\Components;
 
 use Discord\Builders\Components\Button;
 use Infrastructure\SimpleArray;
