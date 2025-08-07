@@ -13,12 +13,6 @@ use Stringable;
 
 final class Hand implements Countable, Stringable
 {
-    private const int ACE = 710;
-
-    private const int ACE_MAX = 11;
-
-    private const int ACE_MIN = 1;
-
     public private(set) bool $playable = true;
 
     public private(set) bool $double = false;
@@ -93,19 +87,15 @@ final class Hand implements Countable, Stringable
         $aceCount = 0;
         foreach ($this->cards as $card) {
             $cardValue = $this->getCardValue($card);
-            if ($cardValue === self::ACE) {
+            if ($cardValue === 11) {
                 $aceCount++;
-
-                continue;
             }
             $value += $cardValue;
         }
 
         for ($i = 0; $i < $aceCount; $i++) {
-            if (($value + self::ACE_MAX) > 21) {
-                $value += self::ACE_MIN;
-            } else {
-                $value += self::ACE_MAX;
+            if ($value > 21) {
+                $value -= 10;
             }
         }
 
@@ -137,7 +127,6 @@ final class Hand implements Countable, Stringable
     private function getCardValue(Card $card): int
     {
         return match ($card->face) {
-            CardFace::ACE => self::ACE,
             CardFace::TWO => 2,
             CardFace::THREE => 3,
             CardFace::FOUR => 4,
@@ -150,6 +139,7 @@ final class Hand implements Countable, Stringable
             CardFace::JACK => 10,
             CardFace::QUEEN => 10,
             CardFace::KING => 10,
+            CardFace::ACE => 11,
         };
     }
 }
