@@ -10,7 +10,7 @@ use function GambaBot\Discord\TextStyle\code;
 
 final class ColorGame extends GameInstance
 {
-    private const float MULTIPLIER_MOD = 1.7;
+    private const float MULTIPLIER_MOD = 1.8;
 
     public private(set) array $guessHistory = [];
 
