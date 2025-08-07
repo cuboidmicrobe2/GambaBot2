@@ -232,6 +232,11 @@ final class BlackJack extends GameInstance
         return $result;
     }
 
+    public function getCurrentHand(): Hand
+    {
+        return $this->playerHands[$this->handIterator];
+    }
+
     private function advanceIterator(): void
     {
         $lookingForHand = $this->playableHands();
