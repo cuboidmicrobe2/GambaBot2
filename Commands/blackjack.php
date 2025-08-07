@@ -7,8 +7,8 @@ use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
-use Gamba\CoinGame\ButtonCollection;
-use Gamba\CoinGame\ComponentIdCreator;
+use Gamba\CoinGame\Tools\Components\ButtonCollection;
+use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\BlackJack\BlackJack;
 use Gamba\CoinGame\Games\BlackJack\HandResult;
@@ -43,6 +43,8 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
 
     $canSplit = $game->splitCheck();
 
+    $canPickCard = $game->getCurrentHand()->playable;
+
     $gameLogic = function(string $action, Inventory $inventory) use ($gamba, $interaction, $uid, $discord) {
 
         /** @var BlackJack */
@@ -62,7 +64,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
                 $coins = $inventory->getCoins();
                 
                 if ($coins < $game->bet) {
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(italic('Insufficent coins for this action, try another button')), ephemeral: true);
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(italic('Insufficent coins for this action, try another button!')), ephemeral: true);
                     break;
                 }
 
@@ -73,7 +75,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
                 $coins = $inventory->getCoins();
                 
                 if ($coins < $game->bet) {
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(italic('Insufficent coins for this action, try another button')), ephemeral: true);
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(italic('Insufficent coins for this action, try another button!')), ephemeral: true);
                     break;
                 }
 
@@ -84,40 +86,38 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
                 throw new LogicException($action.' is not a valid action');
         }
 
+        $otherHandsString = '';
         if ($otherHands = $game->showOtherPlayerHands()) {
-            // add other hands to embed
-            $otherHandsString = '';
+
+            
             foreach ($otherHands as $handString) {
-                $otherHandsString .= $handString.PHP_EOL;
+                $otherHandsString .= '> '.$handString.PHP_EOL;
             }
         }
 
         $dealer = $game->showDealerHand();
         $player = $game->showPlayerHand();
-        
-        $canSplit = $game->splitCheck();
 
-        $disableDouble = true;
-        if ($inventory->getCoins() >= $game->bet) {
-            $disableDouble = false;
-        }
+        $disableCardPickup = ! $game->getCurrentHand()->playable;
 
-        $gameData->setButtonDisabledState('split', ! $canSplit);
-        $gameData->setButtonDisabledState('double', $disableDouble);
+        $gameData->setButtonDisabledStateArray([
+            'hit' => $disableCardPickup,
+            'double' => $disableCardPickup,
+            'split' => ! $game->splitCheck()
+        ]);
 
-        $buttonRow = $gamba->games->getNewActionRow($game);
         $dealer = $game->showDealerHand();
         $player = $game->showPlayerHand();
 
+        $otherHands ??= '';
+
         $embed = new Embed($discord)
             ->setTitle($dealer)
-            ->setDescription($player)
+            ->setDescription($player.PHP_EOL.$otherHandsString)
             ->setFooter('Starting bet: '.$game->bet)
             ->setColor(EMBED_COLOR_PINK);
 
         if (! $game->playableHands()) {
-
-            echo PHP_EOL, 'NO MORE HANDS', PHP_EOL;
 
             $game->dealDealer();
 
@@ -159,10 +159,11 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
             return;
         }
 
-        $interaction->updateOriginalResponse(MessageBuilder::new()->addComponent($buttonRow)->addEmbed($embed));
+        $interaction->updateOriginalResponse(MessageBuilder::new()->addComponent($gamba->games->getNewActionRow($game))->addEmbed($embed));
     };
 
-    $hitButton = Button::primary($idCreator->createId('hit'))->setLabel('Hit')->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
+
+    $hitButton = Button::secondary($idCreator->createId('hit'))->setLabel('Hit')->setDisabled(! $canPickCard)->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -170,7 +171,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
         $gameLogic('hit', $inventory);
     }, $discord);
 
-    $standButton = Button::primary($idCreator->createId('stand'))->setLabel('Stand')->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
+    $standButton = Button::secondary($idCreator->createId('stand'))->setLabel('Stand')->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -178,7 +179,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
         $gameLogic('stand', $inventory);
     }, $discord);
 
-    $doubleButton = Button::primary($idCreator->createId('double'))->setLabel('Double')->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
+    $doubleButton = Button::secondary($idCreator->createId('double'))->setLabel('Double')->setDisabled(! $canPickCard)->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -186,7 +187,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
         $gameLogic('double', $inventory);
     }, $discord);
 
-    $splitButton = Button::primary($idCreator->createId('split'))->setLabel('Split')->setDisabled((! $canSplit))->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
+    $splitButton = Button::secondary($idCreator->createId('split'))->setLabel('Split')->setDisabled((! $canSplit))->setListener(function(Interaction $buttonInteraction) use ($gameLogic, $inventory) {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -201,7 +202,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
         $buttonRow->addComponent($button);
     }
 
-    $gamba->games->addGame($game, GameData::create($interaction, $buttons));
+    $gamba->games->addGame($game, GameData::create($interaction, $buttons, $idCreator->exportIdMap()));
 
     if ($game->dealerBlackJack()) {
         $interaction->respondWithMessage(MessageBuilder::new()->setContent(italic('Dealer has blackjack!  (bet was refunded)')), ephemeral: true);
