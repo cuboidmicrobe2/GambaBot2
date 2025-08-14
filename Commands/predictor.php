@@ -12,6 +12,7 @@ use Gamba\CoinGame\Tools\Components\ButtonCollection;
 use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\ColorGame\ColorGame;
+use Tools\Discord\Text\Format;
 
 use function GambaBot\Discord\TextStyle\bold;
 use function GambaBot\Discord\TextStyle\code;
@@ -73,14 +74,14 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
         $embed = new Embed($discord)->setColor(EMBED_COLOR_PINK)->setTitle('Wrong!')->setDescription('You lost');
         $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed($embed));
 
-        $wagerTitleStyled = bold('Wager');
-        $rewardTitleStyled = strikeThrough(bold('Reward'));
-        $wagerValueStyled = code((string)$game->wager);
-        $noWinValueStyled = code('0');
+        $wagerTitleStyled = Format::bold('Wager');
+        $rewardTitleStyled = Format::strikeThrough(Format::bold('Reward'));
+        $wagerValueStyled = Format::code((string)$game->wager);
+        $noWinValueStyled = Format::code('0');
 
         $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
             ->setTitle('/predictor results for '.getUsername($interaction))
-            ->setDescription(bold('Guesses:').' '.$game->historyAsString())
+            ->setDescription(Format::bold('Guesses:').' '.$game->historyAsString())
             ->addFieldValues('',
                 <<<NAME
                 {$wagerTitleStyled}
@@ -163,14 +164,14 @@ $discord->listenCommand('predictor', function (Interaction $interaction) use ($d
         $finalWin = $game->winnings;
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('Game ended! You won: '.$finalWin.' coins'));
 
-        $wagerTitleStyled = bold('Wager');
-        $rewardTitleStyled = bold('Reward');
-        $wagerValueStyled = code((string)$game->wager);
-        $rewardValueStyled = code((string)$game->winnings);
+        $wagerTitleStyled = Format::bold('Wager');
+        $rewardTitleStyled = Format::bold('Reward');
+        $wagerValueStyled = Format::code((string)$game->wager);
+        $rewardValueStyled = Format::code((string)$game->winnings);
 
         $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
             ->setTitle('/predictor results for '.getUsername($interaction))
-            ->setDescription(bold('Guesses:').' '.$game->historyAsString())
+            ->setDescription(Format::bold('Guesses:').' '.$game->historyAsString())
             ->addFieldValues('',
                 <<<NAME
                 {$wagerTitleStyled}

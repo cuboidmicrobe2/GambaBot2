@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\Interaction;
+use Tools\Discord\Text\Format;
 
 use function GambaBot\Discord\TextStyle\code;
 use function GambaBot\Interaction\getUserId;
@@ -16,9 +17,9 @@ $discord->listenCommand('stats', function (Interaction $interaction) use ($gamba
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;
 
-    $coins = code((string) $stats['coins'] ?? '$error');
-    $goldPity = code((string) $stats['goldPity'] ?? '$error');
-    $purplePity = code((string) $stats['purplePity'] ?? '$error');
+    $coins = Format::code((string) $stats['coins'] ?? '$error');
+    $goldPity = Format::code((string) $stats['goldPity'] ?? '$error');
+    $purplePity = Format::code((string) $stats['purplePity'] ?? '$error');
 
     $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
         ->setTitle('Stats')

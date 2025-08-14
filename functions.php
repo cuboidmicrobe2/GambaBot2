@@ -91,7 +91,10 @@ namespace GambaBot\Discord {
 
     /**
      * Create dicord @user from user id
+     *
+     * @deprecated use the abstract Format class
      */
+    #[\Deprecated('use the abstract Format class')]
     function mention(string $uid): string
     {
         return '<@'.$uid.'>';
@@ -100,26 +103,46 @@ namespace GambaBot\Discord {
 
 namespace GambaBot\Discord\TextStyle {
 
+    /**
+     * @deprecated use the abstract Format class
+     */
+    #[\Deprecated('use the abstract Format class')]
     function code(string $text): string
     {
         return '`'.$text.'`';
     }
 
+    /**
+     * @deprecated use the abstract Format class
+     */
+    #[\Deprecated('use the abstract Format class')]
     function italic(string $text): string
     {
         return '*'.$text.'*';
     }
 
+    /**
+     * @deprecated use the abstract Format class
+     */
+    #[\Deprecated('use the abstract Format class')]
     function bold(string $text): string
     {
         return '**'.$text.'**';
     }
 
+    /**
+     * @deprecated use the abstract Format class
+     */
+    #[\Deprecated('use the abstract Format class')]
     function strikeThrough(string $text): string
     {
         return '~~'.$text.'~~';
     }
     
+    /**
+     * @deprecated use the abstract Format class
+     */
+    #[\Deprecated('use the abstract Format class')]
     function spoiler(string $text): string
     {
         return '||'.$text.'||';

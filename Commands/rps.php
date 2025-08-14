@@ -14,10 +14,8 @@ use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\RPS\RockPaperScissors;
 use Gamba\CoinGame\Games\RPS\RpsMove;
+use Tools\Discord\Text\Format;
 
-use function GambaBot\Discord\mention;
-use function GambaBot\Discord\TextStyle\code;
-use function GambaBot\Discord\TextStyle\italic;
 use function GambaBot\Interaction\buttonPressedByOwner;
 use function GambaBot\Interaction\buttonPressedByUser;
 use function GambaBot\Interaction\buttonPresserId;
@@ -33,7 +31,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
     $p2 = getOptionValue('opponent', $interaction);
 
     if ($p1 === $p2) {
-        $interaction->respondWithMessage(MessageBuilder::new()->setContent(italic('Do you not have any friends?')), ephemeral: true);
+        $interaction->respondWithMessage(MessageBuilder::new()->setContent(Format::italic('Do you not have any friends?')), ephemeral: true);
 
         return;
     }
@@ -76,8 +74,8 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
                 if ($winner = $game->checkWinner()) {
 
                     $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($discord)
-                        ->setTitle($p1Name.' '.$moves[$p1]->getEmoji().' ['.code($game->p1Points.' - '.$game->p2Points).'] '.$moves[$p2]->getEmoji().' '.$p2Name)
-                        ->setDescription('Round: '.code((string) ($game->round - 1)))
+                        ->setTitle($p1Name.' '.$moves[$p1]->getEmoji().' ['.Format::code($game->p1Points.' - '.$game->p2Points).'] '.$moves[$p2]->getEmoji().' '.$p2Name)
+                        ->setDescription('Round: '.Format::code((string) ($game->round - 1)))
                         ->setColor(EMBED_COLOR_PINK)
                     ));
 
@@ -88,9 +86,9 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
 
                     $scoreFormatted = '$score';
                     if ($game->p1Points > $game->p2Points) {
-                        $scoreFormatted = code($game->p1Points.' - '.$game->p2Points);
+                        $scoreFormatted = Format::code($game->p1Points.' - '.$game->p2Points);
                     } else {
-                        $scoreFormatted = code($game->p2Points.' - '.$game->p1Points);
+                        $scoreFormatted = Format::code($game->p2Points.' - '.$game->p1Points);
                     }
 
                     $p1MoveHistory = '';
@@ -103,7 +101,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
 
                     $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
                         ->setTitle($winnerUsername.' winns '.$scoreFormatted)
-                        ->setDescription('Coins: '.code((string) $game->bet))
+                        ->setDescription('Coins: '.Format::code((string) $game->bet))
                         ->setColor(EMBED_COLOR_GREEN)
                         ->addFieldValues(
                             'Players',
@@ -128,8 +126,8 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
                     return;
                 }
                 $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($discord)
-                    ->setTitle(italic($p1Name).' '.$moves[$p1]->getEmoji().' ['.code($game->p1Points.' - '.$game->p2Points).'] '.$moves[$p2]->getEmoji().' '.italic($p2Name))
-                    ->setDescription('Round: '.code((string) $game->round))
+                    ->setTitle(Format::italic($p1Name).' '.$moves[$p1]->getEmoji().' ['.Format::code($game->p1Points.' - '.$game->p2Points).'] '.$moves[$p2]->getEmoji().' '.Format::italic($p2Name))
+                    ->setDescription('Round: '.Format::code((string) $game->round))
                     ->setColor(EMBED_COLOR_PINK)
                 ));
 
@@ -144,11 +142,11 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
                 $p2Move = $game->roundData[$game->round - 1][$p2]->getEmoji().' ';
             }
 
-            $p1NameStyled = ($game->roundData[$game->round][$p1] === null) ? italic($p1Name) : $p1Name;
-            $p2NameStyled = ($game->roundData[$game->round][$p2] === null) ? italic($p2Name) : $p2Name;
+            $p1NameStyled = ($game->roundData[$game->round][$p1] === null) ? Format::italic($p1Name) : $p1Name;
+            $p2NameStyled = ($game->roundData[$game->round][$p2] === null) ? Format::italic($p2Name) : $p2Name;
             $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($discord)
-                ->setTitle($p1NameStyled.$p1Move.' ['.code($game->p1Points.' - '.$game->p2Points).'] '.$p2Move.$p2NameStyled)
-                ->setDescription('Round: '.code((string) $game->round))
+                ->setTitle($p1NameStyled.$p1Move.' ['.Format::code($game->p1Points.' - '.$game->p2Points).'] '.$p2Move.$p2NameStyled)
+                ->setDescription('Round: '.Format::code((string) $game->round))
                 ->setColor(EMBED_COLOR_PINK)
             ));
         }
@@ -185,8 +183,8 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $game->started = true;
 
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('')->addComponent($gameOptions)->addEmbed(new Embed($discord)
-            ->setTitle(italic($gameData->data[$p1]).' ['.code('0 - 0').'] '.italic($gameData->data[$p2]))
-            ->setDescription('Round: '.code((string) $game->round))
+            ->setTitle(Format::italic($gameData->data[$p1]).' ['.Format::code('0 - 0').'] '.Format::italic($gameData->data[$p2]))
+            ->setDescription('Round: '.Format::code((string) $game->round))
             ->setColor(EMBED_COLOR_PINK)
         ));
     }, $discord);
@@ -198,7 +196,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $game = $gamba->games->getGame($interaction->id);
         $gamba->games->closeGame($game);
 
-        $interaction->updateOriginalResponse(MessageBuilder::new()->setContent(italic('The match was declined')));
+        $interaction->updateOriginalResponse(MessageBuilder::new()->setContent(Format::italic('The match was declined')));
     }, $discord);
 
     $buttonRock = Button::secondary($idCreator->createId('rock'))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
@@ -238,5 +236,6 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
     $startGameOptions->addComponent($buttonStart);
     $startGameOptions->addComponent($buttonDecline);
 
-    $interaction->respondWithMessage(MessageBuilder::new()->setContent(mention($p2).' has been challenged to play rock paper scissors for '.code((string) $bet).' coins')->addComponent($startGameOptions));
+    $userMention = Format::mention()->user($p2);
+    $interaction->respondWithMessage(MessageBuilder::new()->setContent($userMention.' has been challenged to play rock paper scissors for '.Format::code((string) $bet).' coins')->addComponent($startGameOptions));
 });

@@ -17,7 +17,7 @@ use Gamba\Loot\Item\Item;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Rarity;
 use Pdo\Mysql;
-use PDOStatement;
+use Tools\Discord\Text\Format;
 
 /**
  * @todo add wakeupDB() (in InventoryManager too)
@@ -138,7 +138,7 @@ final class Gamba
 
             $fetchRandItem->execute(['rarity' => $itemRarity->value]);
             $result = $fetchRandItem->fetch(Mysql::FETCH_ASSOC);
-
+            
             $items[$i] = new Item(
                 name: $result['name'],
                 rarity: $itemRarity,
@@ -189,7 +189,9 @@ final class Gamba
             $tomorrow = $today->modify('+1 day');
             $nextReset = preg_replace('/\d{2}(:\d{2}){2}/', '00:00:00', $tomorrow->format('c'));
             $unix = strtotime((string) $nextReset);
-            $message->setContent("You have already claimed your daily coins. Next /daily <t:$unix:R>.");
+
+            $nextDailyTimer = Format::timer()->relative($unix);
+            $message->setContent("You have already claimed your daily coins. Next /daily $nextDailyTimer.");
 
             return;
         }

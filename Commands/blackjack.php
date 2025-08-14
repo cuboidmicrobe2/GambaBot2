@@ -13,6 +13,7 @@ use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\BlackJack\BlackJack;
 use Gamba\CoinGame\Games\BlackJack\HandResult;
 use Gamba\Loot\Item\Inventory;
+use Tools\Discord\Text\Format;
 
 use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Discord\TextStyle\italic;
@@ -64,7 +65,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
                 $coins = $inventory->getCoins();
                 
                 if ($coins < $game->bet) {
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(italic('Insufficent coins for this action, try another button!')), ephemeral: true);
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(Format::italic('Insufficent coins for this action, try another button!')), ephemeral: true);
                     break;
                 }
 
@@ -75,7 +76,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
                 $coins = $inventory->getCoins();
                 
                 if ($coins < $game->bet) {
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(italic('Insufficent coins for this action, try another button!')), ephemeral: true);
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(Format::italic('Insufficent coins for this action, try another button!')), ephemeral: true);
                     break;
                 }
 
@@ -205,7 +206,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
     $gamba->games->addGame($game, GameData::create($interaction, $buttons, $idCreator->exportIdMap()));
 
     if ($game->dealerBlackJack()) {
-        $interaction->respondWithMessage(MessageBuilder::new()->setContent(italic('Dealer has blackjack!  (bet was refunded)')), ephemeral: true);
+        $interaction->respondWithMessage(MessageBuilder::new()->setContent(Format::italic('Dealer has blackjack!  (bet was refunded)')), ephemeral: true);
         return;
     }
 
