@@ -5,7 +5,8 @@ call :Main
 goto :EOF
 
 :Main
-    echo Make sure that the XAMPP database in online before running the setup
+    echo Hello %USERNAME%!
+    echo  Make sure that the XAMPP database in online before running the setup
     pause
     cls
     call :CreateShortcut
