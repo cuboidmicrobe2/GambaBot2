@@ -52,10 +52,14 @@ $discord->on('init', function(Discord $discord) use ($gamba) {
     ]));
 
     $discord->on('heartbeat', function() use ($gamba) {
-        $gamba->games->clean();
+        $gamba->games->checkTimedEvents();
     });
 
-    FileManager::loadAllFromDir('Commands', '.php', true);
+    FileManager::loadAllFromDir(
+        dir: 'Commands', 
+        fileNameExtension: '.php', 
+        message: true
+    );
 
     echo CMDOutput::new()->add('Online', CMD_FONT_COLOR::BRIGHT_GREEN), PHP_EOL;
 });

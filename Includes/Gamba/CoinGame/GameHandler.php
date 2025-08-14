@@ -9,6 +9,7 @@ use Deprecated;
 use Discord\Builders\Components\ActionRow;
 use Exception;
 use SplObjectStorage;
+use TimedGameInstance;
 use WeakMap;
 
 /**
@@ -127,9 +128,17 @@ final class GameHandler
         return false;
     }
 
-    public function clean(): void
+    /**
+     * Handle timed events
+     */
+    public function checkTimedEvents(): void
     {
         foreach ($this->gameData as $game => $data) {
+
+            if ($game instanceof TimedGameInstance) {
+                $game->checkTimedInstance();
+            }
+
             if ($game->expired()) {
                 echo self::createUpdateMessage('', 'removed old game '.json_encode($data)), PHP_EOL;
                 $this->games->detach($game);
