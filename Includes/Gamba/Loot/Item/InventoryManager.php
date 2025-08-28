@@ -9,11 +9,18 @@ use Debug\Debug;
 use HTTP\Request;
 use OutOfRangeException;
 use Pdo\Mysql;
+use WeakReference;
 
 final class InventoryManager
 {
     use Debug;
     private readonly PersistentConnection $conn;
+
+    /**
+     * @var array<string, WeakReference>
+     */
+    private array $inventoryCache = [];
+
     public function __construct(
         string $dsn,
         ?string $username = null,
@@ -25,7 +32,15 @@ final class InventoryManager
 
     public function getInventory(string $uid): Inventory
     {
-        return new Inventory($uid, $this->conn->getConnection());
+        $ref = $this->inventoryCache[$uid]?->get();
+
+        if ($ref instanceof Inventory) {
+            return $ref;
+        }
+
+        $inv = new Inventory($uid, $this->conn->getConnection());
+        $this->inventoryCache[$uid] = WeakReference::create($inv);
+        return $inv;
     }
 
     public function leaderboard(int $top): array
@@ -66,5 +81,14 @@ final class InventoryManager
         }
 
         return $data;
+    }
+
+    public function clearChace(): void
+    {
+        foreach ($this->inventoryCache as $uid => $ref) {
+            if ($ref instanceof WeakReference && $ref->get() === null) {
+                unset($this->inventoryCache[$uid]);
+            }
+        }
     }
 }
