@@ -7,6 +7,7 @@ namespace Gamba;
 use Database\PersistentConnection;
 use DateTimeImmutable;
 use DateTimeZone;
+use Debug\Debug;
 use Discord\Builders\MessageBuilder;
 use Gamba\CoinGame\GameHandler;
 use Gamba\CoinGame\Games\Roulette\Color;
@@ -24,6 +25,7 @@ use Tools\Discord\Text\Format;
  */
 final class Gamba
 {
+    use Debug;
 
     private const string RAND_ITEM_STMT = <<<'SQL'
         SELECT id, name 
@@ -202,5 +204,10 @@ final class Gamba
         $userInventory->setCoins($userInventory->getCoins() + $amount);
         $message->setContent("You got $amount coins.");
         $userInventory->updateDaily();
+    }
+
+    public function printMemory(): void
+    {
+        echo self::createUpdateMessage('', '{"memory": "'.self::convert(memory_get_usage()).'"}'), PHP_EOL;
     }
 }
