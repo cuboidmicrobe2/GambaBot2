@@ -206,7 +206,7 @@ $discord->listenCommand('blackjack', function (Interaction $interaction) use ($d
     $gamba->games->addGame($game, GameData::create($interaction, $buttons, $idCreator->exportIdMap()));
 
     if ($game->dealerBlackJack()) {
-        $interaction->respondWithMessage(MessageBuilder::new()->setContent(Format::italic('Dealer has blackjack!  (bet was refunded)')), ephemeral: true);
+        $interaction->respondWithMessage(MessageBuilder::new()->setContent(Format::italic('Dealer has blackjack! (bet was refunded)')), ephemeral: true);
         return;
     }
 

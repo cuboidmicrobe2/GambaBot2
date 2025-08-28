@@ -41,7 +41,7 @@ final class Hand implements Countable, Stringable
     {
         $string = '';
 
-        foreach ($this->cards as $key => $card) {
+        foreach ($this->cards->yield() as $key => $card) {
             if ($this->dealer && $key === 0) {
                 $string .= '[??] ';
                 continue;
@@ -56,7 +56,7 @@ final class Hand implements Countable, Stringable
     public function getFullHandString(): string
     {
         $string = '';
-        foreach ($this->cards as $card) {
+        foreach ($this->cards->yield() as $card) {
             $string .= '['.$card->asString().'] ';
         }
 
@@ -85,7 +85,8 @@ final class Hand implements Countable, Stringable
     {
         $value = 0;
         $aceCount = 0;
-        foreach ($this->cards as $card) {
+        foreach ($this->cards->yield() as $card) {
+
             $cardValue = $this->getCardValue($card);
             if ($cardValue === 11) {
                 $aceCount++;
@@ -110,7 +111,8 @@ final class Hand implements Countable, Stringable
     public function count(): int
     {   
         $cardCount = 0;
-        foreach ($this->cards as $card) {
+        foreach ($this->cards->yield() as $card) {
+
             if ($card !== null) {
                 $cardCount++;
             }

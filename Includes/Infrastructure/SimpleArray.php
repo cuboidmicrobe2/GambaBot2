@@ -5,27 +5,28 @@ namespace Infrastructure;
 use ArrayAccess;
 use Countable;
 use Exception;
-use Iterator;
+use Generator;
+use IteratorAggregate;
 use JsonSerializable;
 use OutOfRangeException;
-use ReturnTypeWillChange;
 use SplFixedArray;
+use Traversable;
 
 /**
- * 
- * A fixed array contaning a single type
- * 
  * @template TValue
+ * @property int $size  Size of the object
  */
-class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable {
+class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable {
     
     public readonly string $type;
+
+    /**
+     * Max size of the array.
+     */
     public readonly int $size;
-    private int $position = 0;
 
     protected SplFixedArray $_data;
     
-
     public function __construct(string $dataType, int $size) {
         $this->_data = new SplFixedArray($size);
         $this->size = $size;
@@ -40,7 +41,8 @@ class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable 
     /**
      * Insert data into next empty offsets
      * 
-     * @param TValue|array<TValue>  $values
+     * @param TValue|TValue[]  $values
+     * @throws OutOfRangeException  If inserting to many values
      */
     public function insert(mixed ...$values) : void {
         $inserted = 0;
@@ -87,21 +89,21 @@ class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable 
 
 // ------------------ArrayAccess------------------
 
-    public function offsetExists(mixed $offset): bool {
+    final public function offsetExists(mixed $offset): bool {
         return array_key_exists($offset, $this->_data->toArray());
     }
 
     /**
      * @return TValue
      */
-    public function offsetGet(mixed $offset): mixed {
+    final public function offsetGet(mixed $offset): mixed {
         return $this->_data[$offset];
     }
 
     /**
      * @param TValue    $value
      */
-    public function offsetSet(mixed $offset, mixed $value): void {
+    final public function offsetSet(mixed $offset, mixed $value): void {
         $valueType = gettype($value);
         if($valueType == 'object') $valueType = get_class($value);
 
@@ -109,44 +111,158 @@ class SimpleArray implements ArrayAccess, Countable, Iterator, JsonSerializable 
         $this->_data[$offset] = $value;
     }
 
-    public function offsetUnset(mixed $offset): void {
+    final public function offsetUnset(mixed $offset): void {
         unset($this->_data[$offset]);
     }
 
-// ------------------Countable------------------
+    /**
+     * Counts all non null values in the array.
+     */
+    final public function count(): int {
+        $count = 0;
+        foreach ($this->_data as $value) {
+            if ($value !== null) {
+                $count++;
+            }
+        }
 
-    public function count(): int {
-        return $this->size;
+        return $count;
     }
 
-// ------------------Iterator------------------
-
-    public function rewind(): void {
-        $this->position = 0;
-    }
-
-    #[ReturnTypeWillChange]
-    public function current(): mixed {
-        return $this->_data[$this->position];
-    }
-
-    public function next(): void {
-        ++$this->position;
-    }
-
-    public function valid(): bool {
-        return isset($this->_data[$this->position]);
-    }
-
-    #[ReturnTypeWillChange]
-    public function key(): mixed {
-        return $this->position;
-    }
-
-// ------------------JsonSerializable------------------
-
-    public function jsonSerialize(): SplFixedArray
+    final public function jsonSerialize(): SplFixedArray
     {
         return $this->_data;
+    }
+
+    final public function getIterator(): Traversable
+    {
+        return $this->_data->getIterator();
+    }
+
+    /**
+     * Yeild all non null values.
+     * @return Generator<int, TValue>
+     */
+    final public function yield(): Generator
+    {
+        foreach ($this->_data->getIterator() as $key => $value) {
+            if ($value !== null) {
+                yield $key => $value;
+            }
+        }  
+    }
+
+    /**
+     * Filters elements of an array using a callback function.
+     * @link https://www.php.net/manual/en/function.array-find.php
+     * @return array<int, TValue>
+     */
+    final public function filter(callable $callback): array
+    {
+        $found = [];
+        foreach ($this->_data->getIterator() as $value) {
+            if ($value === null) {
+                continue;
+            }
+            if ($callback($value)) {
+                $found[] = $value;
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * Checks if at least one array element satisfies a callback function.
+     */
+    final public function any(callable $callback): bool
+    {
+        foreach ($this->_data->getIterator() as $value) {
+            if ($value === null) {
+                continue;
+            }
+            if ($callback($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if all array elements satisfy a callback function.
+     */
+    final public function all(callable $callback): bool
+    {
+        foreach ($this->_data->getIterator() as $value) {
+            if ($value === null) {
+                continue;
+            }
+            if (! $callback($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Pop the element off the end of array.
+     * @return null|TValue
+     */
+    final public function pop(): mixed
+    {
+        $lastValue = null;
+        for ($i = $this->size - 1; $i > 0; $i--) {
+            if ($this[$i] !== null) {
+                $lastValue = $this[$i];
+                unset($this[$i]);
+                return $lastValue;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Shift an element off the beginning of the array.
+     * @return null|TValue
+     */
+    final public function shift(): mixed
+    {
+        $fistValue = null;
+        for ($i = 0; $i < $this->size; $i++) {
+            $fistValue ??= $this[$i];
+
+            if ($i === 0 || $this[$i] === null) {
+                continue;
+            }
+
+            $this[$i - 1] = $this[$i];
+            unset($this[$i]);
+        }
+        return $fistValue;
+    }
+
+    /**
+     * @param TValue    $value
+     */
+    final public function push(mixed $value): void
+    {
+        for ($i = $this->size - 1; $i > 0; $i--) {
+            if ($this[$i] !== null) {
+                $this[$i + 1] = $value;
+            }
+        }
+    }
+
+    /**
+     * Sets all values to null.
+     */
+    final public function unset(): void
+    {
+        for ($i = 0; $i < $this->size; $i++) {
+            $this[$i] = null;
+        }
     }
 }
