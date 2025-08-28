@@ -17,7 +17,7 @@ final class InventoryManager
     private readonly PersistentConnection $conn;
 
     /**
-     * @var array<string, WeakReference>
+     * @var array<string, WeakReference<Inventory>>
      */
     private array $inventoryCache = [];
 
@@ -32,14 +32,14 @@ final class InventoryManager
 
     public function getInventory(string $uid): Inventory
     {
-        $ref = $this->inventoryCache[$uid]?->get();
+        $ref = $this->getReference($uid);
 
         if ($ref instanceof Inventory) {
             return $ref;
         }
 
         $inv = new Inventory($uid, $this->conn->getConnection());
-        $this->inventoryCache[$uid] = WeakReference::create($inv);
+        $this->cache($uid, $inv);
         return $inv;
     }
 
@@ -83,6 +83,9 @@ final class InventoryManager
         return $data;
     }
 
+    /**
+     * Clear the Inventory cache
+     */
     public function clearChace(): void
     {
         foreach ($this->inventoryCache as $uid => $ref) {
@@ -90,5 +93,21 @@ final class InventoryManager
                 unset($this->inventoryCache[$uid]);
             }
         }
+    }
+
+    /**
+     * Get a users **Inventory** if it exists
+     */
+    private function getReference(string $uid): ?Inventory
+    {
+        return ($this->inventoryCache[$uid] ?? null)?->get();
+    }
+
+    /**
+     * Adds an **Inventory** to the cache
+     */
+    private function cache(string $uid, Inventory &$inventory): void
+    {
+        $this->inventoryCache[$uid] = WeakReference::create($inventory);
     }
 }
