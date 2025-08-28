@@ -23,6 +23,7 @@ if (PHP_VERSION_ID < 80407) {
 }
 
 date_default_timezone_set(TIME_ZONE);
+gc_enable();
 
 set_exception_handler(function(Throwable $e) {
     echo CMDOutput::new()->add($e->getMessage(), CMD_FONT_COLOR::YELLOW), PHP_EOL;
@@ -60,6 +61,7 @@ $discord->on('init', function(Discord $discord) use ($gamba) {
     $discord->on('heartbeat', function() use ($gamba) {
         $gamba->games->checkTimedEvents();
         $gamba->inventoryManager->clearChace();
+        $gamba->printMemory();
     });
 
     FileManager::loadAllFromDir(
