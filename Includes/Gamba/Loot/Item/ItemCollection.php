@@ -16,7 +16,7 @@ final class ItemCollection extends SimpleArray
     public function totalValue(): int
     {
         $value = 0;
-        foreach ($this as $item) {
+        foreach ($this->yield() as $item) {
             $value += $item->rarity->getPrice();
         }
 

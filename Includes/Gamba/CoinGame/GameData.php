@@ -53,7 +53,7 @@ final class GameData implements JsonSerializable, Stringable
                 throw new Exception('missing ComponentIdMap');
             }
 
-            foreach ($buttons as $button) {
+            foreach ($buttons->yield() as $button) {
                 $this->buttons[$button->getCustomId()] = $button;
             }
         }
@@ -118,7 +118,7 @@ final class GameData implements JsonSerializable, Stringable
         foreach ($this->buttons as $button) {
             $button->removeListener();
             $button->setDisabled(true);
-            echo self::createUpdateMessage('', 'removed listener from '.$this->id.' '.$button->getCustomId()), PHP_EOL;
+            echo self::createUpdateMessage('', 'removed '.$button->getCustomId()), PHP_EOL;
         }
     }
 
