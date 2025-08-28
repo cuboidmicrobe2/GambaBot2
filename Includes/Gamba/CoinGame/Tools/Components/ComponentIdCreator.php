@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Tools\Components;
 
 use Discord\Parts\Interactions\Interaction;
-use Exception;
 
 /**
  * @template TKey of string
@@ -26,11 +25,12 @@ final class ComponentIdCreator
     }
 
     /**
-     * @param TKey $componentName string without ":"
+     * @param TKey $componentName
      */
     public function createId(string $componentName): string
     {
-        $id = $this->id.'/'.$componentName.'/'.hrtime(true);
+        // $id = $this->id.'/'.$componentName.'/'.hrtime(true);
+        $id = 'button\\'.$componentName.'\\'.$this->id.'\\'.hrtime(true);
         $this->customIds[$componentName] = $id;
 
         return $id;

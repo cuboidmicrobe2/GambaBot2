@@ -175,8 +175,8 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $p2Inv->setCoins($p2Coins - $bet);
 
         $gameData = $gamba->games->getGameData($game);
-        $gameData->removeButton($idCreator->getId('decline'));
-        $gameData->removeButton($idCreator->getId('accept'));
+        $gameData->removeButton('decline');
+        $gameData->removeButton('accept');
         $gameOptions = $gamba->games->getNewActionRow($game);
 
         $game->renew();
