@@ -265,4 +265,23 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             $this[$i] = null;
         }
     }
+
+    /**
+     * @return TValue   random value
+     */
+    final public function rand(bool $includeNull = false): mixed
+    {
+        if ($includeNull) {
+            $key = mt_rand(0, $this->size - 1);
+
+            return $this->_data[$key];
+        }
+
+        $value = null;
+        do {
+            $value = $this->_data[mt_rand(0, $this->size - 1)];
+        } while ($value === null);
+
+        return $value;
+    }
 }
