@@ -4,6 +4,9 @@ declare(strict_types = 1);
 
 const PHP_FILENAME_EXTENSION = '.php';
 
+/**
+ * @deprecated Use psr-4 autoloading via composer
+ */
 class Autoloader {
 
     public const int DO_OUTPUT = 1;
