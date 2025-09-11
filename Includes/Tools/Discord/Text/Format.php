@@ -143,6 +143,7 @@ abstract class Format
     /**
      * @method user
      * @method channel
+     * @method command
      */
     final public static function mention(): MentionTypeInterface
     {
@@ -156,6 +157,11 @@ abstract class Format
             public function channel(string|int $channelId): string
             {
                 return '<#'.$channelId.'>';
+            }
+
+            public function command(string $commandName, string|int $commandId): string
+            {
+                return '</'.$commandName.':'.$commandId.'>';
             }
         };
     }
