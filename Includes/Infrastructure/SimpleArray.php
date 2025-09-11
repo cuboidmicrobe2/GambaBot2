@@ -2,6 +2,7 @@
 
 namespace Infrastructure;
 
+use Stringable;
 use ArrayAccess;
 use Countable;
 use Exception;
@@ -16,8 +17,8 @@ use Traversable;
  * @template TValue
  * @property int $size  Size of the object
  */
-class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable {
-    
+class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable, Stringable
+{
     public readonly string $type;
 
     /**
@@ -26,14 +27,15 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
     public readonly int $size;
 
     protected SplFixedArray $_data;
-    
+
     public function __construct(string $dataType, int $size) {
         $this->_data = new SplFixedArray($size);
         $this->size = $size;
-        $this->type = match($dataType) {
+        $this->type = match(strtolower($dataType)) {
             'int' => 'integer',
             'bool' => 'boolean',
             'float' => 'double',
+            'closure' => 'Closure',
             default => $dataType
         };
     }
@@ -52,11 +54,12 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
 
         do {
             if($this->_data[$i] === null) {
-                
-
+            
                 $this[$i] = $values[$inserted];
                 $inserted++;
-                if($inserted == $size) return;
+                if ($inserted === $size) {
+                    return;
+                }
             }
             $i++;
         }
@@ -75,7 +78,6 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
     public function __toString() : string {
         return self::class.'<'.$this->type.', '.$this->size.'>';
     }
-
     public function __debugInfo() {
         return $this->_data->toArray();
     }
@@ -87,8 +89,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
         return new static($dataType, $size);
     }
 
-// ------------------ArrayAccess------------------
-
+    // ------------------ArrayAccess------------------
     final public function offsetExists(mixed $offset): bool {
         return array_key_exists($offset, $this->_data->toArray());
     }
@@ -105,9 +106,13 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
      */
     final public function offsetSet(mixed $offset, mixed $value): void {
         $valueType = gettype($value);
-        if($valueType == 'object') $valueType = get_class($value);
+        if ($valueType === 'object') {
+            $valueType = $value::class;
+        }
 
-        if($valueType != $this->type) throw new Exception('Cannot add property of type ' . $valueType . ' into ' . $this);
+        if ($valueType !== $this->type) {
+            throw new Exception('Cannot add property of type ' . $valueType . ' into ' . $this);
+        }
         $this->_data[$offset] = $value;
     }
 
@@ -255,7 +260,6 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             }
         }
     }
-
     /**
      * Sets all values to null.
      */
@@ -265,7 +269,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             $this[$i] = null;
         }
     }
-
+    
     /**
      * @return TValue   random value
      */
