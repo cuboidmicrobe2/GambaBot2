@@ -165,4 +165,16 @@ abstract class Format
             }
         };
     }
+
+    /**
+     * Alias for **Mention**
+     * 
+     * @method user
+     * @method channel
+     * @method command
+     */
+    final public static function link(): MentionTypeInterface
+    {
+       return self::mention(); 
+    }
 }
