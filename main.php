@@ -14,7 +14,6 @@ use Infrastructure\FileManager;
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/defines.php';
-// require_once __DIR__ . '/Includes/autoload.php';
 
 if (PHP_VERSION_ID < 80407) {
     echo 'You are running an old version of php, use 8.4.7 or later!', PHP_EOL;
@@ -28,11 +27,6 @@ gc_enable();
 set_exception_handler(function(Throwable $e) {
     echo CMDOutput::new()->add($e->getMessage(), CMD_FONT_COLOR::YELLOW), PHP_EOL;
 });
-
-// const AUTO_LOADER = new Autoloader(
-//     flags:Autoloader::DO_OUTPUT
-// );
-// AUTO_LOADER->start();
 
 $dotenv = new Dotenv;
 $dotenv->load(__DIR__ . '/.env');
