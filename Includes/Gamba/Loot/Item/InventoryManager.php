@@ -84,7 +84,7 @@ final class InventoryManager
     }
 
     /**
-     * Clear the Inventory cache
+     * Clear the Inventory cache from old data
      */
     public function clearChace(): void
     {
