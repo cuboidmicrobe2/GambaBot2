@@ -20,10 +20,12 @@ Thumbs.db
 # Environment files
 .env
 
-/Commands/testing.php
-
 # Pint
 pint.json
 
 # Rector
 rector.php
+
+#Testing
+Test/
+/Commands/testing.php
