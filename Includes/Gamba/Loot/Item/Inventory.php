@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gamba\Loot\Item;
 
+use InvalidArgumentException;
 use OutOfRangeException;
 use PDO\Mysql;
 
@@ -40,6 +41,24 @@ final class Inventory
         SQL);
 
         return $result->fetch(Mysql::FETCH_ASSOC)['coins'] ?? 0;
+    }
+
+    /**
+     * Add coins to user inventory
+     * 
+     * @param int<0, max> $coins    note: do not add a negative number (for safety)
+     */
+    public function addCoins(int $coins): void
+    {
+        if ($coins < 0) {
+            throw new InvalidArgumentException('do not add a negative number to inventory (for safety). validate with getCoins and then use setCoins');
+        }
+
+        $this->database->query(<<<SQL
+            UPDATE user_stats
+            set coins = coins + {$coins}
+            WHERE uid = {$this->owner};
+        SQL);
     }
 
     public function addItem(Item|int $item, int $count = 1): void
