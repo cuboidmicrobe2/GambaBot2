@@ -66,3 +66,5 @@ $discord->on('init', function(Discord $discord) use ($gamba) {
 
     echo CMDOutput::new()->add('Online', CMD_FONT_COLOR::BRIGHT_GREEN), PHP_EOL;
 });
+
+$discord->run();
