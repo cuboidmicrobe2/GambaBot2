@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Games\RPS;
 
-use Discord\Discord;
 use Exception;
 use Gamba\CoinGame\GameInstance;
-use Gamba\CoinGame\Tools\Players\Player;
-use Gamba\CoinGame\Tools\Players\PlayerManager;
-use Gamba\Loot\Item\InventoryManager;
+use Gamba\Loot\Item\Inventory;
+use InvalidArgumentException;
 
-final class RockPaperScissors extends GameInstance
+final class RockPaperScissorsOld extends GameInstance
 {
-    use PlayerManager;
-
     private const int WIN_CON = 3;
 
     public private(set) int $round = 0;
+
+    public private(set) array $roundData = [];
+
+    public private(set) int $p1Points = 0;
+
+    public private(set) int $p2Points = 0;
 
     public bool $started = false {
         get {
@@ -30,78 +32,68 @@ final class RockPaperScissors extends GameInstance
         }
     }
 
-    public function __construct(
-        Discord $discord, 
-        InventoryManager $inventoryManager,
-        private readonly string $p1Uid, 
-        private readonly string $p2Uid, 
-        public private(set) int $bet
-    ) {
-
-        $p1 = new Player($p1Uid, $inventoryManager, $discord, initData: true);
-        $p2 = new Player($p2Uid, $inventoryManager, $discord, initData: true);
-        $p1->data->points = 0;
-        $p1->data->moves = [];
-        $p2->data->points = 0;
-        $p2->data->moves = [];
-
-        $this->addPlayers($p1, $p2);
-
+    public function __construct(public private(set) string $p1Uid, private readonly Inventory $p1Inv, public private(set) string $p2Uid, private readonly Inventory $p2Inv, public private(set) int $bet)
+    {
         parent::__construct();
         $this->newRound();
     }
 
     public function __destruct()
     {
-        $p1 =& $this->getPlayerById($this->p1Uid);
-        $p2 =& $this->getPlayerById($this->p2Uid);
         if ($this->started) {
-            if ($p1->data->points >= self::WIN_CON) {
-                $p1->inventory->addCoins($this->bet * 2);
+            if ($this->p1Points >= self::WIN_CON) {
+                $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
-            if ($p2->data->points >= self::WIN_CON) {
-                $p2->inventory->addCoins($this->bet * 2);
+            if ($this->p2Points >= self::WIN_CON) {
+                $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
-            if ($p1->data->moves[$this->round] !== null && $p2->data->moves[$this->round] === null) {
-                $p1->inventory->addCoins($this->bet * 2);
+            if ($this->roundData[$this->round][$this->p1Uid] !== null && $this->roundData[$this->round][$this->p2Uid] === null) {
+                $this->p1Inv->setCoins($this->p1Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
-            if ($p2->data->moves[$this->round] !== null && $p1->data->moves[$this->round] === null) {
-                $p2->inventory->addCoins($this->bet * 2);
+            if ($this->roundData[$this->round][$this->p2Uid] !== null && $this->roundData[$this->round][$this->p1Uid] === null) {
+                $this->p2Inv->setCoins($this->p2Inv->getCoins() + ($this->bet * 2));
+
                 return;
             }
 
             return; // game has started but no one has made a move this round so both lose :)
         }
-        $p1->inventory->addCoins($this->bet);
-        $p2->inventory->addCoins($this->bet);
+        $this->p1Inv->setCoins($this->p1Inv->getCoins() + $this->bet);
+        $this->p2Inv->setCoins($this->p2Inv->getCoins() + $this->bet);
     }
 
     public function makeMove(string $uid, RpsMove $move): bool
     {
-        $player =& $this->getPlayerById($uid);
+        if ($uid !== $this->p1Uid && $uid !== $this->p2Uid) {
+            throw new InvalidArgumentException($uid.' is not a player in this game');
+        }
 
         $this->renew();
 
-        if ($player->data->move !== null) {
+        if ($this->roundData[$this->round][$uid] !== null) {
             return false;
         }
-        $player->data->move = $move;
-        $player->data->moves[$this->round] = $move;
-        return true; 
+        $this->roundData[$this->round][$uid] = $move;
+
+        return true;
     }
 
     public function movesDone(): bool
     {
-        return $this->getPlayerById($this->p1Uid)->data->move instanceof RpsMove && $this->getPlayerById($this->p2Uid)->data->move instanceof RpsMove;
+        return $this->roundData[$this->round][$this->p1Uid] instanceof RpsMove && $this->roundData[$this->round][$this->p2Uid] instanceof RpsMove;
     }
 
     public function executeRound(): ?string
     {
-        $p1Move = $this->getPlayerById($this->p1Uid)->data->move;
-        $p2Move = $this->getPlayerById($this->p2Uid)->data->move;
+
+        $p1Move = $this->roundData[$this->round][$this->p1Uid];
+        $p2Move = $this->roundData[$this->round][$this->p2Uid];
 
         $res = $this->calcWin($p1Move, $p2Move);
         $winner = null;
@@ -109,11 +101,11 @@ final class RockPaperScissors extends GameInstance
             case 'draw':
                 break;
             case 'p1':
-                $this->getPlayerById($this->p1Uid)->data->points++;
+                $this->p1Points++;
                 $winner = $this->p1Uid;
                 break;
             case 'p2':
-                $this->getPlayerById($this->p2Uid)->data->points++;
+                $this->p2Points++;
                 $winner = $this->p2Uid;
                 break;
             default:
@@ -128,10 +120,10 @@ final class RockPaperScissors extends GameInstance
 
     public function checkWinner(): ?string
     {
-        if ($this->getPlayerById($this->p1Uid)->data->points >= self::WIN_CON) {
+        if ($this->p1Points >= self::WIN_CON) {
             return $this->p1Uid;
         }
-        if ($this->getPlayerById($this->p2Uid)->data->points >= self::WIN_CON) {
+        if ($this->p2Points >= self::WIN_CON) {
             return $this->p2Uid;
         }
 
@@ -169,7 +161,9 @@ final class RockPaperScissors extends GameInstance
     private function newRound(): void
     {
         $this->round++;
-        $this->getPlayerById($this->p1Uid)->data->move = null;
-        $this->getPlayerById($this->p2Uid)->data->move = null;
+        $this->roundData[$this->round] = [
+            $this->p1Uid => null,
+            $this->p2Uid => null,
+        ];
     }
 }
