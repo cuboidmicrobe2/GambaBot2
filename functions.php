@@ -6,18 +6,19 @@ namespace GambaBot\Interaction {
 
     use Debug\CMD_FONT_COLOR;
     use Debug\CMDOutput;
-    use Discord\Parts\Interactions\Interaction;
+    use Discord\Parts\Interactions\MessageComponent;
+    use Discord\Parts\Interactions\ApplicationCommand;
     use Discord\Parts\User\User;
     use InvalidArgumentException;
 
     use stdClass;
 
-    function getUserId(Interaction $interaction): string
+    function getUserId(ApplicationCommand $interaction): string
     {
         return $interaction->member->user->id ?? $interaction->user->id;
     }
 
-    function getUsername(Interaction|User $part): string
+    function getUsername(ApplicationCommand|User $part): string
     {
         if ($part instanceof User) {
             return $part->global_name ?? $part->username;
@@ -30,12 +31,12 @@ namespace GambaBot\Interaction {
         return $part->user->global_name ?? $part->user->username;
     }
 
-    function getOptionValue(string $offset, Interaction $interaction): mixed
+    function getOptionValue(string $offset, ApplicationCommand $interaction): mixed
     {
         return $interaction->data->options->offsetExists($offset) ? $interaction->data->options->offsetGet($offset)->value : null;
     }
 
-    function getCommandStrings(Interaction $interaction): ?stdClass
+    function getCommandStrings(ApplicationCommand $interaction): ?stdClass
     {
         if (file_exists(__DIR__.'/Commands/content/strings.json')) {
             $strings = json_decode(file_get_contents(__DIR__.'/Commands/content/strings.json'));
@@ -56,13 +57,13 @@ namespace GambaBot\Interaction {
         return preg_replace($patters, $values, $commandString);
     }    
 
-    function buttonPresserId(Interaction $buttonInteraction): string
+    function buttonPresserId(MessageComponent $buttonInteraction): string
     {
         // return $buttonInteraction->message->interaction_metadata->user->id;
         return $buttonInteraction->member->user->id ?? $buttonInteraction->user->id;
     }
 
-    function getButtonOwnerId(Interaction $buttonInteraction): string
+    function getButtonOwnerId(MessageComponent $buttonInteraction): string
     {
         return $buttonInteraction->message->interaction_metadata->user->id;
     }
@@ -70,7 +71,7 @@ namespace GambaBot\Interaction {
     /**
      * @throws InvalidArgumentException if the Interaction does not belong to a valid component
      */
-    function buttonPressedByOwner(Interaction $buttonInteraction): bool
+    function buttonPressedByOwner(MessageComponent $buttonInteraction): bool
     {
         // var_dump($buttonInteraction);
         $buttonPresserId = buttonPresserId($buttonInteraction);
@@ -81,7 +82,7 @@ namespace GambaBot\Interaction {
         return getButtonOwnerId($buttonInteraction) === $buttonPresserId;
     }
 
-    function buttonPressedByUser(string $uid, Interaction $buttonInteraction): bool
+    function buttonPressedByUser(string $uid, MessageComponent $buttonInteraction): bool
     {
         return buttonPresserId($buttonInteraction) === $uid;
     }
@@ -153,5 +154,10 @@ namespace GambaBot\Tools {
     function isImplementing(object $object, string $interface): bool
     {
         return in_array($interface, class_implements($object));
+    }
+
+    function isUsing(object $object, string $trait): bool
+    {
+        return in_array($trait, class_uses($object));
     }
 }
