@@ -1,6 +1,6 @@
 {
     "require": {
-        "team-reflex/discord-php": "10.17.3",
+        "team-reflex/discord-php": "^10.35",
         "symfony/dotenv": "^7.3"
     },
     "require-dev": {
