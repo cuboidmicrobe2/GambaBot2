@@ -8,10 +8,12 @@ use Debug\Debug;
 use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
 use Gamba\CoinGame\Tools\Components\ButtonCollection;
 use Gamba\CoinGame\Tools\Components\ComponentIdMap;
 use Exception;
+use Gamba\CoinGame\Tools\Components\ComponentData;
+use Gamba\CoinGame\Tools\Components\ComponentType;
 use InvalidArgumentException;
 use JsonSerializable;
 use React\Promise\PromiseInterface;
@@ -39,7 +41,7 @@ final class GameData implements JsonSerializable, Stringable
     private ?MessageBuilder $lastMessage = null;
 
     private function __construct(
-        private Interaction $interaction, 
+        private ApplicationCommand $interaction, 
         ?ButtonCollection $buttons = null,
         private ?ComponentIdMap $idMap = null,
         public ?array $data = null
@@ -76,7 +78,7 @@ final class GameData implements JsonSerializable, Stringable
 
     }
 
-    public static function create(Interaction $interaction, ?ButtonCollection $buttons = null, ?ComponentIdMap $idMap = null, ?array $data = null): self
+    public static function create(ApplicationCommand $interaction, ?ButtonCollection $buttons = null, ?ComponentIdMap $idMap = null, ?array $data = null): self
     {
         return new self($interaction, $buttons, $idMap, $data);
     }
@@ -142,6 +144,20 @@ final class GameData implements JsonSerializable, Stringable
         $this->lastMessage = $message;
 
         return $this->interaction->updateOriginalResponse($message);
+    }
+
+    public function getComponentData(string $componentName): ComponentData
+    {
+        $id = $this->idMap->get($componentName);
+
+        $parts = explode('\\', $id);
+
+        return new ComponentData(
+            name: $parts[1],
+            id: $parts[2],
+            type: ComponentType::tryFrom($parts[0]),
+            timeOfCreation: (int)$parts[3],
+        );
     }
 
     public function jsonSerialize(): array
