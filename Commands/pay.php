@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Discord\Builders\MessageBuilder;
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
 use Tools\Discord\Text\Format;
 
 use function GambaBot\Discord\mention;
@@ -12,7 +12,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('pay', function (Interaction $interaction) use ($gamba): void {
+$discord->listenCommand('pay', function (ApplicationCommand $interaction) use ($gamba): void {
 
     $payAmount = getOptionValue('amount', $interaction);
 

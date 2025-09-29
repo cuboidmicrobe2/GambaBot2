@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
 
 global $discord, $gamba;
 
-$discord->listenCommand('leaderboard', function (Interaction $interaction) use ($gamba, $discord): void {
+$discord->listenCommand('leaderboard', function (ApplicationCommand $interaction) use ($gamba, $discord): void {
     $interaction->acknowledgeWithResponse()->then(function () use ($interaction, $gamba, $discord): void {
         $leaderboard = $gamba->inventoryManager->leaderboard(10);
 

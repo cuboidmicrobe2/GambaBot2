@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
 use Tools\Discord\Text\Format;
 
-use function GambaBot\Discord\TextStyle\code;
 use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('stats', function (Interaction $interaction) use ($gamba, $discord): void {
+$discord->listenCommand('stats', function (ApplicationCommand $interaction) use ($gamba, $discord): void {
     $stats = $gamba->getUserStats(getUserId($interaction));
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;

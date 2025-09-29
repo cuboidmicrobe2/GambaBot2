@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
 use Gamba\Loot\Item\ItemCollection;
 
 use function GambaBot\Interaction\getOptionValue;
@@ -12,7 +12,7 @@ use function GambaBot\Interaction\getUserId;
 
 global $discord, $gamba;
 
-$discord->listenCommand('wish', function (Interaction $interaction) use ($gamba, $discord): void {
+$discord->listenCommand('wish', function (ApplicationCommand $interaction) use ($gamba, $discord): void {
 
     $message = MessageBuilder::new();
 
