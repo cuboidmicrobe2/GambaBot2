@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Tools\Components;
 
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
 
 /**
  * @template TKey of string
@@ -19,7 +19,7 @@ final class ComponentIdCreator
      */
     private array $customIds;
 
-    public function __construct(Interaction $interaction)
+    public function __construct(ApplicationCommand $interaction)
     {
         $this->id = $interaction->id;
     }
@@ -27,10 +27,9 @@ final class ComponentIdCreator
     /**
      * @param TKey $componentName
      */
-    public function createId(string $componentName): string
+    public function createId(string $componentName, ComponentType $componentType): string
     {
-        // $id = $this->id.'/'.$componentName.'/'.hrtime(true);
-        $id = 'button\\'.$componentName.'\\'.$this->id.'\\'.hrtime(true);
+        $id = $componentType->value.'\\'.$componentName.'\\'.$this->id.'\\'.hrtime(true);
         $this->customIds[$componentName] = $id;
 
         return $id;
