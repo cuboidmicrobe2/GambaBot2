@@ -178,6 +178,26 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
     }
 
     /**
+     * @param bool $ignoreNull  If true does not call callback on null values
+     * @return array<int, TValue>
+     */
+    final public function map(callable $callback, bool $ignoreNull = true): array
+    {
+        $map = [];
+        if ($ignoreNull) {
+            foreach ($this->yield() as $value) {
+                $map[] = $callback($value);
+            }
+        } else {
+            foreach ($this->_data->getIterator() as $value) {
+                $map[] = $callback($value);
+            }    
+        }
+
+        return $map;
+    }
+
+    /**
      * Checks if at least one array element satisfies a callback function.
      */
     final public function any(callable $callback): bool
@@ -247,6 +267,16 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             unset($this[$i]);
         }
         return $fistValue;
+    }
+
+    /**
+     * Prepend elements to the beginning of an array
+     * 
+     * @param TValue $value value to be added
+     */
+    final public function unshift(mixed $value): void
+    {
+        
     }
 
     /**
