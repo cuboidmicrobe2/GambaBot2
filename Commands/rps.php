@@ -7,7 +7,8 @@ use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Guild\Emoji;
-use Discord\Parts\Interactions\Interaction;
+use Discord\Parts\Interactions\ApplicationCommand;
+use Discord\Parts\Interactions\MessageComponent;
 use Discord\Parts\User\User;
 use Gamba\CoinGame\Tools\Components\ButtonCollection;
 use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
@@ -26,7 +27,7 @@ use function GambaBot\Interaction\getUsername;
 
 global $discord, $gamba;
 
-$discord->listenCommand('rps', function (Interaction $interaction) use ($discord, $gamba): void {
+$discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($discord, $gamba): void {
 
     $p1 = getUserId($interaction);
     $p2 = getOptionValue('opponent', $interaction);
@@ -52,7 +53,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
     $startGameOptions = new ActionRow;
     $idCreator = new ComponentIdCreator($interaction);
 
-    $gameLogic = function (RpsMove $move, Interaction $buttonInteraction) use ($interaction, $gamba, $discord, $p1, $p2): void {
+    $gameLogic = function (RpsMove $move, MessageComponent $buttonInteraction) use ($interaction, $gamba, $discord, $p1, $p2): void {
         $player = buttonPresserId($buttonInteraction);
 
         /**
@@ -164,7 +165,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $p2Name = getUsername($user);
     });
 
-    $buttonStart = Button::success($idCreator->createId('accept', ComponentType::BUTTON))->setLabel('Accept')->setListener(function (Interaction $buttonInteraction) use ($p2, $p1Name, $p2Name, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet): void {
+    $buttonStart = Button::success($idCreator->createId('accept', ComponentType::BUTTON))->setLabel('Accept')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $p1Name, $p2Name, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
@@ -201,7 +202,7 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         ));
     }, $discord);
 
-    $buttonDecline = Button::danger($idCreator->createId('decline', ComponentType::BUTTON))->setLabel('Decline')->setListener(function (Interaction $buttonInteraction) use ($p2, $gamba, $interaction): void {
+    $buttonDecline = Button::danger($idCreator->createId('decline', ComponentType::BUTTON))->setLabel('Decline')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gamba, $interaction): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
@@ -211,21 +212,21 @@ $discord->listenCommand('rps', function (Interaction $interaction) use ($discord
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent(Format::italic('The match was declined')));
     }, $discord);
 
-    $buttonRock = Button::secondary($idCreator->createId('rock', ComponentType::BUTTON))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
+    $buttonRock = Button::secondary($idCreator->createId('rock', ComponentType::BUTTON))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::ROCK, $buttonInteraction);
     }, $discord);
 
-    $buttonPaper = Button::secondary($idCreator->createId('paper', ComponentType::BUTTON))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
+    $buttonPaper = Button::secondary($idCreator->createId('paper', ComponentType::BUTTON))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::PAPER, $buttonInteraction);
     }, $discord);
 
-    $buttonScissors = Button::secondary($idCreator->createId('scissors', ComponentType::BUTTON))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function (Interaction $buttonInteraction) use ($p2, $gameLogic): void {
+    $buttonScissors = Button::secondary($idCreator->createId('scissors', ComponentType::BUTTON))->setEmoji(new Emoji($discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
