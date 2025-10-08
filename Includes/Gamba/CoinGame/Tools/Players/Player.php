@@ -12,6 +12,7 @@ use Gamba\Loot\Item\Inventory;
 use Gamba\Loot\Item\InventoryManager;
 use LogicException;
 use stdClass;
+use Tools\Discord\Text\Format;
 
 final class Player
 {
@@ -70,6 +71,11 @@ final class Player
     public function message(MessageBuilder $message): void
     {
         $this->user->sendMessage($message);
+    }
+
+    public function getMention(): string
+    {
+        return Format::mention()->user($this->uid);
     }
 
     /** @deprecated 'use the associated property instead' */
