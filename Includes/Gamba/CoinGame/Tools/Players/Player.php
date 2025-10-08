@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Tools\Players;
 
 use Deprecated;
+use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\User\User;
 use Gamba\Loot\Item\Inventory;
@@ -18,6 +19,9 @@ final class Player
     public readonly Inventory $inventory;
     public stdClass $data;
 
+    /**
+     * Id of the Discord user
+     */
     public private(set) string $uid {
         get {
             return $this->user->id;
@@ -28,6 +32,9 @@ final class Player
         }
     }
 
+    /**
+     * Players Discord user/display name
+     */
     public private(set) string $name {
         get {
             return $this->user->global_name ?? $this->user->username;
@@ -58,6 +65,11 @@ final class Player
         if ($this->data === null) {
             $this->data = new stdClass;
         }
+    }
+
+    public function message(MessageBuilder $message): void
+    {
+        $this->user->sendMessage($message);
     }
 
     /** @deprecated 'use the associated property instead' */
