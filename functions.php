@@ -8,6 +8,7 @@ namespace GambaBot\Interaction {
     use Debug\CMDOutput;
     use Discord\Parts\Interactions\MessageComponent;
     use Discord\Parts\Interactions\ApplicationCommand;
+    use Discord\Parts\Interactions\ModalSubmit;
     use Discord\Parts\User\User;
     use InvalidArgumentException;
 
@@ -86,6 +87,45 @@ namespace GambaBot\Interaction {
     {
         return buttonPresserId($buttonInteraction) === $uid;
     }
+
+    function getModalComponentValue(string $componentName, ModalSubmit $modalSubmit): mixed
+    {
+        foreach ($modalSubmit->data->components as $label) {
+            if (str_contains($label->component->custom_id, $componentName)) {
+                return $label->component->value;
+            }
+        }
+        // object(Discord\Helpers\Collection)#931 (1) {
+        //     [1]=>
+        //     object(Discord\Parts\Channel\Message\Label)#933 (3) {
+        //         ["attributes"]=>
+        //         array(3) {
+        //         ["id"]=>
+        //         int(1)
+        //         ["type"]=>
+        //         int(18)
+        //         ["component"]=>
+        //         object(stdClass)#1161 (4) {
+        //             ["value"]=>
+        //             string(5) "hello"
+        //             ["type"]=>
+        //             int(4)
+        //             ["id"]=>
+        //             int(2)
+        //             ["custom_id"]=>
+        //             string(64) "text_input\guess_word_modal\1425543232565280818\1285673919237900"
+        //         }
+        //         }
+        //         ["created"]=>
+        //         &bool(true)
+        //         ["class"]=>
+        //         string(35) "Discord\Parts\Channel\Message\Label"
+        //     }
+        // }
+        return null;
+    }
+
+
 }
 
 namespace GambaBot\Discord {
