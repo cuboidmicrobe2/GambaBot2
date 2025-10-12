@@ -8,6 +8,9 @@ use Tools\Discord\Text\HeaderFormatInterface;
 use Tools\Discord\Text\TimerFormatInterface;
 use Tools\Discord\Text\MentionTypeInterface;
 
+/**
+ * Format strings to Discords styles
+ */
 abstract class Format
 {
     final public static function code(string $text): string
