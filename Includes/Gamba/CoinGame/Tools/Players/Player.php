@@ -4,24 +4,49 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Tools\Players;
 
+use Debug\Debug;
 use Deprecated;
 use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\User\User;
+use Exception;
 use Gamba\Loot\Item\Inventory;
 use Gamba\Loot\Item\InventoryManager;
+use Infrastructure\Exceptions\UndefinedProperty;
+use InvalidArgumentException;
 use LogicException;
 use stdClass;
 use Tools\Discord\Text\Format;
 
+/**
+ * Represents a Discord user as a Player.
+ */
 final class Player
 {
+    use Debug;
+
+    private const string DISCORD_AVATAR_URL = 'https://cdn.discordapp.com/avatars/';
+
     private readonly User $user;
     public readonly Inventory $inventory;
-    public stdClass $data;
+
+    private stdClass $playerData;
 
     /**
-     * Id of the Discord user
+     * Store Player data in an stdClass.
+     */
+    public stdClass $data {
+        get {
+            if (! isset($this->playerData)) {
+                $this->playerData = new stdClass();
+            }
+
+            return $this->playerData;
+        }
+    }
+
+    /**
+     * Id of the Discord user.
      */
     public private(set) string $uid {
         get {
@@ -34,7 +59,7 @@ final class Player
     }
 
     /**
-     * Players Discord user/display name
+     * Players Discord user/display name.
      */
     public private(set) string $name {
         get {
@@ -46,33 +71,77 @@ final class Player
         }
     }
 
+    /**
+     * Players Discord avatar as url.
+     */
+    public private(set) string $avatar {
+        get {
+            return self::DISCORD_AVATAR_URL.$this->uid.'/'.$this->user->avatar;
+        }
+
+        set(string $value) {
+            throw new LogicException('Cannot change a users avatar url');
+        }
+    }
+
+    /**
+     * Create a Player Object
+     * 
+     * @param string|User $player   Discord user id or User object.
+     * 
+     * @throws InvalidArgumentException If:\
+     * #1 - The User is a bot.\
+     * #2 - A User could not be retrieved.\
+     * #3 - Passing user id without a Discord instance.
+     */
     public function __construct(
-        string $uid, 
+        string|User $player, 
+        InventoryManager $inventoryManager,
+        ?Discord $discord = null,
+    ) {
+        if ($player instanceof User) {
+            $this->user = $player;
+        } else {
+            if (! $discord instanceof Discord) {
+                throw new InvalidArgumentException('if $player is of type string an instance Discord must be passed', code: 3);
+            }
+
+            try {
+                $discord->users->fetch($player)->then(fn (User $user) => $this->user = $user); 
+            } catch(Exception $e) {
+                throw new InvalidArgumentException('(from id: '.$player.') '.$e->getMessage(), code: 2);
+            }
+        }
+
+        if ($this->user->bot === true) {
+            throw new InvalidArgumentException('a bot cannot become a Player', code: 1);
+        }
+
+        $this->inventory = $inventoryManager->getInventory($this->uid);
+    }
+
+    /**
+     * Static Player constructor
+     */
+    public static function new(
+        string|User $player, 
         InventoryManager $inventoryManager,
         Discord $discord,
-        // public ?array $data = null
-        bool $initData
-    ) {
-        if ($initData) {
-            $this->data = new stdClass;
-        }
-
-            $discord->users->fetch($uid)->then(fn (User $user) => $this->user = $user);
-        $this->inventory = $inventoryManager->getInventory($uid);
+    ): self {
+        return new self($player, $inventoryManager, $discord);
     }
 
-    public function initData(): void
-    {
-        if ($this->data === null) {
-            $this->data = new stdClass;
-        }
-    }
-
+    /**
+     * Send a message to the player
+     */
     public function message(MessageBuilder $message): void
     {
         $this->user->sendMessage($message);
     }
 
+    /**
+     * Get a Discord mention of the player
+     */
     public function getMention(): string
     {
         return Format::mention()->user($this->uid);
@@ -90,6 +159,28 @@ final class Player
     public function getId(): string
     {
         return $this->user->id;
+    }
+
+    /**
+     * @return string Username or global name.
+     */
+    public function __toString(): string
+    {
+        return $this->name;
+    }
+
+    // (mby) make get and set go into $playerData.
+
+    public function __get($name): never
+    {   
+        throw new UndefinedProperty(
+            message: self::createUpdateMessage('', 'property of '.$name.' does not exist on object of '.static::class)
+        );
+    }
+
+    public function __set($name, $value): void
+    {
+        echo self::createUpdateMessage('', 'property of '.$name.' does not exist on object of '.static::class); PHP_EOL;
     }
 }
 
