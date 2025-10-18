@@ -38,8 +38,8 @@ final class RockPaperScissors extends GameInstance
         public private(set) int $bet
     ) {
 
-        $p1 = new Player($p1Uid, $inventoryManager, $discord, initData: true);
-        $p2 = new Player($p2Uid, $inventoryManager, $discord, initData: true);
+        $p1 = new Player($p1Uid, $inventoryManager, $discord);
+        $p2 = new Player($p2Uid, $inventoryManager, $discord);
         $p1->data->points = 0;
         $p1->data->moves = [];
         $p2->data->points = 0;

@@ -23,7 +23,6 @@ use function GambaBot\Interaction\buttonPressedByUser;
 use function GambaBot\Interaction\buttonPresserId;
 use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
-use function GambaBot\Interaction\getUsername;
 
 global $discord, $gamba;
 
@@ -156,14 +155,16 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
         }
     };
 
-    $p1Name = '$name';
-    $p2Name = '$name';
-    $discord->users->fetch($p1)->then(function (User $user) use (&$p1Name): void {
-        $p1Name = getUsername($user);
-    });
-    $discord->users->fetch($p2)->then(function (User $user) use (&$p2Name): void {
-        $p2Name = getUsername($user);
-    });
+    // $p1Name = '$name';
+    $p1Name = $game->getPlayerById($p1)->name;
+    // $p2Name = '$name';
+    $p2Name = $game->getPlayerById($p2)->name;
+    // $discord->users->fetch($p1)->then(function (User $user) use (&$p1Name): void {
+    //     $p1Name = getUsername($user);
+    // });
+    // $discord->users->fetch($p2)->then(function (User $user) use (&$p2Name): void {
+    //     $p2Name = getUsername($user);
+    // });
 
     $buttonStart = Button::success($idCreator->createId('accept', ComponentType::BUTTON))->setLabel('Accept')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $p1Name, $p2Name, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
