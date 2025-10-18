@@ -201,3 +201,34 @@ namespace GambaBot\Tools {
         return in_array($trait, class_uses($object));
     }
 }
+
+namespace GambaBot\Debug {
+
+    /**
+     * Runs debug_zval_dump() on all globals
+     */
+    function global_debug_dump(): never
+    {   
+        foreach ($GLOBALS as $name => $var) {
+            echo '$', $name, ': ';
+            debug_zval_dump($var);
+        }
+        exit;
+    }
+}
+
+// namespace GambaBot {
+
+//     use Throwable;
+
+//     /**
+//      * Throw an exeption and log the error
+//      * 
+//      * @throws mixed
+//      */
+//     function error(Throwable $throwable, int $code): never
+//     {
+        
+//         throw $throwable;
+//     }
+// }
