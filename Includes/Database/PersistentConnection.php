@@ -17,10 +17,10 @@ final class PersistentConnection
     private PDO $conn;
 
     public function __construct(
-        private readonly string $connectionName,
+        public readonly string $connectionName,
         private readonly string $dsn,
         private readonly ?string $username = null,
-        private readonly ?string $password = null,
+        #[\SensitiveParameter] private readonly ?string $password = null,
         private readonly ?array $options = null
     ) {
         $this->createConnection();
