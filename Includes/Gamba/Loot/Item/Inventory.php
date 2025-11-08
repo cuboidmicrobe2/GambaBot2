@@ -10,6 +10,15 @@ use PDO\Mysql;
 
 final class Inventory
 {
+    public int $coins {
+        get {
+            return $this->getCoins();
+        }
+    }
+
+    /**
+     * @param string $owner Id of a user.
+     */
     public function __construct(private readonly string $owner, private Mysql $database)
     {
         $this->userInventoryMustExist($owner, $database);
