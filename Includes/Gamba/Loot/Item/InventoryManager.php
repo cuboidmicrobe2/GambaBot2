@@ -7,9 +7,9 @@ namespace Gamba\Loot\Item;
 use Database\PersistentConnection;
 use Debug\Debug;
 use HTTP\Request;
+use Infrastructure\ObjectCach;
 use OutOfRangeException;
 use Pdo\Mysql;
-use WeakReference;
 
 final class InventoryManager
 {
@@ -17,9 +17,9 @@ final class InventoryManager
     private readonly PersistentConnection $conn;
 
     /**
-     * @var array<string, WeakReference<Inventory>>
+     * @var ObjectCach<string, Inventory>
      */
-    private array $inventoryCache = [];
+    private ObjectCach $inventoryCache;
 
     public function __construct(
         string $dsn,
@@ -28,18 +28,19 @@ final class InventoryManager
         ?array $options = null,
     ) {
         $this->conn = PersistentConnection::connect('InventoryManager', $dsn, $username, $password, $options);
+        $this->inventoryCache = new ObjectCach;
     }
 
     public function getInventory(string $uid): Inventory
     {
-        $ref = $this->getReference($uid);
+        $ref = $this->inventoryCache->get($uid);
 
         if ($ref instanceof Inventory) {
             return $ref;
         }
 
         $inv = new Inventory($uid, $this->conn->getConnection());
-        $this->cache($uid, $inv);
+        $this->inventoryCache->set($uid, $inv);
         return $inv;
     }
 
@@ -88,26 +89,6 @@ final class InventoryManager
      */
     public function clearChace(): void
     {
-        foreach ($this->inventoryCache as $uid => $ref) {
-            if ($ref instanceof WeakReference && $ref->get() === null) {
-                unset($this->inventoryCache[$uid]);
-            }
-        }
-    }
-
-    /**
-     * Get a users **Inventory** if it exists
-     */
-    private function getReference(string $uid): ?Inventory
-    {
-        return ($this->inventoryCache[$uid] ?? null)?->get();
-    }
-
-    /**
-     * Adds an **Inventory** to the cache
-     */
-    private function cache(string $uid, Inventory &$inventory): void
-    {
-        $this->inventoryCache[$uid] = WeakReference::create($inventory);
+        $this->inventoryCache->clean();
     }
 }
