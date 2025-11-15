@@ -7,10 +7,12 @@ namespace Gamba\CoinGame\Games\BlackJack;
 use Gamba\CoinGame\GameInstance;
 use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
 use Gamba\CoinGame\Games\BlackJack\Hand;
+use Gamba\CoinGame\Tools\Players\Player;
 use LogicException;
 
 final class BlackJack extends GameInstance
 {
+    public readonly Player $player;
 
     /**
      * @var CardDeck<int, Card>
@@ -28,11 +30,13 @@ final class BlackJack extends GameInstance
 
     private int $handIterator = 0;
 
-    public function __construct(public readonly int $bet, int $decks)
+    public function __construct(public readonly int $bet, int $decks, Player $player)
     {
         if ($decks <= 0) {
             throw new LogicException('Cannot play '.self::class.' with '.$decks. ' decks');
         }
+
+        $this->player = $player;
 
         parent::__construct();
 
