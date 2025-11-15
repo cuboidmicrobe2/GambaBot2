@@ -102,3 +102,13 @@ define('SILENT_MESSAGE', 4096);
  * Discord will parse this in to a commandlink to /daily
  */
 define('COMMAND_LINK_DAILY', '</daily:1386666528983875695>');
+
+// ----------------------------------- Bot misc: -----------------------------------
+
+// define('PRESENCE_STRINGS', [
+//     'Gambling🥰😍',
+//     'Lost it all🥺',
+//     'Big wins💸💸💸',
+//     '/daily = 💰💰💰',
+//     '🎰🎰🎰'
+// ]);
