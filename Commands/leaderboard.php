@@ -6,9 +6,16 @@ use Discord\Builders\MessageBuilder;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\ApplicationCommand;
 
+use function GambaBot\Interaction\permissionToRun;
+
 global $discord, $gamba;
 
 $discord->listenCommand('leaderboard', function (ApplicationCommand $interaction) use ($gamba, $discord): void {
+
+    if (! permissionToRun($interaction)) {
+        return;
+    }
+
     $interaction->acknowledgeWithResponse()->then(function () use ($interaction, $gamba, $discord): void {
         $leaderboard = $gamba->inventoryManager->leaderboard(10);
 

@@ -23,11 +23,16 @@ use function GambaBot\Interaction\buttonPressedByUser;
 use function GambaBot\Interaction\buttonPresserId;
 use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
+use function GambaBot\Interaction\permissionToRun;
+
 
 global $discord, $gamba;
 
 $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($discord, $gamba): void {
-
+    if (! permissionToRun($interaction)) {
+        return;
+    }
+    
     $p1 = getUserId($interaction);
     $p2 = getOptionValue('opponent', $interaction);
 
@@ -60,46 +65,43 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
          */
         $game = $gamba->games->getGame($interaction->id);
 
-        $p1 = $game->getPlayerById($p1);
-        $p2 = $game->getPlayerById($p2);
+        $player1 = $game->getPlayerById($p1);
+        $player2 = $game->getPlayerById($p2);
 
         if ($game->makeMove($player, $move)) {
 
             if ($game->movesDone()) {
 
-                // $moves = $game->roundData[$game->round];
-                $p1Move = $p1->data->move;
-                $p2Move = $p2->data->move;
+                $p1Move = $player1->data->move;
+                $p2Move = $player2->data->move;
 
                 $game->executeRound();
 
                 if ($winner = $game->checkWinner()) {
 
                     $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($discord)
-                        ->setTitle($p1->name.' '.$p1Move?->getEmoji().' ['.Format::code($p1->data->points.' - '.$p2->data->points).'] '.$p2Move?->getEmoji().' '.$p2->name)
+                        ->setTitle($player1->name.' '.$p1Move?->getEmoji().' ['.Format::code($player1->data->points.' - '.$player2->data->points).'] '.$p2Move?->getEmoji().' '.$player2->name)
                         ->setDescription('Round: '.Format::code((string) ($game->round - 1)))
                         ->setColor(EMBED_COLOR_PINK)
                     ));
 
                     $winnerUsername = $game->getPlayerById($winner)->name;
-                    // $discord->users->fetch($winner)->then(function (User $user) use (&$winnerUsername): void {
-                    //     $winnerUsername = getUsername($user);
-                    // });
 
                     $scoreFormatted = '$score';
-                    if ($p1->data->points > $p2->data->points) {
-                        $scoreFormatted = Format::code($p1->data->points.' - '.$p2->data->points);
+                    if ($player1->data->points > $player2->data->points) {
+                        $scoreFormatted = Format::code($player1->data->points.' - '.$player2->data->points);
                     } else {
-                        $scoreFormatted = Format::code($p2->data->points.' - '.$p1->data->points);
+                        $scoreFormatted = Format::code($player2->data->points.' - '.$player1->data->points);
                     }
 
                     $p1MoveHistory = '';
                     $p2MoveHistory = '';
 
-                    $counter = count($p1->data->moves);
-                    for ($i = 0; $i < $counter; $i++) {
-                        $p1MoveHistory .= $p1->data->moves[$i]?->getEmoji().' ';
-                        $p2MoveHistory .= $p2->data->moves[$i]?->getEmoji().' ';
+                    // Round history is indexed by round number (starting on 1)
+                    $counter = count($player1->data->moves) + 1;
+                    for ($i = 1; $i < $counter; $i++) {
+                        $p1MoveHistory .= $player1->data->moves[$i]?->getEmoji().' ';
+                        $p2MoveHistory .= $player2->data->moves[$i]?->getEmoji().' ';
                     }
 
                     $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
@@ -109,8 +111,8 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
                         ->addFieldValues(
                             'Players',
                             <<<PLAYERS
-                            {$p1->name}
-                            {$p2->name}
+                            {$player1->name}
+                            {$player2->name}
                             PLAYERS,
                             inline: true
                         )
@@ -129,7 +131,7 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
                     return;
                 }
                 $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($discord)
-                    ->setTitle(Format::italic($p1->name).' '.$p1Move?->getEmoji().' ['.Format::code($p1->data->points.' - '.$p2->data->points).'] '.$p2Move?->getEmoji().' '.Format::italic($p2->name))
+                    ->setTitle(Format::italic($player1->name).' '.$p1Move?->getEmoji().' ['.Format::code($player1->data->points.' - '.$player2->data->points).'] '.$p2Move?->getEmoji().' '.Format::italic($player2->name))
                     ->setDescription('Round: '.Format::code((string) $game->round))
                     ->setColor(EMBED_COLOR_PINK)
                 ));
@@ -141,32 +143,21 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
             $p2Move = '';
 
             if ($game->round > 1) {
-                $p1Move = ' '.$p1->data->moves[$game->round - 1]->getEmoji();
-                $p2Move = $p2->data->moves[$game->round - 1]->getEmoji().' ';
+                $p1Move = ' '.$player1->data->moves[$game->round - 1]->getEmoji();
+                $p2Move = $player2->data->moves[$game->round - 1]->getEmoji().' ';
             }
 
-            $p1NameStyled = ($p1->data->move === null) ? Format::italic($p1->name) : $p1->name;
-            $p2NameStyled = ($p2->data->move === null) ? Format::italic($p2->name) : $p2->name;
+            $p1NameStyled = ($player1->data->move === null) ? Format::italic($player1->name) : $player1->name;
+            $p2NameStyled = ($player2->data->move === null) ? Format::italic($player2->name) : $player2->name;
             $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($discord)
-                ->setTitle($p1NameStyled.$p1Move.' ['.Format::code($p1->data->points.' - '.$p2->data->points).'] '.$p2Move.$p2NameStyled)
+                ->setTitle($p1NameStyled.$p1Move.' ['.Format::code($player1->data->points.' - '.$player2->data->points).'] '.$p2Move.$p2NameStyled)
                 ->setDescription('Round: '.Format::code((string) $game->round))
                 ->setColor(EMBED_COLOR_PINK)
             ));
         }
     };
 
-    // $p1Name = '$name';
-    $p1Name = $game->getPlayerById($p1)->name;
-    // $p2Name = '$name';
-    $p2Name = $game->getPlayerById($p2)->name;
-    // $discord->users->fetch($p1)->then(function (User $user) use (&$p1Name): void {
-    //     $p1Name = getUsername($user);
-    // });
-    // $discord->users->fetch($p2)->then(function (User $user) use (&$p2Name): void {
-    //     $p2Name = getUsername($user);
-    // });
-
-    $buttonStart = Button::success($idCreator->createId('accept', ComponentType::BUTTON))->setLabel('Accept')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $p1Name, $p2Name, $discord, $gamba, $interaction, $idCreator, $p1Inv, $p2Inv, $bet): void {
+    $buttonStart = Button::success($idCreator->createId('accept', ComponentType::BUTTON))->setLabel('Accept')->setListener(function (MessageComponent $buttonInteraction) use ($p1, $p2, $discord, $gamba, $interaction, $bet): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
@@ -175,9 +166,12 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
          * @var ?RockPaperScissors
          */
         $game = $gamba->games->getGame($interaction->id);
+        $player1 = $game->getPlayerById($p1);
+        $player2 = $game->getPlayerById($p2);
 
-        $p1Coins = $p1Inv->getCoins();
-        $p2Coins = $p2Inv->getCoins();
+        $p1Coins = $player1->inventory->getCoins();
+        $p2Coins = $player2->inventory->getCoins();
+
         if ($p1Coins < $bet || $p2Coins < $bet) {
             $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('A player no longer has enough coins to play'));
             $gamba->games->closeGame($game);
@@ -185,8 +179,8 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
             return;
         }
 
-        $p1Inv->setCoins($p1Coins - $bet);
-        $p2Inv->setCoins($p2Coins - $bet);
+        $player1->inventory->setCoins($p1Coins);
+        $player2->inventory->setCoins($p2Coins);
 
         $gameData = $gamba->games->getGameData($game);
         $gameData->removeButton('decline');
@@ -197,7 +191,7 @@ $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($
         $game->started = true;
 
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('')->addComponent($gameOptions)->addEmbed(new Embed($discord)
-            ->setTitle(Format::italic($p1Name).' ['.Format::code('0 - 0').'] '.Format::italic($p2Name))
+            ->setTitle(Format::italic($player1->name).' ['.Format::code('0 - 0').'] '.Format::italic($player2->name))
             ->setDescription('Round: '.Format::code((string) $game->round))
             ->setColor(EMBED_COLOR_PINK)
         ));

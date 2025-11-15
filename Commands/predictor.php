@@ -20,12 +20,17 @@ use function GambaBot\Interaction\buttonPressedByOwner;
 use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\getUsername;
+use function GambaBot\Interaction\permissionToRun;
+
 
 global $gamba, $discord;
 
 // i hate this code
 
 $discord->listenCommand('predictor', function (ApplicationCommand $interaction) use ($discord, $gamba): void {
+    if (! permissionToRun($interaction)) {
+        return;
+    }
 
     $uid = getUserId($interaction);
     $inventory = $gamba->inventoryManager->getInventory($uid);

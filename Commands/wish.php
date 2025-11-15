@@ -9,11 +9,15 @@ use Gamba\Loot\Item\ItemCollection;
 
 use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
+use function GambaBot\Interaction\permissionToRun;
 
 global $discord, $gamba;
 
 $discord->listenCommand('wish', function (ApplicationCommand $interaction) use ($gamba, $discord): void {
-
+    if (! permissionToRun($interaction)) {
+        return;
+    }
+    
     $message = MessageBuilder::new();
 
     $items = $gamba->wish(

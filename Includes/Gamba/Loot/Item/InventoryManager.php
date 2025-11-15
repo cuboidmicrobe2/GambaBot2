@@ -14,6 +14,16 @@ use Pdo\Mysql;
 final class InventoryManager
 {
     use Debug;
+
+    /**
+     * True if any **Inventory** is in use.   
+     */
+    public bool $activeInventories {
+        get {
+            return $this->inventoryCache->countValid() > 0;
+        }
+    }
+
     private readonly PersistentConnection $conn;
 
     /**
@@ -90,5 +100,10 @@ final class InventoryManager
     public function clearChace(): void
     {
         $this->inventoryCache->clean();
+    }
+
+    public function dump(): void
+    {
+        var_dump($this->inventoryCache);
     }
 }

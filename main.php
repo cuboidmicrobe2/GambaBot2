@@ -8,6 +8,8 @@ use Discord\Parts\User\Activity;
 use Discord\WebSockets\Intents;
 use Symfony\Component\Dotenv\Dotenv;
 use Debug\CMDOutput;
+use Debug\Debug;
+use Debug\MessageType;
 use Gamba\Gamba;
 use Infrastructure\FileManager;
 
@@ -28,6 +30,8 @@ set_exception_handler(function(Throwable $e) {
     echo CMDOutput::new()->add($e->getMessage(), CMD_FONT_COLOR::YELLOW), PHP_EOL;
 });
 
+sapi_windows_set_ctrl_handler(include __DIR__.'/ctrl_handler.php');
+
 $dotenv = new Dotenv;
 $dotenv->load(__DIR__ . '/.env');
 
@@ -44,7 +48,21 @@ $gamba = new Gamba(
     password: $_ENV['DB_PASSWORD'],
 );
 
-$discord->on('init', function(Discord $discord) use ($gamba) {
+$messageBuilder = new class {
+    use Debug;
+
+    public function createMessage(string $message, CMD_FONT_COLOR $color): string
+    {
+        $content = self::createUpdateMessage('', $message, MessageType::INFO);
+        return CMDOutput::new()->add($content, $color).PHP_EOL;
+    }
+};
+
+GambaBot\set('shutdownCondition', fn() => ! $gamba->inventoryManager->activeInventories && ! $gamba->games->hasActiveGames);
+
+$discord->on('init', function(Discord $discord) use ($gamba, $messageBuilder) {
+
+    GambaBot\set('botIsRunning', true);
 
     $discord->updatePresence(new Activity($discord, [
         'type' => Activity::TYPE_CUSTOM,
@@ -52,10 +70,19 @@ $discord->on('init', function(Discord $discord) use ($gamba) {
         'state' => 'Gambling🥰😍',
     ]));
 
-    $discord->on('heartbeat', function() use ($gamba) {
+    $discord->on('heartbeat', function() use ($discord, $gamba, $messageBuilder) {
         $gamba->games->checkTimedEvents();
         $gamba->inventoryManager->clearChace();
+        $gamba->clearCach();
         $gamba->printMemory();
+
+        if (GambaBot\get('botIsRunning') === false) {
+            GambaBot\isSafeToTerminate()?->endProcess(function() use ($discord, $messageBuilder) {
+                echo $messageBuilder->createMessage('No games or inventories found, shutting down...', CMD_FONT_COLOR::BRIGHT_GREEN);
+                $discord->close(closeLoop: true);
+            });
+            echo $messageBuilder->createMessage('Found live interactions, delaying shutdown...', CMD_FONT_COLOR::BRIGHT_YELLOW);
+        } 
     });
 
     FileManager::loadAllFromDir(

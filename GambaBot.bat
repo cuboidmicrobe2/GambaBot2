@@ -14,4 +14,8 @@ goto :EOF
 
 :BotLoop
     PHP %dir%%botFile%
+
+    if %ERRORLEVEL% eq 710 (
+        exit
+    )
 goto :BotLoop

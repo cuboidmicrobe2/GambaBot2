@@ -23,6 +23,15 @@ final class GameHandler
 {
     use Debug;
 
+    /**
+     * If the **GameHandler** has any active games.
+     */
+    public bool $hasActiveGames {
+        get {
+            return count($this->games) > 0;
+        }
+    }
+
     private SplObjectStorage $games;
 
     /**
@@ -212,6 +221,12 @@ final class GameHandler
         }
 
         return false;
+    }
+
+    public function dump(): void
+    {
+        var_dump($this->games);
+        var_dump($this->gameData);
     }
 }
 

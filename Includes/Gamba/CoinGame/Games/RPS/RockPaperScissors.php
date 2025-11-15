@@ -53,8 +53,8 @@ final class RockPaperScissors extends GameInstance
 
     public function __destruct()
     {
-        $p1 =& $this->getPlayerById($this->p1Uid);
-        $p2 =& $this->getPlayerById($this->p2Uid);
+        $p1 = $this->getPlayerById($this->p1Uid);
+        $p2 = $this->getPlayerById($this->p2Uid);
         if ($this->started) {
             if ($p1->data->points >= self::WIN_CON) {
                 $p1->inventory->addCoins($this->bet * 2);
@@ -81,7 +81,7 @@ final class RockPaperScissors extends GameInstance
 
     public function makeMove(string $uid, RpsMove $move): bool
     {
-        $player =& $this->getPlayerById($uid);
+        $player = $this->getPlayerById($uid);
 
         $this->renew();
 

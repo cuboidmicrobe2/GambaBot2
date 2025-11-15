@@ -6,11 +6,15 @@ namespace GambaBot\Interaction {
 
     use Debug\CMD_FONT_COLOR;
     use Debug\CMDOutput;
+    use Discord\Builders\MessageBuilder;
     use Discord\Parts\Interactions\MessageComponent;
     use Discord\Parts\Interactions\ApplicationCommand;
     use Discord\Parts\Interactions\ModalSubmit;
     use Discord\Parts\User\User;
     use InvalidArgumentException;
+
+    use function GambaBot\get;
+    use function GambaBot\set;
 
     use stdClass;
 
@@ -125,7 +129,20 @@ namespace GambaBot\Interaction {
         return null;
     }
 
+    function permissionToRun(ApplicationCommand $interaction): bool
+    {
+        $isRunning = true;
 
+        if (get('botIsRunning') === false) {
+            $interaction->respondWithMessage(MessageBuilder::new()
+                ->setContent('The bot is about to shut down, no new intaractions are allowed.'), 
+            ephemeral: true);
+
+            $isRunning = false;
+        }
+
+        return $isRunning;
+    }
 }
 
 namespace GambaBot\Discord {
@@ -200,6 +217,12 @@ namespace GambaBot\Tools {
     {
         return in_array($trait, class_uses($object));
     }
+
+    function arrayRandom(array $array): mixed
+    {
+        $key = array_rand($array);
+        return $array[$key];
+    }
 }
 
 namespace GambaBot\Debug {
@@ -217,18 +240,75 @@ namespace GambaBot\Debug {
     }
 }
 
-// namespace GambaBot {
+namespace GambaBot {
 
-//     use Throwable;
+    use Discord\Discord;
 
-//     /**
-//      * Throw an exeption and log the error
-//      * 
-//      * @throws mixed
-//      */
-//     function error(Throwable $throwable, int $code): never
-//     {
+    interface ProcessTerminationInterface
+    {
+        /**
+         * runs a callback and then ends the current process.
+         */
+        public function endProcess(?callable $callable): never;
+    }
+
+    // use Throwable;
+
+    // /**
+    //  * Throw an exeption and log the error
+    //  * 
+    //  * @throws mixed
+    //  */
+    // function error(Throwable $throwable, int $code): never
+    // {
         
-//         throw $throwable;
-//     }
-// }
+    //     throw $throwable;
+    // }
+
+    /**
+     * Defines a new global variable under the \GambaBot\ prefix.
+     * 
+     * @param string $name Name of the new variable.
+     * @param mixed $value Value of the new variable.
+     */
+    function set(string $name, mixed $value): void
+    {
+        $GLOBALS[__NAMESPACE__.'\\'.$name] = $value;
+    }
+
+    /**
+     * Get a variable from the \GambaBot\ prefix.
+     */
+    function get(string $name): mixed
+    {
+        return $GLOBALS[__NAMESPACE__.'\\'.$name];
+    }
+
+    function isSafeToTerminate(): ?ProcessTerminationInterface
+    {
+        $isSafe = call_user_func(get('shutdownCondition'));
+        if (! $isSafe) {
+            return null;
+        }
+
+        return new class implements ProcessTerminationInterface {
+
+            public function endProcess(?callable $callable): never
+            {
+                if (is_callable($callable)) {
+                    $callable();
+                }
+
+                exit(710);
+                // throw new \Exception('Not implemented');
+            }
+        };
+    }
+
+    function endProcess(Discord $discord): never
+    {
+        $discord->close(closeLoop: true);
+        
+        exit;
+    }
+}
