@@ -17,9 +17,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/defines.php';
 
-if (PHP_VERSION_ID < 80407) {
-    echo 'You are running an old version of php, use 8.4.7 or later!', PHP_EOL;
-    sleep(6);
+if (PHP_VERSION_ID < 80500) {
+    echo CMDOutput::new()->add('You are running an old version of php ('.PHP_VERSION.'), GachaBot requires version 8.5.0 or later!', CMD_FONT_COLOR::YELLOW), PHP_EOL;
+    sleep(10);
     exit();
 }
 
