@@ -41,6 +41,12 @@ final class InventoryManager
         $this->inventoryCache = new ObjectCach;
     }
 
+    /**
+     * Get an **Inventory** representing a discord user.
+     * 
+     * @param string $uid The users discord id.
+     */
+    #[\NoDiscard]
     public function getInventory(string $uid): Inventory
     {
         $ref = $this->inventoryCache->get($uid);
