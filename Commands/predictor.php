@@ -14,6 +14,7 @@ use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
 use Gamba\CoinGame\Tools\Components\ComponentType;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\ColorGame\ColorGame;
+use Gamba\CoinGame\Tools\Components\Factories\ButtonFactory;
 use Tools\Discord\Text\Format;
 
 use function GambaBot\Interaction\buttonPressedByOwner;
@@ -126,36 +127,23 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
             inline: true
         );
 
-    $row = new ActionRow;
+    $buttonFactory = new ButtonFactory($interaction);
 
-    $buttons = new ButtonCollection(3);
-
-    $idCreator = new ComponentIdCreator($interaction);
-
-    $greenButton = Button::success($idCreator->createId('green', ComponentType::BUTTON))->setLabel('Green')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $discord): void {
+    $buttonFactory->create(Button::STYLE_SUCCESS, 'green')->setLabel('Green')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $discord): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
-        $result = $actions('green', $interaction, $discord);
+        $actions('green', $interaction, $discord);
     }, $discord);
-    $buttons[0] = $greenButton;
-    $row->addComponent($greenButton);
 
-    $redButton = Button::danger($idCreator->createId('red', ComponentType::BUTTON))->setLabel('Red')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $discord): void {
+    $buttonFactory->create(Button::STYLE_DANGER, 'red')->setLabel('Red')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $discord): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
-        $result = $actions('red', $interaction, $discord);
+        $actions('red', $interaction, $discord);
     }, $discord);
-    $buttons[1] = $redButton;
-    $row->addComponent($redButton);
 
-    // $blueButton = Button::primary($idCreator->createId('blue'))->setLabel('Blue')->setListener(function(Interaction $buttonInteraction) use ($interaction, $actions, $userCoins,) {
-    //     $result = $actions('blue', $interaction);
-    // }, $discord);
-    // $buttons[2] = $redButton;
-
-    $endButton = Button::secondary($idCreator->createId('end_game', ComponentType::BUTTON))->setLabel('End Game')->setListener(function (MessageComponent $buttonInteraction) use ($gamba, $interaction, $discord): void {
+    $buttonFactory->create(Button::STYLE_SECONDARY, 'end_game')->setLabel('End Game')->setListener(function (MessageComponent $buttonInteraction) use ($gamba, $interaction, $discord): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
@@ -199,38 +187,8 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
         $inventory->setCoins($coins + (int)$finalWin);
 
     }, $discord);
-    $buttons[2] = $endButton;
-    $row->addComponent($endButton);
 
-    $gamba->games->addGame($game, GameData::create($interaction, $buttons, $idCreator->exportIdMap()));
+    $gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
 
-    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed)->addComponent($row));
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    // $ButtonId = new ComponentIdCreator($interaction);
-
-    // $game = new TestGame;
-    // $buttons = new ButtonCollection(1);
-
-    // $button1 = Button::success($ButtonId->createId('button_name_1'))->setLabel('test 1')->setListener(function(Interaction $buttonInteraction) use ($gamba, $interaction) {
-
-    //     $buttonId = $buttonInteraction->data->custom_id;
-
-    //     var_dump($buttonId);
-    //     $game = $gamba->games->getGame($interaction->id);
-    //     var_dump($game);
-    //     $message = MessageBuilder::new()->setContent($game->getNext());
-
-    //     $gamba->games->getGameData($game)->updateMessage($message);
-    //     // $interaction->updateOriginalResponse($message);
-    // }, $discord);
-
-    // $buttons[0] = $button1;
-
-    // $gamba->games->addGame($game, GameData::create($interaction->id, getUserId($interaction), $buttons, $interaction));
-    // // var_dump($button1->getCustomId());
-    // $row = ActionRow::new()->addComponent($button1);
-
-    // $interaction->respondWithMessage(MessageBuilder::new()->setContent($game->getNext())->addComponent($row), true);
+    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed)->addComponent($buttonFactory->createActionRow()));
 });
