@@ -208,6 +208,9 @@ namespace GambaBot\Discord\TextStyle {
 }
 
 namespace GambaBot\Tools {
+
+    use ReflectionClass;
+
     function isImplementing(object $object, string $interface): bool
     {
         return in_array($interface, class_implements($object));
@@ -222,6 +225,34 @@ namespace GambaBot\Tools {
     {
         $key = array_rand($array);
         return $array[$key];
+    }
+
+    function hasAttribute(object|string $class, string $attributeName): bool
+    {
+        $reflection = new ReflectionClass($class);
+
+        $attributes = $reflection->getAttributes($attributeName);
+
+        return count($attributes) > 0;
+    }
+
+    /**
+     * Get a list of attributes on a object/class
+     * 
+     * @return array<string, ReflectionAttribute<object>>
+     */
+    function getAttributes(object|string $class): array
+    {
+        $reflection = new ReflectionClass($class);
+
+        $attributes = $reflection->getAttributes();
+
+        $attributeList = [];
+        foreach ($attributes as $attr) {
+            $attributeList[$attr->name] = $attr;
+        }
+
+        return $attributeList;
     }
 }
 
