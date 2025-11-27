@@ -20,7 +20,7 @@ use Traversable;
  *
  * @property int $size Size of the object
  */
-final class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable, Stringable
+class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable, Stringable
 {
     public readonly string $type;
 
@@ -35,7 +35,7 @@ final class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, Js
     {
         $this->_data = new SplFixedArray($size);
         $this->size = $size;
-        $this->type = match (mb_strtolower($dataType)) {
+        $this->type = match (strtolower($dataType)) {
             'int' => 'integer',
             'bool' => 'boolean',
             'float' => 'double',
@@ -91,9 +91,6 @@ final class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, Js
             $i++;
         } while ($i < $this->size);
 
-        // for($i = 0; $i < $this->size; $i++) {
-
-        // }
         throw new OutOfRangeException('Too many values to insert into '.$this);
     }
 
@@ -328,5 +325,36 @@ final class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, Js
         } while ($value === null);
 
         return $value;
+    }
+
+    final public function first(bool $includeNull = false): mixed
+    {
+        if ($includeNull) {
+            return $this[0];
+        }
+
+        for ($i = 0; $i < $this->size; $i++) {
+            if ($this[$i] !== null) {
+                return $this[$i];
+            }
+        }
+
+        return null;
+    }
+
+    final public function last(bool $includeNull = false): mixed
+    {
+        
+        if ($includeNull) {
+            return $this[$this->size - 1];
+        }
+
+        $lastValue = null;
+        $i = $this->size - 1;
+        do {
+            $lastValue = $this[$i--];
+        } while (!$lastValue && $i > 0);
+
+        return $lastValue;
     }
 }
