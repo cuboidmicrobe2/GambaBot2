@@ -7,10 +7,10 @@ namespace Gamba\CoinGame;
 use Discord\Parts\Interactions\ApplicationCommand;
 use Gamba\CoinGame\Tools\Players\Player;
 
-final class PlayerLink
+readonly final class PlayerLink
 {
     public function __construct(
-        public readonly ApplicationCommand $interaction, 
-        public readonly Player $player
+        public ApplicationCommand $interaction, 
+        public Player $player
     ) {}
 }
