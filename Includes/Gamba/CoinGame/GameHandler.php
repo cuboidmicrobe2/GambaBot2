@@ -179,7 +179,6 @@ final class GameHandler
     }
 
     #[Deprecated('use GameHandler::getGame()')]
-    #[Deprecated(message: 'use GameHandler::getGame()')]
     private function getFromId(string $id): ?GameInstance
     {
         foreach ($this->gameData as $game => $data) {
