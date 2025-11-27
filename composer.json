@@ -4,12 +4,16 @@
         "symfony/dotenv": "^7.3"
     },
     "require-dev": {
-        "rector/rector": "^2.1",
-        "laravel/pint": "^1.24"
+        "rector/rector": "^2.2.8",
+        "laravel/pint": "^1.26.0"
     },
     "autoload": {
         "psr-4": {
             "": "Includes/"
         }
+    },
+    "scripts": {
+        "pint": "vendor/bin/pint",
+        "rector": "vendor/bin/rector"
     }
 }
