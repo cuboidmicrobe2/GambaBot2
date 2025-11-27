@@ -74,7 +74,7 @@ final class ColorGame extends GameInstance
         // return 'No guesses';
 
         if (count($this->guessHistory) < 2) {
-            return code($this->guessHistory[array_key_first($this->guessHistory)] ?? 'No guesses');
+            return code(array_first($this->guessHistory) ?? 'No guesses');
         }
 
         $last = array_key_last($this->guessHistory);

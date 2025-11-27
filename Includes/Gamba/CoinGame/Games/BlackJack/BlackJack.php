@@ -120,7 +120,7 @@ final class BlackJack extends GameInstance
      */
     public function playableHands(): bool
     {
-        return array_any($this->playerHands, fn ($hand): bool => $hand->playable === true);
+        return array_any($this->playerHands, fn ($hand): bool => $hand->playable);
     }
 
     /**

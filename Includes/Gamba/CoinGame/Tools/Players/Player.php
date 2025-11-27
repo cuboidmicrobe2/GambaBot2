@@ -111,7 +111,7 @@ final class Player implements Stringable
             try {
                 $discord->users->fetch($player)->then(fn (User $user): User => $this->user = $user);
             } catch (Exception $e) {
-                throw new InvalidArgumentException('(from id: '.$player.') '.$e->getMessage(), code: 2, $e);
+                throw new InvalidArgumentException('(from id: '.$player.') '.$e->getMessage(), code: 2, previous: $e);
             }
         }
 

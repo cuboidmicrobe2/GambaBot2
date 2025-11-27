@@ -100,7 +100,7 @@ final class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, Js
     // ------------------ArrayAccess------------------
     final public function offsetExists(mixed $offset): bool
     {
-        return array_key_exists($offset, $this->_data->toArray());
+        return array_key_exists((string) $offset, $this->_data->toArray());
     }
 
     /**

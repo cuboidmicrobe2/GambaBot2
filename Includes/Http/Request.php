@@ -38,7 +38,7 @@ final class Request
             curl_setopt_array($ch, $setopt);
         }
 
-        $this->curls->attach($ch);
+        $this->curls->offsetSet($ch);
 
         curl_multi_add_handle($this->mh, $ch);
         $this->executed = false;
@@ -55,8 +55,7 @@ final class Request
         if ($requests === 1) {
             $ch = $this->curls->current();
             curl_exec($ch);
-            curl_close($ch);
-            $this->curls->detach($ch);
+            $this->curls->offsetUnset($ch);
         }
 
         $running = null;
@@ -76,8 +75,7 @@ final class Request
         if (count($this->curls) === 1) {
             $ch = $this->curls->current();
             $data = curl_exec($ch);
-            curl_close($ch);
-            $this->curls->detach($ch);
+            $this->curls->offsetUnset($ch);
 
             return $data;
         }
@@ -85,8 +83,7 @@ final class Request
         while ($this->curls->valid()) {
             $ch = $this->curls->current();
             yield curl_multi_getcontent($ch);
-            curl_close($ch);
-            $this->curls->detach($ch);
+            $this->curls->offsetUnset($ch);
         }
 
         $this->executed = false;

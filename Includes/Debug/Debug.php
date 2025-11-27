@@ -138,7 +138,7 @@ trait Debug
             }
         }
         foreach (array_keys($feedbackBlueprint) as $feedbackType) {
-            if (array_key_exists($feedbackType, $feedback)) {
+            if (array_key_exists((string) $feedbackType, $feedback)) {
                 $feedbackBlueprint[$feedbackType] = $feedback[$feedbackType];
             }
         }
