@@ -16,21 +16,19 @@ use Infrastructure\Exceptions\UndefinedProperty;
 use InvalidArgumentException;
 use LogicException;
 use stdClass;
+use Stringable;
 use Tools\Discord\Text\Format;
 
 /**
  * Represents a Discord user as a Player.
  */
-final class Player
+final class Player implements Stringable
 {
     use Debug;
 
     private const string DISCORD_AVATAR_URL = 'https://cdn.discordapp.com/avatars/';
 
-    private readonly User $user;
     public readonly Inventory $inventory;
-
-    private stdClass $playerData;
 
     /**
      * Store Player data in an stdClass.
@@ -84,18 +82,22 @@ final class Player
         }
     }
 
+    private readonly User $user;
+
+    private stdClass $playerData;
+
     /**
      * Create a Player Object
-     * 
-     * @param string|User $player   Discord user id or User object.
-     * 
+     *
+     * @param  string|User  $player  Discord user id or User object.
+     *
      * @throws InvalidArgumentException If:\
-     * #1 - The User is a bot.\
-     * #2 - A User could not be retrieved.\
-     * #3 - Passing user id without a Discord instance.
+     *                                  #1 - The User is a bot.\
+     *                                  #2 - A User could not be retrieved.\
+     *                                  #3 - Passing user id without a Discord instance.
      */
     public function __construct(
-        string|User $player, 
+        string|User $player,
         InventoryManager $inventoryManager,
         ?Discord $discord = null,
     ) {
@@ -107,9 +109,9 @@ final class Player
             }
 
             try {
-                $discord->users->fetch($player)->then(fn (User $user) => $this->user = $user); 
-            } catch(Exception $e) {
-                throw new InvalidArgumentException('(from id: '.$player.') '.$e->getMessage(), code: 2);
+                $discord->users->fetch($player)->then(fn (User $user): User => $this->user = $user);
+            } catch (Exception $e) {
+                throw new InvalidArgumentException('(from id: '.$player.') '.$e->getMessage(), code: 2, $e);
             }
         }
 
@@ -121,10 +123,32 @@ final class Player
     }
 
     /**
+     * @return string Username or global name.
+     */
+    public function __toString(): string
+    {
+        return $this->name;
+    }
+
+    // (mby) make get and set go into $playerData.
+
+    public function __get(string $name): never
+    {
+        throw new UndefinedProperty(
+            message: self::createUpdateMessage('', 'property of '.$name.' does not exist on object of '.self::class)
+        );
+    }
+
+    public function __set(string $name, mixed $value): void
+    {
+        echo self::createUpdateMessage('', 'property of '.$name.' does not exist on object of '.self::class);
+    }
+
+    /**
      * Static Player constructor
      */
     public static function new(
-        string|User $player, 
+        string|User $player,
         InventoryManager $inventoryManager,
         Discord $discord,
     ): self {
@@ -147,40 +171,18 @@ final class Player
         return Format::mention()->user($this->uid);
     }
 
-    /** @deprecated 'use the associated property instead' */
     #[Deprecated('use the associated property instead')]
+    #[Deprecated(message: "'use the associated property instead'")]
     public function getName(): string
     {
         return $this->user->global_name ?? $this->user->username;
     }
 
-    /** @deprecated 'use the associated property instead' */
     #[Deprecated('use the associated property instead')]
+    #[Deprecated(message: "'use the associated property instead'")]
     public function getId(): string
     {
         return $this->user->id;
-    }
-
-    /**
-     * @return string Username or global name.
-     */
-    public function __toString(): string
-    {
-        return $this->name;
-    }
-
-    // (mby) make get and set go into $playerData.
-
-    public function __get($name): never
-    {   
-        throw new UndefinedProperty(
-            message: self::createUpdateMessage('', 'property of '.$name.' does not exist on object of '.static::class)
-        );
-    }
-
-    public function __set($name, $value): void
-    {
-        echo self::createUpdateMessage('', 'property of '.$name.' does not exist on object of '.static::class); PHP_EOL;
     }
 }
 

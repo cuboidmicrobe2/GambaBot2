@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Debug;
 
-enum CMD_FONT_COLOR : int {
+use Stringable;
+
+enum CMD_FONT_COLOR: int
+{
     case BLACK = 30;
     case RED = 31;
     case GREEN = 32;
@@ -21,7 +26,8 @@ enum CMD_FONT_COLOR : int {
     case BRIGHT_WHITE = 97;
 }
 
-enum CMD_BACKGROUND_COLOR : int {
+enum CMD_BACKGROUND_COLOR: int
+{
     case BLACK = 40;
     case RED = 41;
     case GREEN = 42;
@@ -40,23 +46,27 @@ enum CMD_BACKGROUND_COLOR : int {
     case BRIGHT_WHITE = 107;
 }
 
-final class CMDOutput {
+final class CMDOutput implements Stringable
+{
     private string $output = '';
 
-    public static function new() : self {
-        
-        return new Static();
-
-    }
-
-    public function add(string $text, ?CMD_FONT_COLOR $fg = null, ?CMD_BACKGROUND_COLOR $bg = null,) : self {
-
-        $this->output .= "\x1B[" . $fg?->value . 'm' . $text . "\033[0m";
-        return $this;
-    }
-
-    public function __toString()
+    public function __toString(): string
     {
         return $this->output;
+    }
+
+    public static function new(): self
+    {
+
+        return new self();
+
+    }
+
+    public function add(string $text, ?CMD_FONT_COLOR $fg = null, ?CMD_BACKGROUND_COLOR $bg = null): self
+    {
+
+        $this->output .= "\x1B[".$fg?->value.'m'.$text."\033[0m";
+
+        return $this;
     }
 }

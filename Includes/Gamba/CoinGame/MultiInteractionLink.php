@@ -23,13 +23,6 @@ trait MultiInteractionLink
      */
     private array $links = [];
 
-    protected function createLink(ApplicationCommand $hostInteraction, Player $hostPlayer): void
-    {
-        $this->linkId = $hostInteraction->id.'\\'.hrtime(true);
-
-        $this->links[$hostInteraction->id] = $hostPlayer;
-    }
-
     final public function joinMultiInteractionLink(ApplicationCommand $interaction, Player $player): void
     {
         $this->links[$player->uid] = new PlayerLink($interaction, $player);
@@ -63,6 +56,13 @@ trait MultiInteractionLink
         $this->isValidId($interactionId);
 
         return $this->links[$interactionId];
+    }
+
+    protected function createLink(ApplicationCommand $hostInteraction, Player $hostPlayer): void
+    {
+        $this->linkId = $hostInteraction->id.'\\'.hrtime(true);
+
+        $this->links[$hostInteraction->id] = $hostPlayer;
     }
 
     /**

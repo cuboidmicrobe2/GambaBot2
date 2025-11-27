@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database;
 
-use Debug\CMDOutput;
 use Debug\Debug;
 use Debug\MessageType;
 use PDO;
 use PDOException;
+use SensitiveParameter;
 
 final class PersistentConnection
 {
@@ -20,7 +20,7 @@ final class PersistentConnection
         public readonly string $connectionName,
         private readonly string $dsn,
         private readonly ?string $username = null,
-        #[\SensitiveParameter] private readonly ?string $password = null,
+        #[SensitiveParameter] private readonly ?string $password = null,
         private readonly ?array $options = null
     ) {
         $this->createConnection();
@@ -57,7 +57,7 @@ final class PersistentConnection
 
         return $this->conn;
     }
-    
+
     private function createConnection(): void
     {
         try {
@@ -73,6 +73,7 @@ final class PersistentConnection
     {
         try {
             $this->conn->getAttribute(PDO::ATTR_SERVER_INFO);
+
             return true;
         } catch (PDOException $e) {
             return $e->getCode();

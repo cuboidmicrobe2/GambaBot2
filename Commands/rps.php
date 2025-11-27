@@ -22,14 +22,13 @@ use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-
 global $discord, $gamba;
 
 $discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($discord, $gamba): void {
     if (! permissionToRun($interaction)) {
         return;
     }
-    
+
     $p1 = getUserId($interaction);
     $p2 = getOptionValue('opponent', $interaction);
 

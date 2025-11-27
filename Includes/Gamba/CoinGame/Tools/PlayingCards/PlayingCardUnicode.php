@@ -69,7 +69,7 @@ abstract class PlayingCardUnicode
         ],
     ];
 
-    public static function fromCard(Card $card): string
+    final public static function fromCard(Card $card): string
     {
         return self::SYMBOLS[$card->suit->name][$card->face->name];
     }

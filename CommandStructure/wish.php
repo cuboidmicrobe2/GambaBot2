@@ -1,25 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 use Discord\Builders\CommandBuilder;
-use Discord\Parts\Interactions\Command\Option;
-use Symfony\Component\Dotenv\Dotenv;
 use Discord\Discord;
 use Discord\Parts\Interactions\Command\Choice;
+use Discord\Parts\Interactions\Command\Option;
+use Symfony\Component\Dotenv\Dotenv;
 
-require_once './vendor/autoload.php';
-
+require_once __DIR__.'/vendor/autoload.php';
 
 $dotenv = new Dotenv;
 $dotenv->load('./.env');
-
 
 $discord = new Discord([
     'token' => $_ENV['DISCORD_TOKEN'],
 ]);
 
-
-$discord->on('init', function(Discord $discord) {
-    $discord->application->commands->delete('1250871135428415488')->then(function() use ($discord) {
+$discord->on('init', function (Discord $discord): void {
+    $discord->application->commands->delete('1250871135428415488')->then(function () use ($discord): void {
         $discord->application->commands->save(
             $discord->application->commands->create(CommandBuilder::new()
                 ->setName('wish')
@@ -47,9 +46,4 @@ $discord->on('init', function(Discord $discord) {
         );
     });
 
-
 });
-
-
-
-

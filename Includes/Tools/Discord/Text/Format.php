@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Tools\Discord\Text;
 
-use Tools\Discord\Text\HeaderFormatInterface;
-use Tools\Discord\Text\TimerFormatInterface;
-use Tools\Discord\Text\MentionTypeInterface;
-
 /**
  * Format strings to Discords styles
  */
@@ -32,7 +28,7 @@ abstract class Format
     {
         return '~~'.$text.'~~';
     }
-    
+
     final public static function spoiler(string $text): string
     {
         return '||'.$text.'||';
@@ -45,7 +41,7 @@ abstract class Format
 
     /**
      * Create a header with a \n at the end.
-     * 
+     *
      * @method  big
      * @method  medium
      * @method  small
@@ -53,7 +49,7 @@ abstract class Format
      */
     final public static function header(): HeaderFormatInterface
     {
-        return new class implements HeaderFormatInterface 
+        return new class implements HeaderFormatInterface
         {
             public function big(string $header): string
             {
@@ -88,7 +84,7 @@ abstract class Format
 
     /**
      * Create a discord timer
-     * 
+     *
      * @method shortTime
      * @method longTime
      * @method shortDate
@@ -98,8 +94,8 @@ abstract class Format
      * @method relative
      */
     final public static function timer(): TimerFormatInterface
-    {                              
-        return new class implements TimerFormatInterface 
+    {
+        return new class implements TimerFormatInterface
         {
             public function shotTime(int $timeStamp): string
             {
@@ -136,7 +132,7 @@ abstract class Format
                 return '<t:'.$timeStamp.':R>';
             }
 
-            public function __toString()
+            public function __toString(): string
             {
                 return self::class;
             }
@@ -171,13 +167,13 @@ abstract class Format
 
     /**
      * Alias for **Mention**
-     * 
+     *
      * @method user
      * @method channel
      * @method command
      */
     final public static function link(): MentionTypeInterface
     {
-       return self::mention(); 
+        return self::mention();
     }
 }

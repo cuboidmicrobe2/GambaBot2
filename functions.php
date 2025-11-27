@@ -7,16 +7,14 @@ namespace GambaBot\Interaction {
     use Debug\CMD_FONT_COLOR;
     use Debug\CMDOutput;
     use Discord\Builders\MessageBuilder;
-    use Discord\Parts\Interactions\MessageComponent;
     use Discord\Parts\Interactions\ApplicationCommand;
+    use Discord\Parts\Interactions\MessageComponent;
     use Discord\Parts\Interactions\ModalSubmit;
     use Discord\Parts\User\User;
     use InvalidArgumentException;
+    use stdClass;
 
     use function GambaBot\get;
-    use function GambaBot\set;
-
-    use stdClass;
 
     function getUserId(ApplicationCommand $interaction): string
     {
@@ -55,12 +53,13 @@ namespace GambaBot\Interaction {
 
     function insertStringValues(string $commandString, array $values): string
     {
-        $patters = []; 
+        $patters = [];
         foreach (array_keys($values) as $key) {
             $patters[] = '/\$('.$key.')/';
         }
+
         return preg_replace($patters, $values, $commandString);
-    }    
+    }
 
     function buttonPresserId(MessageComponent $buttonInteraction): string
     {
@@ -99,6 +98,7 @@ namespace GambaBot\Interaction {
                 return $label->component->value;
             }
         }
+
         // object(Discord\Helpers\Collection)#931 (1) {
         //     [1]=>
         //     object(Discord\Parts\Channel\Message\Label)#933 (3) {
@@ -135,8 +135,8 @@ namespace GambaBot\Interaction {
 
         if (get('botIsRunning') === false) {
             $interaction->respondWithMessage(MessageBuilder::new()
-                ->setContent('The bot is about to shut down, no new intaractions are allowed.'), 
-            ephemeral: true);
+                ->setContent('The bot is about to shut down, no new intaractions are allowed.'),
+                ephemeral: true);
 
             $isRunning = false;
         }
@@ -196,7 +196,7 @@ namespace GambaBot\Discord\TextStyle {
     {
         return '~~'.$text.'~~';
     }
-    
+
     /**
      * @deprecated use the abstract Format class
      */
@@ -224,6 +224,7 @@ namespace GambaBot\Tools {
     function arrayRandom(array $array): mixed
     {
         $key = array_rand($array);
+
         return $array[$key];
     }
 
@@ -238,7 +239,7 @@ namespace GambaBot\Tools {
 
     /**
      * Get a list of attributes on a object/class
-     * 
+     *
      * @return array<string, ReflectionAttribute<object>>
      */
     function getAttributes(object|string $class): array
@@ -262,7 +263,7 @@ namespace GambaBot\Debug {
      * Runs debug_zval_dump() on all globals
      */
     function global_debug_dump(): never
-    {   
+    {
         foreach ($GLOBALS as $name => $var) {
             echo '$', $name, ': ';
             debug_zval_dump($var);
@@ -287,20 +288,20 @@ namespace GambaBot {
 
     // /**
     //  * Throw an exeption and log the error
-    //  * 
+    //  *
     //  * @throws mixed
     //  */
     // function error(Throwable $throwable, int $code): never
     // {
-        
+
     //     throw $throwable;
     // }
 
     /**
      * Defines a new global variable under the \GambaBot\ prefix.
-     * 
-     * @param string $name Name of the new variable.
-     * @param mixed $value Value of the new variable.
+     *
+     * @param  string  $name  Name of the new variable.
+     * @param  mixed  $value  Value of the new variable.
      */
     function set(string $name, mixed $value): void
     {
@@ -322,8 +323,8 @@ namespace GambaBot {
             return null;
         }
 
-        return new class implements ProcessTerminationInterface {
-
+        return new class implements ProcessTerminationInterface
+        {
             public function endProcess(?callable $callable): never
             {
                 if (is_callable($callable)) {
@@ -339,7 +340,7 @@ namespace GambaBot {
     function endProcess(Discord $discord): never
     {
         $discord->close(closeLoop: true);
-        
+
         exit;
     }
 }

@@ -7,7 +7,6 @@ namespace Gamba\CoinGame\Tools\PlayingCards;
 use ArrayAccess;
 use ArrayIterator;
 use Countable;
-use Gamba\CoinGame\Tools\PlayingCards\CardCollection;
 use IteratorAggregate;
 use Traversable;
 
@@ -46,7 +45,7 @@ final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
                 if ($addedCards >= $size) {
                     continue;
                 }
-                
+
                 $tempDeck[] = $card;
                 $addedCards++;
             }
@@ -65,13 +64,13 @@ final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * Pick a **Card** form the deck and remove it from the deck.
-     * 
-     * @return null|Card    Returns a **Card** or null if **CardDeck** is empty
+     *
+     * @return null|Card Returns a **Card** or null if **CardDeck** is empty
      */
     // #[NoDiscard]
     public function pickCard(): ?Card
     {
-        if (empty($this->cards)) { 
+        if ($this->cards === []) {
             return null;
         }
 
@@ -141,6 +140,4 @@ final class CardDeck implements ArrayAccess, Countable, IteratorAggregate
     {
         return count($this->cards);
     }
-
-
 }

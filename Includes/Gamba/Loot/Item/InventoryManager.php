@@ -8,6 +8,7 @@ use Database\PersistentConnection;
 use Debug\Debug;
 use HTTP\Request;
 use Infrastructure\ObjectCach;
+use NoDiscard;
 use OutOfRangeException;
 use Pdo\Mysql;
 
@@ -16,7 +17,7 @@ final class InventoryManager
     use Debug;
 
     /**
-     * True if any **Inventory** is in use.   
+     * True if any **Inventory** is in use.
      */
     public bool $activeInventories {
         get {
@@ -43,10 +44,10 @@ final class InventoryManager
 
     /**
      * Get an **Inventory** representing a discord user.
-     * 
-     * @param string $uid The users discord id.
+     *
+     * @param  string  $uid  The users discord id.
      */
-    #[\NoDiscard]
+    #[NoDiscard]
     public function getInventory(string $uid): Inventory
     {
         $ref = $this->inventoryCache->get($uid);
@@ -57,6 +58,7 @@ final class InventoryManager
 
         $inv = new Inventory($uid, $this->conn->getConnection());
         $this->inventoryCache->set($uid, $inv);
+
         return $inv;
     }
 
@@ -91,7 +93,7 @@ final class InventoryManager
 
         $i = 0;
         foreach ($requests->fetch() as $userData) {
-            $userInfo = json_decode($userData, true);
+            $userInfo = json_decode((string) $userData, true);
             $name = $userInfo['global_name'] ?? $userInfo['username'] ?? 'CURL_ERROR';
             $data[$i]['user'] = $name;
             $i++;

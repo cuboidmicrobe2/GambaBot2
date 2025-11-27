@@ -31,10 +31,10 @@ final class RockPaperScissors extends GameInstance
     }
 
     public function __construct(
-        Discord $discord, 
+        Discord $discord,
         InventoryManager $inventoryManager,
-        private readonly string $p1Uid, 
-        private readonly string $p2Uid, 
+        private readonly string $p1Uid,
+        private readonly string $p2Uid,
         public private(set) int $bet
     ) {
 
@@ -58,18 +58,22 @@ final class RockPaperScissors extends GameInstance
         if ($this->started) {
             if ($p1->data->points >= self::WIN_CON) {
                 $p1->inventory->addCoins($this->bet * 2);
+
                 return;
             }
             if ($p2->data->points >= self::WIN_CON) {
                 $p2->inventory->addCoins($this->bet * 2);
+
                 return;
             }
             if ($p1->data->moves[$this->round] !== null && $p2->data->moves[$this->round] === null) {
                 $p1->inventory->addCoins($this->bet * 2);
+
                 return;
             }
             if ($p2->data->moves[$this->round] !== null && $p1->data->moves[$this->round] === null) {
                 $p2->inventory->addCoins($this->bet * 2);
+
                 return;
             }
 
@@ -90,7 +94,8 @@ final class RockPaperScissors extends GameInstance
         }
         $player->data->move = $move;
         $player->data->moves[$this->round] = $move;
-        return true; 
+
+        return true;
     }
 
     public function movesDone(): bool

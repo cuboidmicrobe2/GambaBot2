@@ -163,8 +163,8 @@ final class ObjectCach implements ArrayAccess
 
     /**
      * Check if there is a **TValue** linked to the **TKey** regardless of cached object status.
-     * 
-     * @param TKey $ident
+     *
+     * @param  TKey  $ident
      */
     public function exists(string $ident): bool
     {
@@ -173,8 +173,8 @@ final class ObjectCach implements ArrayAccess
 
     /**
      * Check if a cached object is still valid.
-     * 
-     * @param TKey $ident
+     *
+     * @param  TKey  $ident
      */
     public function valid(string $ident): bool
     {

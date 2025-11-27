@@ -19,8 +19,9 @@ final class ComponentIdMap implements JsonSerializable
     private array $data = [];
 
     /**
-     * @param TKey      $componentName
-     * @param TValue    $componentId
+     * @param  TKey  $componentName
+     * @param  TValue  $componentId
+     *
      * @throws InvalidArgumentException TKey already exist
      */
     public function add(string $componentName, string $componentId): void
@@ -33,7 +34,8 @@ final class ComponentIdMap implements JsonSerializable
     }
 
     /**
-     * @param TKey  $componentName
+     * @param  TKey  $componentName
+     *
      * @throws InvalidArgumentException TKey does not exist
      */
     public function remove(string $componentName): void
@@ -43,19 +45,22 @@ final class ComponentIdMap implements JsonSerializable
     }
 
     /**
-     * @param TKey  $componentName
+     * @param  TKey  $componentName
      * @return TValue
+     *
      * @throws InvalidArgumentException TKey does not exist
      */
     public function get(string $componentName): string
     {
         $this->throwIfInvlaid($componentName);
+
         return $this->data[$componentName];
     }
 
     /**
-     * @param TKey  $componentName
+     * @param  TKey  $componentName
      * @return TValue
+     *
      * @throws InvalidArgumentException TKey does not exist
      */
     public function getAndRemove(string $componentName): string
@@ -69,15 +74,21 @@ final class ComponentIdMap implements JsonSerializable
     }
 
     /**
-     * @param TKey  $componentName
+     * @param  TKey  $componentName
      */
     public function idExists(string $componentName): bool
     {
         return isset($this->data[$componentName]);
     }
 
+    public function jsonSerialize(): array
+    {
+        return $this->data;
+    }
+
     /**
-     * @param TKey  $key
+     * @param  TKey  $key
+     *
      * @throws InvalidArgumentException TKey does not exist
      */
     private function throwIfInvlaid(string $key): void
@@ -85,10 +96,5 @@ final class ComponentIdMap implements JsonSerializable
         if (! $this->idExists($key)) {
             throw new InvalidArgumentException('TKey '.$key.' does not exist');
         }
-    }
-
-    public function jsonSerialize(): array
-    {
-        return $this->data;
     }
 }

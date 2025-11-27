@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * Time zone used in DateTimeZone
@@ -38,9 +38,9 @@ define('GOLD_PITY_CAP', 80);
 define('PURPLE_PITY_CAP', 10);
 
 /**
- * Gold chance will increase with this value 
+ * Gold chance will increase with this value
  */
-define('GOLD_SOFT_PITY', (int)floor(GOLD_PITY_CAP * 0.92));
+define('GOLD_SOFT_PITY', (int) floor(GOLD_PITY_CAP * 0.92));
 
 /**
  * Max value in mt_rand(1, **PROB_MAX**)
@@ -54,12 +54,11 @@ define('SOFT_PITY_ADDER', 0.1 * PROB_MAX);
 
 /**
  * Value that will adjust the rng ranges
- * 
- * @param int $value    goldPity after **GOLD_SOFT_PITY**
- * 
- * @return int  Value that will adjust the rng ranges
+ *
+ * @param  int  $value  goldPity after **GOLD_SOFT_PITY**
+ * @return int Value that will adjust the rng ranges
  */
-define('GOLD_RANGE_ADJUSTER', static fn(float $value) : int => (int)(($value - GOLD_SOFT_PITY) * SOFT_PITY_ADDER));
+define('GOLD_RANGE_ADJUSTER', static fn (float $value): int => (int) (($value - GOLD_SOFT_PITY) * SOFT_PITY_ADDER));
 
 /**
  * Min blue roll

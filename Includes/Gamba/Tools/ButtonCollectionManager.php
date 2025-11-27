@@ -1,31 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Gamba\Tools;
 
 use Discord\Builders\Components\Button;
 
-final class ButtonCollectionManager {
+final class ButtonCollectionManager
+{
     private array $buttons;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
-    public function add(Button $button, string $id, array $assocData): void 
+    public function add(Button $button, string $id, array $assocData): void
     {
         $this->buttons[$id] = [
             'button' => $button,
-            'data' => $assocData
+            'data' => $assocData,
         ];
     }
 
-    public function updateDataKey(string $buttonId, mixed $value, string $key): void 
+    public function updateDataKey(string $buttonId, mixed $value, string $key): void
     {
         $this->buttons[$buttonId]['data'][$key] = $value;
     }
 
-    function FunctionName() : Returntype {
-        
-    }
-    
+    public function FunctionName(): Returntype {}
 }

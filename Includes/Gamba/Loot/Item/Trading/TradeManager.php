@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Gamba\Loot\Item\Trading;
 
 use Debug\Debug;
-use Discord\Discord;
 use Gamba\Loot\Item\ItemCollection;
 
 final class TradeManager

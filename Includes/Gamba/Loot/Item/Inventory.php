@@ -17,9 +17,9 @@ final class Inventory
     }
 
     /**
-     * @param string $owner Id of a user.
+     * @param  string  $owner  Id of a user.
      */
-    public function __construct(private readonly string $owner, private Mysql $database)
+    public function __construct(private readonly string $owner, private readonly Mysql $database)
     {
         $this->userInventoryMustExist($owner, $database);
     }
@@ -54,8 +54,8 @@ final class Inventory
 
     /**
      * Add coins to user inventory
-     * 
-     * @param int<0, max> $coins    note: do not add a negative number (for safety)
+     *
+     * @param  int<0, max>  $coins  note: do not add a negative number (for safety)
      */
     public function addCoins(int $coins): void
     {

@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Games\HighLow;
 
 use Gamba\CoinGame\Tools\Players\Player;
-use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
-use Gamba\CoinGame\Games\HighLow\Guess;
 use Gamba\CoinGame\Tools\PlayingCards\Card;
+use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
 use Gamba\CoinGame\Tools\PlayingCards\CardFace;
 
 final class HigherLower
 {
     private const float MOD_WIN = 0.6;
-    private const float MOD_LOSS = 0.7;
 
-    private readonly CardDeck $cards;
+    private const float MOD_LOSS = 0.7;
 
     public private(set) Card $currentCard;
 
     public private(set) int $score;
 
     public private(set) bool $gameEnd = false;
+
+    private readonly CardDeck $cards;
 
     /**
      * @var array<int, Guess>
@@ -34,7 +34,7 @@ final class HigherLower
         $this->currentCard = $this->cards->pickCard();
         $this->score = $this->bet;
     }
-    
+
     public function makeGuess(Guess $guess): bool
     {
         $this->guessHistory[] = $guess;
@@ -49,7 +49,7 @@ final class HigherLower
             default => Guess::SAME,
         };
 
-        if($guess === $correctGuess || $correctGuess === Guess::SAME) {
+        if ($guess === $correctGuess || $correctGuess === Guess::SAME) {
             $this->score += $this->bet * self::MOD_WIN;
             $correct = true;
         } else {
@@ -79,7 +79,7 @@ final class HigherLower
 
     public function endOfGameLogic(): void
     {
-        
+
         $this->player->inventory->addCoins($this->score);
     }
 

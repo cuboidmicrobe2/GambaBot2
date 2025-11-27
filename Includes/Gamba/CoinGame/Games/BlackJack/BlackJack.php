@@ -5,23 +5,20 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Games\BlackJack;
 
 use Gamba\CoinGame\GameInstance;
-use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
-use Gamba\CoinGame\Games\BlackJack\Hand;
 use Gamba\CoinGame\Tools\Players\Player;
+use Gamba\CoinGame\Tools\PlayingCards\CardDeck;
 use LogicException;
 
 final class BlackJack extends GameInstance
 {
-    public readonly Player $player;
+    public private(set) int $wonBet; // pointless?
 
     /**
      * @var CardDeck<int, Card>
      */
-    private CardDeck $deck;
+    private readonly CardDeck $deck;
 
-    public private(set) int $wonBet; // pointless? 
-
-    private Hand $dealerHand;
+    private readonly Hand $dealerHand;
 
     /**
      * @var Hand[]
@@ -30,13 +27,11 @@ final class BlackJack extends GameInstance
 
     private int $handIterator = 0;
 
-    public function __construct(public readonly int $bet, int $decks, Player $player)
+    public function __construct(public readonly int $bet, int $decks, public readonly Player $player)
     {
         if ($decks <= 0) {
-            throw new LogicException('Cannot play '.self::class.' with '.$decks. ' decks');
+            throw new LogicException('Cannot play '.self::class.' with '.$decks.' decks');
         }
-
-        $this->player = $player;
 
         parent::__construct();
 
@@ -57,7 +52,7 @@ final class BlackJack extends GameInstance
     public function hit(): void
     {
         $this->renew();
-        $this->playerHands[$this->handIterator]->addCard($this->deck->pickCard()); //Gives the player a new card.
+        $this->playerHands[$this->handIterator]->addCard($this->deck->pickCard()); // Gives the player a new card.
 
         $this->advanceIterator();
     }
@@ -104,7 +99,6 @@ final class BlackJack extends GameInstance
         $newHand->addCard($card);
         $newHand->addCard($this->deck->pickCard());
 
-
         $this->playerHands[] = $newHand;
 
         $this->advanceIterator();
@@ -117,10 +111,8 @@ final class BlackJack extends GameInstance
         }
         $card1 = $this->playerHands[$this->handIterator]->cards[0];
         $card2 = $this->playerHands[$this->handIterator]->cards[1];
-        if ($card1->face === $card2->face) { 
-            return true;
-        }
-        return false;
+
+        return $card1->face === $card2->face;
     }
 
     /**
@@ -128,13 +120,7 @@ final class BlackJack extends GameInstance
      */
     public function playableHands(): bool
     {
-        foreach ($this->playerHands as $hand) {
-            if ($hand->playable === true) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->playerHands, fn ($hand): bool => $hand->playable === true);
     }
 
     /**
@@ -142,7 +128,7 @@ final class BlackJack extends GameInstance
      */
     public function dealerBlackJack(): bool
     {
-        return ($this->dealerHand->getValue() >= 21);
+        return $this->dealerHand->getValue() >= 21;
     }
 
     public function dealDealer(): void
@@ -151,8 +137,9 @@ final class BlackJack extends GameInstance
         while ($dealLoop) {
             if ($this->dealerHand->getValue() >= 17) {
                 $dealLoop = false;
+
                 continue;
-            }  
+            }
             $this->dealerHand->addcard($this->deck->pickCard());
         }
     }
@@ -173,7 +160,7 @@ final class BlackJack extends GameInstance
                 continue;
             }
 
-            $hands[] = $hand->getFullHandString(); 
+            $hands[] = $hand->getFullHandString();
         }
 
         return (count($hand) > 0) ? $hands : null;
@@ -197,13 +184,13 @@ final class BlackJack extends GameInstance
         if ($redactFirst) {
             return (string) $this->dealerHand;
         }
-        
-        return (string) $this->dealerHand->getFullHandString();
+
+        return $this->dealerHand->getFullHandString();
     }
-    
+
     /**
      * Get an array of bools for the result of every hand
-     * 
+     *
      * @return array<int, HandResult>
      */
     public function calcResult(): array
@@ -216,23 +203,27 @@ final class BlackJack extends GameInstance
             if (($handValue < $dealerValue && $dealerValue <= 21) || $handValue > 21) {
                 if ($hand->double) {
                     $result[] = HandResult::DOUBLE_LOSS;
+
                     continue;
                 }
 
                 $result[] = HandResult::LOSS;
+
                 continue;
             }
             if ($handValue === $dealerValue) {
                 $result[] = HandResult::TIE;
+
                 continue;
             }
             if ($hand->double) {
                 $result[] = HandResult::DOUBLE_WIN;
+
                 continue;
             }
             $result[] = HandResult::WIN;
         }
-        
+
         return $result;
     }
 
@@ -255,6 +246,6 @@ final class BlackJack extends GameInstance
             if ($this->playerHands[$this->handIterator]->playable === true) {
                 $lookingForHand = false;
             }
-        }   
+        }
     }
 }

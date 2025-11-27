@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Attributes;
 
-#[\Attribute(\Attribute::TARGET_CLASS)]
-final class LogOnClose
-{   
+use Attribute;
+
+#[Attribute(Attribute::TARGET_CLASS)]
+final readonly class LogOnClose
+{
     /**
-     * @param string $message Message to be logged.
+     * @param  string  $message  Message to be logged.
      */
-    public function __construct(public readonly string $message) {}
+    public function __construct(public string $message) {}
 
     public function log(): void
     {

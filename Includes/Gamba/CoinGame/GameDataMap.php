@@ -20,16 +20,17 @@ final class GameDataMap
 
     public function add(GameData $data): void
     {
-        if(! isset($this->id)) {
+        if (! isset($this->id)) {
             $this->id = $data->id;
         }
         $this->data[$data->id] = $data;
     }
 
     /**
-     * Get a **GameData** object linked to an id. 
+     * Get a **GameData** object linked to an id.
      *
-     * @param string $id Interaction id.
+     * @param  string  $id  Interaction id.
+     *
      * @throws InvalidArgumentException If the id does not exist.
      */
     public function get(string $id): GameData
@@ -37,6 +38,7 @@ final class GameDataMap
         if (! isset($this->data[$id])) {
             throw new InvalidArgumentException($id.' does not exists');
         }
+
         return $this->data[$id];
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tools\Discord\Text;
 
 interface HeaderFormatInterface
-{   
+{
     /**
      * Create a full-size header.
      */
@@ -24,5 +24,5 @@ interface HeaderFormatInterface
     /**
      * Create subtext.
      */
-    public function subtext(string $subtext): string; 
+    public function subtext(string $subtext): string;
 }

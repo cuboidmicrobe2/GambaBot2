@@ -25,7 +25,7 @@ final class ComponentIdCreator
     }
 
     /**
-     * @param TKey $componentName
+     * @param  TKey  $componentName
      */
     public function createId(string $componentName, ComponentType $componentType): string
     {

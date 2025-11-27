@@ -11,12 +11,12 @@ use InvalidArgumentException;
  * Manages multiple players on a single interaction
  */
 trait PlayerManager
-{   
+{
     /**
      * @var array<int, Player>
      */
     private array $players = [];
-    
+
     /**
      * @throws InvalidArgumentException Player not in game.
      */
@@ -33,8 +33,9 @@ trait PlayerManager
 
     /**
      * Remove a player from the game.
-     * 
-     * @param string|Player $player     Discord user id or a **Player** object
+     *
+     * @param  string|Player  $player  Discord user id or a **Player** object
+     *
      * @throws InvalidArgumentException The player is not part of this game.
      */
     final public function removePlayer(string|Player $player): void
@@ -51,8 +52,9 @@ trait PlayerManager
     /**
      * Get a **Player** object by its id.
      *
-     * @param string $uid               Discord user id.
-     * @return Player                   The player.
+     * @param  string  $uid  Discord user id.
+     * @return Player The player.
+     *
      * @throws InvalidArgumentException The player is not part of this game.
      */
     final public function getPlayerById(string $uid): Player
@@ -66,7 +68,7 @@ trait PlayerManager
 
     /**
      * Get a list of all player
-     * 
+     *
      * @return array<int, Player>
      */
     final public function playerArray(): array
@@ -76,9 +78,9 @@ trait PlayerManager
 
     /**
      * Checks if a player is in the game.
-     * 
-     * @param string|Player $player     Discord user id or a **Player** object
-     * @return bool                     Whether the player is in this game.
+     *
+     * @param  string|Player  $player  Discord user id or a **Player** object
+     * @return bool Whether the player is in this game.
      */
     final public function playerInGame(string|Player $player): bool
     {
@@ -91,8 +93,8 @@ trait PlayerManager
 
     /**
      * Get the amount of players in the game.
-     * 
-     * @return int  Player count.
+     *
+     * @return int Player count.
      */
     final public function playerCount(): int
     {

@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Infrastructure;
 
-use Stringable;
 use ArrayAccess;
 use Countable;
 use Exception;
@@ -11,13 +12,15 @@ use IteratorAggregate;
 use JsonSerializable;
 use OutOfRangeException;
 use SplFixedArray;
+use Stringable;
 use Traversable;
 
 /**
  * @template TValue
- * @property int $size  Size of the object
+ *
+ * @property int $size Size of the object
  */
-class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable, Stringable
+final class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable, Stringable
 {
     public readonly string $type;
 
@@ -26,12 +29,13 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
      */
     public readonly int $size;
 
-    protected SplFixedArray $_data;
+    private SplFixedArray $_data;
 
-    public function __construct(string $dataType, int $size) {
+    public function __construct(string $dataType, int $size)
+    {
         $this->_data = new SplFixedArray($size);
         $this->size = $size;
-        $this->type = match(strtolower($dataType)) {
+        $this->type = match (mb_strtolower($dataType)) {
             'int' => 'integer',
             'bool' => 'boolean',
             'float' => 'double',
@@ -41,20 +45,43 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
     }
 
     /**
-     * Insert data into next empty offsets
-     * 
-     * @param TValue|TValue[]  $values
-     * @throws OutOfRangeException  If inserting to many values
+     * Get class name and storage type as string
      */
-    public function insert(mixed ...$values) : void {
+    public function __toString(): string
+    {
+        return self::class.'<'.$this->type.', '.$this->size.'>';
+    }
+
+    public function __debugInfo()
+    {
+        return $this->_data->toArray();
+    }
+
+    /**
+     * Static constructor
+     */
+    public static function set(string $dataType, int $size): self
+    {
+        return new self($dataType, $size);
+    }
+
+    /**
+     * Insert data into next empty offsets
+     *
+     * @param  TValue|TValue[]  $values
+     *
+     * @throws OutOfRangeException If inserting to many values
+     */
+    public function insert(mixed ...$values): void
+    {
         $inserted = 0;
         $size = count($values);
-        
+
         $i = 0;
 
         do {
-            if($this->_data[$i] === null) {
-            
+            if ($this->_data[$i] === null) {
+
                 $this[$i] = $values[$inserted];
                 $inserted++;
                 if ($inserted === $size) {
@@ -62,68 +89,54 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
                 }
             }
             $i++;
-        }
-        while($i < $this->size);
-
+        } while ($i < $this->size);
 
         // for($i = 0; $i < $this->size; $i++) {
 
         // }
-        throw new OutOfRangeException('Too many values to insert into ' . $this);  
-    }
-
-    /**
-     * Get class name and storage type as string
-     */
-    public function __toString() : string {
-        return self::class.'<'.$this->type.', '.$this->size.'>';
-    }
-    public function __debugInfo() {
-        return $this->_data->toArray();
-    }
-
-    /**
-     * Static constructor
-     */
-    public static function set(string $dataType, int $size) : self {
-        return new static($dataType, $size);
+        throw new OutOfRangeException('Too many values to insert into '.$this);
     }
 
     // ------------------ArrayAccess------------------
-    final public function offsetExists(mixed $offset): bool {
+    final public function offsetExists(mixed $offset): bool
+    {
         return array_key_exists($offset, $this->_data->toArray());
     }
 
     /**
      * @return TValue
      */
-    final public function offsetGet(mixed $offset): mixed {
+    final public function offsetGet(mixed $offset): mixed
+    {
         return $this->_data[$offset];
     }
 
     /**
-     * @param TValue    $value
+     * @param  TValue  $value
      */
-    final public function offsetSet(mixed $offset, mixed $value): void {
+    final public function offsetSet(mixed $offset, mixed $value): void
+    {
         $valueType = gettype($value);
         if ($valueType === 'object') {
             $valueType = $value::class;
         }
 
         if ($valueType !== $this->type) {
-            throw new Exception('Cannot add property of type ' . $valueType . ' into ' . $this);
+            throw new Exception('Cannot add property of type '.$valueType.' into '.$this);
         }
         $this->_data[$offset] = $value;
     }
 
-    final public function offsetUnset(mixed $offset): void {
+    final public function offsetUnset(mixed $offset): void
+    {
         unset($this->_data[$offset]);
     }
 
     /**
      * Counts all non null values in the array.
      */
-    final public function count(): int {
+    final public function count(): int
+    {
         $count = 0;
         foreach ($this->_data as $value) {
             if ($value !== null) {
@@ -146,6 +159,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
 
     /**
      * Yeild all non null values.
+     *
      * @return Generator<int, TValue>
      */
     final public function yield(): Generator
@@ -154,12 +168,14 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             if ($value !== null) {
                 yield $key => $value;
             }
-        }  
+        }
     }
 
     /**
      * Filters elements of an array using a callback function.
+     *
      * @link https://www.php.net/manual/en/function.array-find.php
+     *
      * @return array<int, TValue>
      */
     final public function filter(callable $callback): array
@@ -178,7 +194,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
     }
 
     /**
-     * @param bool $ignoreNull  If true does not call callback on null values
+     * @param  bool  $ignoreNull  If true does not call callback on null values
      * @return array<int, TValue>
      */
     final public function map(callable $callback, bool $ignoreNull = true): array
@@ -191,7 +207,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
         } else {
             foreach ($this->_data->getIterator() as $value) {
                 $map[] = $callback($value);
-            }    
+            }
         }
 
         return $map;
@@ -233,6 +249,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
 
     /**
      * Pop the element off the end of array.
+     *
      * @return null|TValue
      */
     final public function pop(): mixed
@@ -242,6 +259,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             if ($this[$i] !== null) {
                 $lastValue = $this[$i];
                 unset($this[$i]);
+
                 return $lastValue;
             }
         }
@@ -251,6 +269,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
 
     /**
      * Shift an element off the beginning of the array.
+     *
      * @return null|TValue
      */
     final public function shift(): mixed
@@ -266,21 +285,12 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             $this[$i - 1] = $this[$i];
             unset($this[$i]);
         }
+
         return $fistValue;
     }
 
     /**
-     * Prepend elements to the beginning of an array
-     * 
-     * @param TValue $value value to be added
-     */
-    final public function unshift(mixed $value): void
-    {
-        
-    }
-
-    /**
-     * @param TValue    $value
+     * @param  TValue  $value
      */
     final public function push(mixed $value): void
     {
@@ -290,6 +300,7 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             }
         }
     }
+
     /**
      * Sets all values to null.
      */
@@ -299,9 +310,9 @@ class SimpleArray implements ArrayAccess, Countable, IteratorAggregate, JsonSeri
             $this[$i] = null;
         }
     }
-    
+
     /**
-     * @return TValue   random value
+     * @return TValue random value
      */
     final public function rand(bool $includeNull = false): mixed
     {

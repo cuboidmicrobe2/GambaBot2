@@ -27,16 +27,6 @@ final class Hand implements Countable, Stringable
         $this->cards = new CardCollection(11);
     }
 
-    /**
-     * If you can split: return **CardCollection[1]** and remove it from the hand
-     */
-    public function removeForSplit(): Card
-    {
-        $card = $this->cards[1];
-        unset($this->cards[1]);
-        return $card;
-    }
-
     public function __toString(): string
     {
         $string = '';
@@ -44,6 +34,7 @@ final class Hand implements Countable, Stringable
         foreach ($this->cards->yield() as $key => $card) {
             if ($this->dealer && $key === 0) {
                 $string .= '[??] ';
+
                 continue;
             }
 
@@ -51,6 +42,17 @@ final class Hand implements Countable, Stringable
         }
 
         return $string;
+    }
+
+    /**
+     * If you can split: return **CardCollection[1]** and remove it from the hand
+     */
+    public function removeForSplit(): Card
+    {
+        $card = $this->cards[1];
+        unset($this->cards[1]);
+
+        return $card;
     }
 
     public function getFullHandString(): string
@@ -68,7 +70,7 @@ final class Hand implements Countable, Stringable
         if ($this->playable === false) {
             throw new LogicException('Cannot add card to a locked hand');
         }
-        
+
         $this->cards->insert($card);
 
         if ($this->getValue() >= 21) {
@@ -78,8 +80,8 @@ final class Hand implements Countable, Stringable
 
     /**
      * Get value of the cards in the hand
-     * 
-     * @return int  Value of hand
+     *
+     * @return int Value of hand
      */
     public function getValue(): int
     {
@@ -109,7 +111,7 @@ final class Hand implements Countable, Stringable
     }
 
     public function count(): int
-    {   
+    {
         $cardCount = 0;
         foreach ($this->cards->yield() as $card) {
 
@@ -117,6 +119,7 @@ final class Hand implements Countable, Stringable
                 $cardCount++;
             }
         }
+
         return $cardCount;
     }
 
@@ -124,7 +127,6 @@ final class Hand implements Countable, Stringable
     {
         $this->double = true;
     }
-
 
     private function getCardValue(Card $card): int
     {

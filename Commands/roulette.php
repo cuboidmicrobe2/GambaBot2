@@ -15,13 +15,13 @@ $discord->listenCommand('roulette', function (ApplicationCommand $interaction) u
     if (! permissionToRun($interaction)) {
         return;
     }
-    
+
     $message = MessageBuilder::new()->setContent('Something went wrong');
 
     $gamba->roulette(
         uid: getUserId($interaction),
         wager: getOptionValue('amount', $interaction),
-        bet: (int)getOptionValue('color', $interaction),
+        bet: (int) getOptionValue('color', $interaction),
         message: $message
     );
 

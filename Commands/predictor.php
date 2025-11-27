@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-use Discord\Builders\Components\ActionRow;
 use Discord\Builders\Components\Button;
 use Discord\Builders\MessageBuilder;
 use Discord\Discord;
 use Discord\Parts\Embed\Embed;
 use Discord\Parts\Interactions\ApplicationCommand;
 use Discord\Parts\Interactions\MessageComponent;
-use Gamba\CoinGame\Tools\Components\ButtonCollection;
-use Gamba\CoinGame\Tools\Components\ComponentIdCreator;
-use Gamba\CoinGame\Tools\Components\ComponentType;
 use Gamba\CoinGame\GameData;
 use Gamba\CoinGame\Games\ColorGame\ColorGame;
 use Gamba\CoinGame\Tools\Components\Factories\ButtonFactory;
@@ -22,7 +18,6 @@ use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\getUsername;
 use function GambaBot\Interaction\permissionToRun;
-
 
 global $gamba, $discord;
 
@@ -81,7 +76,7 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
 
         $wagerTitleStyled = Format::bold('Wager');
         $rewardTitleStyled = Format::strikeThrough(Format::bold('Reward'));
-        $wagerValueStyled = Format::code((string)$game->wager);
+        $wagerValueStyled = Format::code((string) $game->wager);
         $noWinValueStyled = Format::code('0');
 
         $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
@@ -158,8 +153,8 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
 
         $wagerTitleStyled = Format::bold('Wager');
         $rewardTitleStyled = Format::bold('Reward');
-        $wagerValueStyled = Format::code((string)$game->wager);
-        $rewardValueStyled = Format::code((string)$game->winnings);
+        $wagerValueStyled = Format::code((string) $game->wager);
+        $rewardValueStyled = Format::code((string) $game->winnings);
 
         $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
             ->setTitle('/predictor results for '.getUsername($interaction))
@@ -184,7 +179,7 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
 
         $coins = $inventory->getCoins();
 
-        $inventory->setCoins($coins + (int)$finalWin);
+        $inventory->setCoins($coins + (int) $finalWin);
 
     }, $discord);
 

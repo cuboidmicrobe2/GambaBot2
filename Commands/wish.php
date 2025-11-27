@@ -17,7 +17,7 @@ $discord->listenCommand('wish', function (ApplicationCommand $interaction) use (
     if (! permissionToRun($interaction)) {
         return;
     }
-    
+
     $message = MessageBuilder::new();
 
     $items = $gamba->wish(

@@ -10,14 +10,13 @@ use Tools\Discord\Text\Format;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-
 global $discord, $gamba;
 
 $discord->listenCommand('stats', function (ApplicationCommand $interaction) use ($gamba, $discord): void {
     if (! permissionToRun($interaction)) {
         return;
     }
-    
+
     $stats = $gamba->getUserStats(getUserId($interaction));
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;

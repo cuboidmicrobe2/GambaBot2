@@ -14,22 +14,23 @@ use Gamba\CoinGame\Tools\Components\ComponentType;
 
 final class ButtonFactory
 {
-    private ComponentIdCreator $idCreator;
+    private readonly ComponentIdCreator $idCreator;
 
     /**
      * @var array<int, Button>
      */
     private array $buttons = [];
 
-    public function __construct(private readonly ApplicationCommand $interaction)
+    public function __construct(ApplicationCommand $interaction)
     {
         $this->idCreator = new ComponentIdCreator($interaction);
     }
-    
+
     public function create(int $style, string $name): Button
     {
         $button = Button::new($style, $this->idCreator->createId($name, ComponentType::BUTTON));
         $this->buttons[] = $button;
+
         return $button;
     }
 
@@ -42,6 +43,7 @@ final class ButtonFactory
     {
         $buttonCollection = new ButtonCollection(count($this->buttons));
         $buttonCollection->insert(...$this->buttons);
+
         return $buttonCollection;
     }
 
@@ -51,6 +53,7 @@ final class ButtonFactory
         foreach ($this->buttons as $button) {
             $row->addComponent($button);
         }
+
         return $row;
     }
 }

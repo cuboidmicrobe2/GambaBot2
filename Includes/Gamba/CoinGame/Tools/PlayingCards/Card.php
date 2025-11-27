@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace Gamba\CoinGame\Tools\PlayingCards;
 
-readonly final class Card
+final readonly class Card
 {
     public function __construct(public CardSuit $suit, public CardFace $face) {}
+
+    public static function newRandom(): self
+    {
+        $suits = CardSuit::cases();
+        $faces = CardFace::cases();
+
+        return new self($suits[array_rand($suits)], $faces[array_rand($faces)]);
+    }
 
     public function asUnicode(): string
     {
@@ -16,12 +24,5 @@ readonly final class Card
     public function asString(string $separator = '', bool $emoji = false): string
     {
         return $this->face->getSymbol().$separator.$this->suit->getSymbol(emoji: $emoji);
-    }
-
-    public static function newRandom(): self
-    {
-        $suits = CardSuit::cases();
-        $faces = CardFace::cases();
-        return new self($suits[array_rand($suits)], $faces[array_rand($faces)]);
     }
 }

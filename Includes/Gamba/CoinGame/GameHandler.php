@@ -8,19 +8,16 @@ use Debug\Debug;
 use Debug\MessageType;
 use Deprecated;
 use Discord\Builders\Components\ActionRow;
-use Gamba\CoinGame\MultiInteractionLink;
-use Gamba\CoinGame\Attributes\LogOnClose;
 use Exception;
+use Gamba\CoinGame\Attributes\LogOnClose;
 use InvalidArgumentException;
+use NoDiscard;
 use TimedGameInstance;
 use WeakMap;
 
 use function GambaBot\Tools\getAttributes;
 use function GambaBot\Tools\isUsing;
 
-/**
- * 
- */
 final class GameHandler
 {
     use Debug;
@@ -53,9 +50,9 @@ final class GameHandler
 
     /**
      * Add a game to the **GameHandler**.
-     * 
-     * @param GameInstance $game The game to add.
-     * @param GameData|GameDataMap $data Data associated with the game.
+     *
+     * @param  GameInstance  $game  The game to add.
+     * @param  GameData|GameDataMap  $data  Data associated with the game.
      */
     public function addGame(GameInstance $game, GameData|GameDataMap $data): void
     {
@@ -91,14 +88,16 @@ final class GameHandler
             }
 
             unset($this->games[$gameId]);
+
             return true;
         }
-        
+
         echo self::createUpdateMessage('', 'could not find game: '.$gameId, MessageType::WARNING), PHP_EOL;
+
         return false;
     }
 
-    #[\NoDiscard]
+    #[NoDiscard]
     public function getGame(string $interactionId): ?GameInstance
     {
         return $this->games[$interactionId] ?? null;
@@ -115,7 +114,7 @@ final class GameHandler
         return $this->getFromId($gameId[0]);
     }
 
-    #[\NoDiscard]
+    #[NoDiscard]
     public function getGameData(GameInstance $game, ?string $interactionId = null): GameData
     {
         $data = $this->gameData[$game] ?? null;
@@ -141,10 +140,9 @@ final class GameHandler
     //         throw new InvalidArgumentException($game::class.' does not use the MultiInteractionLink trait');
     //     }
 
-
     // }
 
-    #[\NoDiscard]
+    #[NoDiscard]
     public function getNewActionRow(GameInstance $game): ActionRow
     {
         $row = new ActionRow;
@@ -174,10 +172,14 @@ final class GameHandler
         }
     }
 
-    /**
-     * @deprecated use GameHandler::getGame()
-     */
-    #[\Deprecated('use GameHandler::getGame()')]
+    public function dump(): void
+    {
+        var_dump($this->games);
+        var_dump($this->gameData);
+    }
+
+    #[Deprecated('use GameHandler::getGame()')]
+    #[Deprecated(message: 'use GameHandler::getGame()')]
     private function getFromId(string $id): ?GameInstance
     {
         foreach ($this->gameData as $game => $data) {
@@ -198,12 +200,6 @@ final class GameHandler
         }
 
         return false;
-    }
-
-    public function dump(): void
-    {
-        var_dump($this->games);
-        var_dump($this->gameData);
     }
 }
 

@@ -17,30 +17,40 @@ use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\Item;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Rarity;
+use Infrastructure\ObjectCach;
 use Pdo\Mysql;
 use Tools\Discord\Text\Format;
+use WeakReference;
 
 /**
- * @todo add wakeupDB() (in InventoryManager too)
+ * @todo ? create item factory method like: createItem(string|int $itemId): Item (check cach) | get item query only gets item id?
  */
 final class Gamba
 {
     use Debug;
 
     private const string RAND_ITEM_STMT = <<<'SQL'
-        SELECT id, name 
+        SELECT id, name, descr
         FROM items
         WHERE rarity = :rarity
         ORDER BY RAND()
         LIMIT 1;
     SQL;
+
     // public private(set) TradeManager $tradeManager;
     public private(set) GameHandler $games;
 
-    //private readonly PDOStatement $fetchRandItem;
-    private readonly PersistentConnection $gambaConn;
     public private(set) InventoryManager $inventoryManager;
-    public function __construct(        
+
+    // private readonly PDOStatement $fetchRandItem;
+    private readonly PersistentConnection $gambaConn;
+
+    /**
+     * @var ObjectCach<int, Item>
+     */
+    private ObjectCach $itemCach;
+
+    public function __construct(
         string $gambaDsn,
         string $inventoryManagerDsn,
         ?string $username = null,
@@ -51,12 +61,13 @@ final class Gamba
         $this->gambaConn = PersistentConnection::connect('GambaConnection', $gambaDsn, $username, $password, $gambaOptions);
         $this->inventoryManager = new InventoryManager($inventoryManagerDsn, $username, $password, $inventoryManagerOptions);
         $this->games = new GameHandler;
+        $this->itemCach = new ObjectCach;
     }
 
     public function getHistory(string $uid, int $amount): ItemCollection
     {
         $result = $this->gambaConn->getConnection()->query(<<<SQL
-            SELECT name, rarity, descr 
+            SELECT name, rarity, descr, id
             FROM history 
             JOIN items 
             ON items.id = item_id 
@@ -67,11 +78,18 @@ final class Gamba
         $items = new ItemCollection($amount);
         $i = 0;
         while ($row = $result->fetch(Mysql::FETCH_ASSOC)) {
-            $items[$i] = new Item(
-                name: $row['name'],
-                rarity: Rarity::tryFrom($row['rarity']),
-                description: $row['descr']
-            );
+            $item = $this->itemCach->get($row['id']);
+
+            if (! $item instanceof Item) {
+                $item = new Item(
+                    name: $row['name'],
+                    rarity: Rarity::tryFrom($row['rarity']),
+                    id: $row['id'],
+                    description: $row['descr']
+                );
+                $this->itemCach->set($item->id, $item);
+            }
+            $items[$i] = $item;
             $i++;
         }
 
@@ -133,19 +151,26 @@ final class Gamba
 
         $items = new ItemCollection($rolls);
 
+        $fetchRandItem = $this->gambaConn->getConnection()->prepare(self::RAND_ITEM_STMT);
         for ($i = 0; $i < $rolls; $i++) {
             $itemRarity = Decide::rarity($goldPity, $purplePity);
 
-            $fetchRandItem = $this->gambaConn->getConnection()->prepare(self::RAND_ITEM_STMT);
-
             $fetchRandItem->execute(['rarity' => $itemRarity->value]);
             $result = $fetchRandItem->fetch(Mysql::FETCH_ASSOC);
-            
-            $items[$i] = new Item(
-                name: $result['name'],
-                rarity: $itemRarity,
-                id: $result['id']
-            );
+
+            $item = $this->itemCach->get($result['id']);
+            if (! $item instanceof Item) {
+                $item = new Item(
+                    name: $result['name'],
+                    rarity: $itemRarity,
+                    id: $result['id'],
+                    description: $result['descr']
+                );
+
+                $this->itemCach->set($item->id, $item);
+            }
+
+            $items[$i] = $item;
         }
 
         $userInventory->setGoldPity($goldPity);
@@ -210,4 +235,23 @@ final class Gamba
     {
         echo self::createUpdateMessage('', '{"memory": "'.self::convert(memory_get_usage()).'"}'), PHP_EOL;
     }
+
+    public function clearCach(): void
+    {
+        // foreach ($this->itemCach as $id => $wr) {
+        //     if($wr instanceof WeakReference && ! $wr->get() instanceof Item) {
+        //         unset($this->itemCach[$id]);
+        //     }
+        // }
+    }
+
+    // private function cachItem(Item $item): void
+    // {
+    //     $this->itemCach[$item->id] = WeakReference::create($item);
+    // }
+
+    // private function getItem(int $itemId): ?Item
+    // {
+    //     return ($this->itemCach[$itemId] ?? null)?->get();
+    // }
 }
