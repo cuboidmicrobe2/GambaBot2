@@ -7,7 +7,7 @@ namespace Gamba\Loot\Item;
 use Database\PersistentConnection;
 use Debug\Debug;
 use HTTP\Request;
-use Infrastructure\ObjectCach;
+use Infrastructure\ObjectCache;
 use NoDiscard;
 use OutOfRangeException;
 use Pdo\Mysql;
@@ -28,9 +28,9 @@ final class InventoryManager
     private readonly PersistentConnection $conn;
 
     /**
-     * @var ObjectCach<string, Inventory>
+     * @var ObjectCache<string, Inventory>
      */
-    private ObjectCach $inventoryCache;
+    private ObjectCache $inventoryCache;
 
     public function __construct(
         string $dsn,
@@ -39,7 +39,7 @@ final class InventoryManager
         ?array $options = null,
     ) {
         $this->conn = PersistentConnection::connect('InventoryManager', $dsn, $username, $password, $options);
-        $this->inventoryCache = new ObjectCach;
+        $this->inventoryCache = new ObjectCache;
     }
 
     /**

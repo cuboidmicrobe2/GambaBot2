@@ -10,12 +10,12 @@ use WeakMap;
 use WeakReference;
 
 /**
- * Object for caching other objects.
+ * Object for cacheing other objects.
  *
  * @template TKey of string|int
  * @template TValue of object
  */
-final class ObjectCach implements ArrayAccess
+final class ObjectCache implements ArrayAccess
 {
     /**
      * Send to **Generator** to remove current object.
@@ -27,7 +27,7 @@ final class ObjectCach implements ArrayAccess
      */
     public int $size {
         get {
-            return count($this->_internalCach);
+            return count($this->_internalCache);
         }
     }
 
@@ -36,7 +36,7 @@ final class ObjectCach implements ArrayAccess
      *
      * @var array<TKey, WeakReference<TValue>>
      */
-    private array $_internalCach = [];
+    private array $_internalCache = [];
 
     /**
      * @var WeakMap<TValue, array>
@@ -68,7 +68,7 @@ final class ObjectCach implements ArrayAccess
 
     public function __debugInfo()
     {
-        return $this->_internalCach;
+        return $this->_internalCache;
     }
 
     /**
@@ -79,10 +79,10 @@ final class ObjectCach implements ArrayAccess
      */
     public function get(string|int $ident): ?object
     {
-        $ref = ($this->_internalCach[$ident] ?? null)?->get();
+        $ref = ($this->_internalCache[$ident] ?? null)?->get();
 
         if ($ref === null && $this->exists($ident)) {
-            unset($this->_internalCach[$ident]);
+            unset($this->_internalCache[$ident]);
         }
 
         return $ref;
@@ -110,7 +110,7 @@ final class ObjectCach implements ArrayAccess
      */
     public function set(string|int $ident, object $object, ?array $data = null): void
     {
-        $this->_internalCach[$ident] = WeakReference::create($object);
+        $this->_internalCache[$ident] = WeakReference::create($object);
 
         if ($data !== null) {
             $this->_internalData[$object] = $data;
@@ -123,12 +123,12 @@ final class ObjectCach implements ArrayAccess
      */
     public function remove(string|int $ident): ?object
     {
-        if (! isset($this->_internalCach[$ident])) {
+        if (! isset($this->_internalCache[$ident])) {
             return null;
         }
 
         $object = $this->get($ident);
-        unset($this->_internalCach[$ident]);
+        unset($this->_internalCache[$ident]);
 
         return $object;
     }
@@ -138,9 +138,9 @@ final class ObjectCach implements ArrayAccess
      */
     public function clean(): void
     {
-        foreach ($this->_internalCach as $ident => $WeakReference) {
+        foreach ($this->_internalCache as $ident => $WeakReference) {
             if ($WeakReference->get() === null) {
-                unset($this->_internalCach[$ident]);
+                unset($this->_internalCache[$ident]);
             }
         }
     }
@@ -152,7 +152,7 @@ final class ObjectCach implements ArrayAccess
     {
         $count = 0;
 
-        foreach ($this->_internalCach as $weakRef) {
+        foreach ($this->_internalCache as $weakRef) {
             if ($weakRef->get() !== null) {
                 $count++;
             }
@@ -168,7 +168,7 @@ final class ObjectCach implements ArrayAccess
      */
     public function exists(string $ident): bool
     {
-        return isset($this->_internalCach[$ident]);
+        return isset($this->_internalCache[$ident]);
     }
 
     /**
@@ -178,7 +178,7 @@ final class ObjectCach implements ArrayAccess
      */
     public function valid(string $ident): bool
     {
-        return ($this->_internalCach[$ident] ?? null)?->get() !== null;
+        return ($this->_internalCache[$ident] ?? null)?->get() !== null;
     }
 
     /**
@@ -186,7 +186,7 @@ final class ObjectCach implements ArrayAccess
      */
     public function createGenerator(): Generator
     {
-        foreach ($this->_internalCach as $ident => $weakRef) {
+        foreach ($this->_internalCache as $ident => $weakRef) {
             $return = yield $ident => $weakRef->get();
 
             switch ($return) {
@@ -216,6 +216,6 @@ final class ObjectCach implements ArrayAccess
 
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->_internalCach[$offset]);
+        unset($this->_internalCache[$offset]);
     }
 }

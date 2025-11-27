@@ -17,7 +17,7 @@ use Gamba\Loot\Item\InventoryManager;
 use Gamba\Loot\Item\Item;
 use Gamba\Loot\Item\ItemCollection;
 use Gamba\Loot\Rarity;
-use Infrastructure\ObjectCach;
+use Infrastructure\ObjectCache;
 use Pdo\Mysql;
 use Tools\Discord\Text\Format;
 use WeakReference;
@@ -46,9 +46,9 @@ final class Gamba
     private readonly PersistentConnection $gambaConn;
 
     /**
-     * @var ObjectCach<int, Item>
+     * @var ObjectCache<int, Item>
      */
-    private ObjectCach $itemCach;
+    private ObjectCache $itemCach;
 
     public function __construct(
         string $gambaDsn,
@@ -61,7 +61,7 @@ final class Gamba
         $this->gambaConn = PersistentConnection::connect('GambaConnection', $gambaDsn, $username, $password, $gambaOptions);
         $this->inventoryManager = new InventoryManager($inventoryManagerDsn, $username, $password, $inventoryManagerOptions);
         $this->games = new GameHandler;
-        $this->itemCach = new ObjectCach;
+        $this->itemCach = new ObjectCache;
     }
 
     public function getHistory(string $uid, int $amount): ItemCollection
