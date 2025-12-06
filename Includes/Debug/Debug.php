@@ -8,6 +8,8 @@ use DateTimeImmutable;
 use DateTimeZone;
 use ReflectionObject;
 use ReflectionProperty;
+use Debug\Console\CMDOutput;
+use Debug\Console\FontColor;
 
 trait Debug
 {
@@ -19,6 +21,23 @@ trait Debug
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
 
         return @round($size / 1024 ** $i = floor(log($size, 1024)), 2).' '.$unit[$i];
+    }
+
+    public static function createConsoleMessage(string $message, int $type = MessageType::DEBUG): string
+    {
+        $time = new DateTimeImmutable(timezone: new DateTimeZone('Europe/Stockholm'));
+        if (is_int($type)) {
+            $typeString = MessageType::toString($type);
+        }
+
+        $sender = preg_replace('/[^\\\\]*\\\\/', '', self::class);
+
+        if (($type & MessageType::WARNING) !== 0) {
+            return (string) CMDOutput::new()->add('['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message, FontColor::YELLOW);
+        }
+
+        return '['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message;
+
     }
 
     public static function getMemoryUsage(): string
@@ -89,6 +108,9 @@ trait Debug
         return $oneDimArray;
     }
 
+    /**
+     * @deprecated Use Debug::createConsoleMessage()
+     */
     private static function createUpdateMessage(string $sender, string $message, int $type = MessageType::DEBUG): string
     {
         $time = new DateTimeImmutable(timezone: new DateTimeZone('Europe/Stockholm'));
@@ -99,7 +121,7 @@ trait Debug
         $sender = preg_replace('/[^\\\\]*\\\\/', '', self::class); // temp test
 
         if (($type & MessageType::WARNING) !== 0) {
-            return (string) new CMDOutput()->add('['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message, CMD_FONT_COLOR::YELLOW);
+            return (string) new CMDOutput()->add('['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message, FontColor::YELLOW);
         }
 
         return '['.$time->format('Y-m-d\TH:i:s.uP').'] '.$sender.$typeString.': '.$message;
