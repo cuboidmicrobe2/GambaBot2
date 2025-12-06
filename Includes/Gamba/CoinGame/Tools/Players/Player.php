@@ -171,14 +171,12 @@ final class Player implements Stringable
         return Format::mention()->user($this->uid);
     }
 
-    #[Deprecated('use the associated property instead')]
     #[Deprecated(message: "'use the associated property instead'")]
     public function getName(): string
     {
         return $this->user->global_name ?? $this->user->username;
     }
 
-    #[Deprecated('use the associated property instead')]
     #[Deprecated(message: "'use the associated property instead'")]
     public function getId(): string
     {
