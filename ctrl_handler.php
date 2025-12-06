@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use Debug\CMD_FONT_COLOR;
-use Debug\CMDOutput;
+use CMDFontColor;
+use Debug\Console\CMDOutput;
+use Debug\Console\FontColor;
 use Debug\Debug;
 use Debug\MessageType;
 
@@ -16,9 +17,9 @@ return function ($event) {
 
                 public function __invoke()
                 {
-                    $content = self::createUpdateMessage('', 'Ctrl + C event registered, shutting down at next safe opportunity.', MessageType::INFO);
+                    $content = self::createConsoleMessage('Ctrl + C event registered, shutting down at next safe opportunity.', MessageType::INFO);
 
-                    return CMDOutput::new()->add($content, CMD_FONT_COLOR::BRIGHT_GREEN);
+                    return CMDOutput::create(FontColor::BRIGHT_GREEN, $content);
                 }
             }(), PHP_EOL;
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GambaBot\Interaction {
 
-    use Debug\CMD_FONT_COLOR;
-    use Debug\CMDOutput;
+    use Debug\Console\CMDOutput;
+    use Debug\Console\FontColor;
     use Discord\Builders\MessageBuilder;
     use Discord\Parts\Interactions\ApplicationCommand;
     use Discord\Parts\Interactions\MessageComponent;
@@ -46,7 +46,7 @@ namespace GambaBot\Interaction {
 
             return $strings->{$interaction->data->name} ?? null;
         }
-        echo CMDOutput::new()->add('strings.json is missing from '.__DIR__.'/content', CMD_FONT_COLOR::YELLOW), PHP_EOL;
+        echo CMDOutput::create(FontColor::YELLOW, 'strings.json is missing from '.__DIR__.'/content'), PHP_EOL;
 
         return null;
     }
