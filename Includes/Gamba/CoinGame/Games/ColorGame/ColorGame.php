@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Gamba\CoinGame\Games\ColorGame;
 
 use Gamba\CoinGame\GameInstance;
-
-use function GambaBot\Discord\TextStyle\code;
+use Tools\Discord\Text\Format;
 
 final class ColorGame extends GameInstance
 {
@@ -74,22 +73,22 @@ final class ColorGame extends GameInstance
         // return 'No guesses';
 
         if (count($this->guessHistory) < 2) {
-            return code(array_first($this->guessHistory) ?? 'No guesses');
+            return Format::code(array_first($this->guessHistory) ?? 'No guesses');
         }
 
         $last = array_key_last($this->guessHistory);
         $guessString = '';
         foreach ($this->guessHistory as $key => $color) {
             if ($key !== $last) {
-                $guessString .= code($color).' > ';
+                $guessString .= Format::code($color).' > ';
 
                 continue;
             }
 
-            return $guessString.code($color);
+            return $guessString.Format::code($color);
         }
 
-        return code('something went wrong');
+        return Format::code('something went wrong');
     }
 
     private function incrMultiplier(): void
