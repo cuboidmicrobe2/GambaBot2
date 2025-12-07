@@ -46,39 +46,28 @@ final class Player implements Stringable
     /**
      * Id of the Discord user.
      */
-    public private(set) string $uid {
+    public string $uid {
         get {
             return $this->user->id;
-        }
-
-        set(string $id) {
-            throw new LogicException('Cannot change a users id');
         }
     }
 
     /**
      * Players Discord user/display name.
      */
-    public private(set) string $name {
+    public string $name {
         get {
             return $this->user->global_name ?? $this->user->username;
         }
 
-        set(string $id) {
-            throw new LogicException('Cannot change a users name');
-        }
     }
 
     /**
      * Players Discord avatar as url.
      */
-    public private(set) string $avatar {
+    public string $avatar {
         get {
             return self::DISCORD_AVATAR_URL.$this->uid.'/'.$this->user->avatar;
-        }
-
-        set(string $value) {
-            throw new LogicException('Cannot change a users avatar url');
         }
     }
 
