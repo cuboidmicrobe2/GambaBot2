@@ -9,27 +9,38 @@ use Stringable;
 
 final class CMDOutput implements Stringable
 {
-    private string $output = '';
+    private const string ESCAPE = "\x1b";
+
+    private array $message;
 
     public function __construct(string|FontColor ...$message)
     {
-        $counter = count($message);
-        for ($i = 0; $i < $counter; $i++) {
-            $current = $message[$i];
-            if ($current instanceof FontColor) {
-                $next = $message[++$i] ?? '';
-                $this->output .= "\x1B[".$current->value.'m'.$next."\033[0m";
-            } else {
-                $this->output .= "\x1B[m".$message[$i]."\033[0m";
-            }
-        }
+        $this->message = $message;
     }
-    
-    
 
     public function __toString(): string
     {
-        return $this->output;
+        $output = '';
+        $counter = count($this->message);
+        for ($i = 0; $i < $counter; $i++) {
+            $current = $this->message[$i];
+            if ($current instanceof FontColor) {
+                $next = $this->message[++$i] ?? '';
+                $output .= self::ESCAPE.'['.$current->value.'m'.$next.self::ESCAPE.'[0m';
+            } else {
+                $output .= self::ESCAPE.'[m'.$current.self::ESCAPE.'[0m';
+            }
+        }
+        return $output;
+    }
+
+    /**
+     * Allows shorthanding of add() method. 
+     */
+    public function __invoke(string $text, ?FontColor $fg = null): self
+    {
+        $this->add($text, $fg);
+        return $this;
     }
 
     public static function new(): self
@@ -44,9 +55,27 @@ final class CMDOutput implements Stringable
 
     public function add(string $text, ?FontColor $fg = null, ?BackgroundColor $bg = null): self
     {
-
-        $this->output .= "\x1B[".$fg?->value.'m'.$text."\033[0m";
+        if ($fg instanceof FontColor) {
+            $this->message[] = $fg;
+        }
+        
+        $this->message[] = $text;
 
         return $this;
+    }
+
+    /**
+     * Get message without any color.
+     */
+    public function asString(): string
+    {
+        $string = '';
+        foreach ($this->message as $part) {
+            if (! $part instanceof FontColor) {
+                $string .= $part;
+            }
+        }
+
+        return $string;
     }
 }
