@@ -18,14 +18,9 @@ if (PHP_VERSION_ID < 80500) {
     exit();
 }
 
-
-gc_enable();
-
 set_exception_handler(function (Throwable $e) {
     echo CMDOutput::create(FontColor::YELLOW, $e->getMessage()), PHP_EOL;
 });
-
-sapi_windows_set_ctrl_handler(include __DIR__.'/ctrl_handler.php');
 
 $dotenv = new Dotenv;
 $dotenv->load(__DIR__.'/.env');
