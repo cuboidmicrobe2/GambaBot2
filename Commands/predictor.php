@@ -19,17 +19,17 @@ use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\getUsername;
 use function GambaBot\Interaction\permissionToRun;
 
-global $gamba, $discord;
+global $gatchaBot;
 
 // i hate this code
 
-$discord->listenCommand('predictor', function (ApplicationCommand $interaction) use ($discord, $gamba): void {
+$gatchaBot->discord->listenCommand('predictor', function (ApplicationCommand $interaction) use ($gatchaBot): void {
     if (! permissionToRun($interaction)) {
         return;
     }
 
     $uid = getUserId($interaction);
-    $inventory = $gamba->inventoryManager->getInventory($uid);
+    $inventory = $gatchaBot->gamba->inventoryManager->getInventory($uid);
     $userCoins = $inventory->getCoins();
     $wager = getOptionValue('amount', $interaction);
 
@@ -41,12 +41,12 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
 
     $inventory->setCoins($userCoins - $wager);
 
-    $actions = function (string $color, ApplicationCommand $interaction, Discord $discord) use ($gamba): array {
+    $actions = function (string $color, ApplicationCommand $interaction, Discord $discord) use ($gatchaBot): array {
 
         /**
          * @var ?ColorGame
          */
-        $game = $gamba->games->getGame($interaction->id);
+        $game = $gatchaBot->gamba->games->getGame($interaction->id);
 
         $result = $game->guess($color);
 
@@ -99,14 +99,14 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
             ->setColor(EMBED_COLOR_RED)
         ));
 
-        $gamba->games->closeGame($game);
+        $gatchaBot->gamba->games->closeGame($game);
 
         return $result;
     };
 
     $game = new ColorGame($wager);
 
-    $embed = new Embed($discord)->setColor(EMBED_COLOR_PINK)->setTitle('Make a guess!')
+    $embed = new Embed($gatchaBot->discord)->setColor(EMBED_COLOR_PINK)->setTitle('Make a guess!')
         ->addFieldValues('',
             <<<'NAME'
             Coins
@@ -124,30 +124,30 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
 
     $buttonFactory = new ButtonFactory($interaction);
 
-    $buttonFactory->create(Button::STYLE_SUCCESS, 'green')->setLabel('Green')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $discord): void {
+    $buttonFactory->create(Button::STYLE_SUCCESS, 'green')->setLabel('Green')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $gatchaBot): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
-        $actions('green', $interaction, $discord);
-    }, $discord);
+        $actions('green', $interaction, $gatchaBot->discord);
+    }, $gatchaBot->discord);
 
-    $buttonFactory->create(Button::STYLE_DANGER, 'red')->setLabel('Red')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $discord): void {
+    $buttonFactory->create(Button::STYLE_DANGER, 'red')->setLabel('Red')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $actions, $gatchaBot): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
-        $actions('red', $interaction, $discord);
-    }, $discord);
+        $actions('red', $interaction, $gatchaBot->discord);
+    }, $gatchaBot->discord);
 
-    $buttonFactory->create(Button::STYLE_SECONDARY, 'end_game')->setLabel('End Game')->setListener(function (MessageComponent $buttonInteraction) use ($gamba, $interaction, $discord): void {
+    $buttonFactory->create(Button::STYLE_SECONDARY, 'end_game')->setLabel('End Game')->setListener(function (MessageComponent $buttonInteraction) use ($interaction, $gatchaBot): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
             return;
         }
-        $inventory = $gamba->inventoryManager->getInventory(getUserId($interaction));
+        $inventory = $gatchaBot->gamba->inventoryManager->getInventory(getUserId($interaction));
 
         /**
          * @var ?ColorGame
          */
-        $game = $gamba->games->getGame($interaction->id);
+        $game = $gatchaBot->gamba->games->getGame($interaction->id);
         $finalWin = $game->winnings;
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('Game ended! You won: '.$finalWin.' coins'));
 
@@ -156,7 +156,7 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
         $wagerValueStyled = Format::code((string) $game->wager);
         $rewardValueStyled = Format::code((string) $game->winnings);
 
-        $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($discord)
+        $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($gatchaBot->discord)
             ->setTitle('/predictor results for '.getUsername($interaction))
             ->setDescription(Format::bold('Guesses:').' '.$game->historyAsString())
             ->addFieldValues('',
@@ -175,15 +175,15 @@ $discord->listenCommand('predictor', function (ApplicationCommand $interaction) 
             )
             ->setColor(EMBED_COLOR_GREEN)
         ));
-        $gamba->games->closeGame($game);
+        $gatchaBot->gamba->games->closeGame($game);
 
         $coins = $inventory->getCoins();
 
         $inventory->setCoins($coins + (int) $finalWin);
 
-    }, $discord);
+    }, $gatchaBot->discord);
 
-    $gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
+    $gatchaBot->gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
 
     $interaction->respondWithMessage(MessageBuilder::new()->addEmbed($embed)->addComponent($buttonFactory->createActionRow()));
 });

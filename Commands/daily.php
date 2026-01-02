@@ -8,9 +8,9 @@ use Discord\Parts\Interactions\ApplicationCommand;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-global $discord, $gamba;
+global $gatchaBot;
 
-$discord->listenCommand('daily', function (ApplicationCommand $interaction) use ($gamba): void {
+$gatchaBot->discord->listenCommand('daily', function (ApplicationCommand $interaction) use ($gatchaBot): void {
 
     if (! permissionToRun($interaction)) {
         return;
@@ -18,7 +18,7 @@ $discord->listenCommand('daily', function (ApplicationCommand $interaction) use 
 
     $message = MessageBuilder::new()->setContent('Something went wrong');
 
-    $gamba->daily(
+    $gatchaBot->gamba->daily(
         uid: getUserId($interaction),
         message: $message
     );

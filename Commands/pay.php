@@ -10,9 +10,9 @@ use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-global $discord, $gamba;
+global $gatchaBot;
 
-$discord->listenCommand('pay', function (ApplicationCommand $interaction) use ($gamba): void {
+$gatchaBot->discord->listenCommand('pay', function (ApplicationCommand $interaction) use ($gatchaBot): void {
     if (! permissionToRun($interaction)) {
         return;
     }
@@ -20,7 +20,7 @@ $discord->listenCommand('pay', function (ApplicationCommand $interaction) use ($
     $payAmount = getOptionValue('amount', $interaction);
 
     $authorId = getUserId($interaction);
-    $authorInventory = $gamba->inventoryManager->getInventory($authorId);
+    $authorInventory = $gatchaBot->gamba->inventoryManager->getInventory($authorId);
     $authorCoins = $authorInventory->getCoins();
 
     if ($authorCoins < $payAmount) {
@@ -37,7 +37,7 @@ $discord->listenCommand('pay', function (ApplicationCommand $interaction) use ($
         return;
     }
 
-    $receiverInventory = $gamba->inventoryManager->getInventory($receiverId);
+    $receiverInventory = $gatchaBot->gamba->inventoryManager->getInventory($receiverId);
 
     $authorInventory->setCoins($authorCoins - $payAmount);
     $receiverInventory->setCoins($receiverInventory->getCoins() + $payAmount);
