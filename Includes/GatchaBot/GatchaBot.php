@@ -64,7 +64,7 @@ final class GatchaBot
         sapi_windows_set_ctrl_handler(function ($event) {
             switch ($event) {
                 case PHP_WINDOWS_EVENT_CTRL_C:
-                    echo CMDOutput::new(self::createConsoleMessage('Ctrl + C event registered, shutting down at next safe opportunity.', MessageType::INFO));
+                    echo CMDOutput::new()->add(self::createConsoleMessage('Ctrl + C event registered, shutting down at next safe opportunity.', MessageType::INFO), FontColor::BRIGHT_GREEN), PHP_EOL;
                     set('botIsRunning', false);
                     return;
                 default:
@@ -95,10 +95,10 @@ final class GatchaBot
 
         if (get('botIsRunning') === false) {
             isSafeToTerminate()?->endProcess(function () {
-                echo CMDOutput::new(FontColor::BRIGHT_GREEN, self::createConsoleMessage('No games or inventories found, shutting down...', MessageType::INFO));
+                echo CMDOutput::new()->add(self::createConsoleMessage('No games or inventories found, shutting down...', MessageType::INFO), FontColor::BRIGHT_GREEN), PHP_EOL;
                 $this->discord->close(closeLoop: true);
             });
-            echo CMDOutput::new(FontColor::BRIGHT_YELLOW, self::createConsoleMessage('Found live interactions, delaying shutdown...', MessageType::INFO));
+            echo CMDOutput::new()->add(self::createConsoleMessage('Found live interactions, delaying shutdown...', MessageType::INFO), FontColor::BRIGHT_YELLOW), PHP_EOL;
         }
     }
 }
