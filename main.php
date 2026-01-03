@@ -35,7 +35,4 @@ $gatchaBot = new GatchaBot(
     intents: Intents::getDefaultIntents() | Intents::GUILDS | Intents::GUILD_MEMBERS
 );
 
-$discord = $gatchaBot->discord;
-$gamba = $gatchaBot->gamba;
-
 $gatchaBot->run();
