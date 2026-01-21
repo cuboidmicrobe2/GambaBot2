@@ -1,11 +1,16 @@
 {
     "require": {
         "team-reflex/discord-php": "^10.40.24",
-        "symfony/dotenv": "^7.3"
+        "symfony/dotenv": "^7.3",
+        "ewn/ovent": "^1.0"
     },
     "require-dev": {
         "rector/rector": "^2.2.8",
-        "laravel/pint": "^1.26.0"
+        "laravel/pint": "^1.26.0",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/extension-installer": "^1.4"
     },
     "autoload": {
         "psr-4": {
@@ -13,7 +18,14 @@
         }
     },
     "scripts": {
+        "start": "GambaBot.bat",
         "pint": "vendor/bin/pint",
-        "rector": "vendor/bin/rector"
+        "rector": "vendor/bin/rector",
+        "static": "vendor/bin/phpstan analyze"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
     }
 }

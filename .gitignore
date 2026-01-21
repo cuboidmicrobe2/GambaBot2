@@ -20,8 +20,9 @@ Thumbs.db
 # Pint
 pint.json
 
-# Rector
+# Configs
 rector.php
+phpstan.neon
 
 #Testing
 Test/
