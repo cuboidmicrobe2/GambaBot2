@@ -6,6 +6,8 @@ namespace Infrastructure;
 
 use ArrayAccess;
 use Generator;
+use InvalidArgumentException;
+use Override;
 use WeakMap;
 use WeakReference;
 
@@ -14,6 +16,7 @@ use WeakReference;
  *
  * @template TKey of string|int
  * @template TValue of object
+ * @implements ArrayAccess<TKey, TValue>
  */
 final class ObjectCache implements ArrayAccess
 {
@@ -39,7 +42,7 @@ final class ObjectCache implements ArrayAccess
     private array $_internalCache = [];
 
     /**
-     * @var WeakMap<TValue, array>
+     * @var WeakMap<TValue, array<int|string, mixed>>
      */
     private WeakMap $_internalData;
 
@@ -66,7 +69,7 @@ final class ObjectCache implements ArrayAccess
         $this->set($name, $value);
     }
 
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return $this->_internalCache;
     }
@@ -89,9 +92,23 @@ final class ObjectCache implements ArrayAccess
     }
 
     /**
+     * Undocumented function
+     *
+     * @param TKey $ident
+     * @return null|WeakReference<TValue>
+     */
+    public function getWeak(string|int $ident): ?WeakReference
+    {
+        $tValue = $this->get($ident);
+
+        return $tValue !== null ? WeakReference::create($tValue) : null;
+    }
+
+    /**
      * Get data array associated with an identifier or object.
      *
      * @param  TValue|TKey  $value  Identifier or object.
+     * @return null|array<string|int, mixed>
      */
     public function getData(object|string|int $value): ?array
     {
@@ -107,6 +124,7 @@ final class ObjectCache implements ArrayAccess
      *
      * @param  TKey  $ident  Identifier for an object.
      * @param  TValue  $object  Object to cach.
+     * @param array<int|string, mixed> $data
      */
     public function set(string|int $ident, object $object, ?array $data = null): void
     {
@@ -166,7 +184,7 @@ final class ObjectCache implements ArrayAccess
      *
      * @param  TKey  $ident
      */
-    public function exists(string $ident): bool
+    public function exists(string|int $ident): bool
     {
         return isset($this->_internalCache[$ident]);
     }
@@ -176,13 +194,13 @@ final class ObjectCache implements ArrayAccess
      *
      * @param  TKey  $ident
      */
-    public function valid(string $ident): bool
+    public function valid(string|int $ident): bool
     {
         return ($this->_internalCache[$ident] ?? null)?->get() !== null;
     }
 
     /**
-     * @return Generator<TKey, TValue>
+     * @return Generator<TKey, null|TValue>
      */
     public function createGenerator(): Generator
     {
@@ -198,22 +216,55 @@ final class ObjectCache implements ArrayAccess
             }
         }
     }
-
+    
+    /**
+     * Whether a offset exists
+     *
+     * @param TKey $offset
+     * @return boolean
+     */
+    #[Override]
     public function offsetExists(mixed $offset): bool
     {
         return $this->exists($offset);
     }
 
+    /**
+     * Offset to retrieve
+     *
+     * @param TKey $offset
+     * @return TValue|null
+     */
+    #[Override]
     public function offsetGet(mixed $offset): ?object
     {
         return $this->get($offset);
     }
 
+    /**
+     * Offset to set
+     *
+     * @param TKey|null $offset
+     * @param TValue $value
+     * @return void
+     * @throws InvalidArgumentException if $offset is null.
+     */
+    #[Override]
     public function offsetSet(mixed $offset, mixed $value): void
     {
+        if ($offset === null) {
+            throw new InvalidArgumentException('$offset cannont be null');
+        }
         $this->set($offset, $value);
     }
 
+    /**
+     * Offset to unset
+     *
+     * @param TKey $offset
+     * @return void
+     */
+    #[Override]
     public function offsetUnset(mixed $offset): void
     {
         unset($this->_internalCache[$offset]);
