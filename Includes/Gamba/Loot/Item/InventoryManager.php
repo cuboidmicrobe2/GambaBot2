@@ -6,6 +6,7 @@ namespace Gamba\Loot\Item;
 
 use Database\PersistentConnection;
 use Debug\Debug;
+use Generator;
 use HTTP\Request;
 use Infrastructure\ObjectCache;
 use NoDiscard;
@@ -32,6 +33,14 @@ final class InventoryManager
      */
     private ObjectCache $inventoryCache;
 
+    /**
+     * Constructor
+     *
+     * @param string $dsn
+     * @param string|null $username
+     * @param string|null $password
+     * @param array<string, mixed>|null $options
+     */
     public function __construct(
         string $dsn,
         ?string $username = null,
@@ -62,6 +71,12 @@ final class InventoryManager
         return $inv;
     }
 
+    /**
+     * Get a leaderboard.
+     *
+     * @param int $top
+     * @return array<int, array<string, mixed>>
+     */
     public function leaderboard(int $top): array
     {
         if ($top < 1) {
@@ -75,28 +90,47 @@ final class InventoryManager
             LIMIT {$top};
         SQL);
 
+        if ($result === false) {
+            return [];
+        }
+
+        /** @var array<int, array<string, int|string>> */
         $data = [];
 
         $requests = new Request();
+
+        /** @var string */
+        $botToken = $_ENV['DISCORD_TOKEN'];
+
+        
         while ($row = $result->fetch(Mysql::FETCH_ASSOC)) {
-            $data[]['coins'] = $row['coins'];
+            /** @var array<string, int|string> $row */
+
+            $data[] = ['coins' => $row['coins']];
 
             $requests->bind('https://discord.com/api/v9/users/'.$row['uid'], [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_HTTPHEADER => [
-                    'Authorization: Bot '.$_ENV['DISCORD_TOKEN'],
+                    'Authorization: Bot '.$botToken,
                 ],
             ]);
         }
 
         $requests->execute();
 
+        $result = $requests->fetch();
+
         $i = 0;
-        foreach ($requests->fetch() as $userData) {
-            $userInfo = json_decode((string) $userData, true);
-            $name = $userInfo['global_name'] ?? $userInfo['username'] ?? 'CURL_ERROR';
-            $data[$i]['user'] = $name;
-            $i++;
+        if ($result instanceof Generator) {
+            foreach ($result as $userData) {
+                if (is_string($userData)) {
+                    /** @var array<string, mixed> */
+                    $userInfo = json_decode($userData, true);
+                    $name = $userInfo['global_name'] ?? $userInfo['username'] ?? 'CURL_ERROR';
+                    $data[$i]['user'] = $name;
+                    $i++; 
+                }
+            }
         }
 
         return $data;
