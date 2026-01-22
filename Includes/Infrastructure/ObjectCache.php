@@ -12,7 +12,7 @@ use WeakMap;
 use WeakReference;
 
 /**
- * Object for cacheing other objects.
+ * Object for caching other objects.
  *
  * @template TKey of string|int
  * @template TValue of object
@@ -35,7 +35,7 @@ final class ObjectCache implements ArrayAccess
     }
 
     /**
-     * An array that stores a Weakreferences.
+     * An array that stores a **WeakReference**.
      *
      * @var array<TKey, WeakReference<TValue>>
      */
@@ -62,7 +62,7 @@ final class ObjectCache implements ArrayAccess
 
     /**
      * @param  TKey  $name  Property name.
-     * @param  TValue  $value  Object to cach.
+     * @param  TValue  $value  Object to cache.
      */
     public function __set(string|int $name, object $value)
     {
@@ -75,7 +75,7 @@ final class ObjectCache implements ArrayAccess
     }
 
     /**
-     * Get object from cach if it exists.
+     * Get object from cache if it exists.
      *
      * @param  TKey  $ident
      * @return null|TValue
@@ -92,38 +92,36 @@ final class ObjectCache implements ArrayAccess
     }
 
     /**
-     * Undocumented function
+     * Gets the full **WeakReference** form an identifier.
      *
      * @param TKey $ident
-     * @return null|WeakReference<TValue>
+     * @return null|WeakReference<TValue> The **WeakReference** or null if it does not exits.
      */
     public function getWeak(string|int $ident): ?WeakReference
     {
-        $tValue = $this->get($ident);
-
-        return $tValue !== null ? WeakReference::create($tValue) : null;
+        return $this->_internalCache[$ident] ?? null;
     }
 
     /**
      * Get data array associated with an identifier or object.
      *
      * @param  TValue|TKey  $value  Identifier or object.
-     * @return null|array<string|int, mixed>
+     * @return array<string|int, mixed>
      */
-    public function getData(object|string|int $value): ?array
+    public function getData(object|string|int $value): array
     {
         if (! is_object($value)) {
             $value = $this->get($value);
         }
 
-        return $this->_internalData[$value] ?? null;
+        return $this->_internalData[$value] ?? [];
     }
 
     /**
-     * Add object to cach.
+     * Add object to cache.
      *
      * @param  TKey  $ident  Identifier for an object.
-     * @param  TValue  $object  Object to cach.
+     * @param  TValue  $object  Object to cache.
      * @param array<int|string, mixed> $data
      */
     public function set(string|int $ident, object $object, ?array $data = null): void
@@ -253,7 +251,7 @@ final class ObjectCache implements ArrayAccess
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($offset === null) {
-            throw new InvalidArgumentException('$offset cannont be null');
+            throw new InvalidArgumentException('$offset cannot be null');
         }
         $this->set($offset, $value);
     }
