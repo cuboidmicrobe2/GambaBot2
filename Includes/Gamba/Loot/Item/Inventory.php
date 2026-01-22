@@ -6,7 +6,7 @@ namespace Gamba\Loot\Item;
 
 use InvalidArgumentException;
 use OutOfRangeException;
-use PDO\Mysql;
+use PDO;
 
 final class Inventory
 {
@@ -19,7 +19,7 @@ final class Inventory
     /**
      * @param  string  $owner  Id of a user.
      */
-    public function __construct(private readonly string $owner, private readonly Mysql $database)
+    public function __construct(private readonly string $owner, private readonly PDO $database)
     {
         $this->userInventoryMustExist($owner, $database);
     }
@@ -49,7 +49,7 @@ final class Inventory
             WHERE uid = {$this->owner};
         SQL);
 
-        return $result->fetch(Mysql::FETCH_ASSOC)['coins'] ?? 0;
+        return $result->fetch(PDO::FETCH_ASSOC)['coins'] ?? 0;
     }
 
     /**
@@ -114,8 +114,8 @@ final class Inventory
             WHERE item_id = {$itemId};
         SQL);
 
-        // Fine since result can and sould only be one row
-        return $result->fetch(Mysql::FETCH_ASSOC)['count'] ?? 0;
+        // Fine since result can and should only be one row
+        return $result->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
     }
 
     /**
@@ -159,7 +159,7 @@ final class Inventory
             WHERE uid = {$this->owner};
         SQL);
 
-        return $result->fetch(Mysql::FETCH_ASSOC)['gold_pity'] ?? 0;
+        return $result->fetch(PDO::FETCH_ASSOC)['gold_pity'] ?? 0;
     }
 
     public function getPurplePity(): int
@@ -169,7 +169,7 @@ final class Inventory
             WHERE uid = {$this->owner};
         SQL);
 
-        return $result->fetch(Mysql::FETCH_ASSOC)['purple_pity'] ?? 0;
+        return $result->fetch(PDO::FETCH_ASSOC)['purple_pity'] ?? 0;
     }
 
     public function getLastDaily(): int
@@ -180,7 +180,7 @@ final class Inventory
             WHERE uid = {$this->owner};
         SQL);
 
-        return $result->fetch(Mysql::FETCH_ASSOC)['last_daily'] ?? 0;
+        return $result->fetch(PDO::FETCH_ASSOC)['last_daily'] ?? 0;
     }
 
     public function updateDaily(): void
@@ -202,7 +202,7 @@ final class Inventory
             SELECT count FROM USER_{$this->owner};
         SQL);
 
-        $result->setFetchMode(Mysql::FETCH_ASSOC);
+        $result->setFetchMode(PDO::FETCH_ASSOC);
 
         $uniqueItems = 0;
         $totalItemCount = 0;
@@ -220,7 +220,7 @@ final class Inventory
     /**
      * Create the user table if it does not exist
      */
-    private function userInventoryMustExist(string $uid, Mysql $database): void
+    private function userInventoryMustExist(string $uid, PDO $database): void
     {
         $database->query(<<<SQL
             CREATE TABLE IF NOT EXISTS USER_{$uid}(
