@@ -221,7 +221,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
-        $gameLogic(RpsMove::SICSSORS, $buttonInteraction);
+        $gameLogic(RpsMove::SCISSORS, $buttonInteraction);
     }, $gatchaBot->discord);
 
     $gatchaBot->gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));

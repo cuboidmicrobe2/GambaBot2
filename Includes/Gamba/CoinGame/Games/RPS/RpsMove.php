@@ -8,14 +8,14 @@ enum RpsMove
 {
     case ROCK;
     case PAPER;
-    case SICSSORS;
+    case SCISSORS;
 
     public function getEmoji(): string
     {
         return match ($this) {
             self::ROCK => '🪨',
             self::PAPER => '📰',
-            self::SICSSORS => '✂️',
+            self::SCISSORS => '✂️',
         };
     }
 }

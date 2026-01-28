@@ -151,7 +151,7 @@ final class RockPaperScissors extends GameInstance
         $moveLogic = [
             RpsMove::ROCK,
             RpsMove::PAPER,
-            RpsMove::SICSSORS,
+            RpsMove::SCISSORS,
             RpsMove::ROCK,
         ];
         $counter = count($moveLogic);
