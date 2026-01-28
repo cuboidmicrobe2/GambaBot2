@@ -16,7 +16,7 @@ abstract class GameInstance
     }
 
     /**
-     * Returns a bool whether the objects has existed for longer than its intended lifetime and will be deleted when the GameHalndler runs clean()
+     * Returns a bool whether the objects has existed for longer than its intended lifetime and will be deleted when the GameHandler runs clean()
      */
     final public function expired(): bool
     {
