@@ -26,6 +26,14 @@ final class ButtonFactory
         $this->idCreator = new ComponentIdCreator($interaction);
     }
 
+    /**
+     * Creates a new **Button**.
+     * 
+     * @param int $style Use the **Buttons** class constants to pick a style.
+     * @param string $name The name of the **Button**.
+     * 
+     * @return Button The created **Button**.
+     */
     public function create(int $style, string $name): Button
     {
         $button = Button::new($style, $this->idCreator->createId($name, ComponentType::BUTTON));
@@ -34,6 +42,9 @@ final class ButtonFactory
         return $button;
     }
 
+    /**
+     * Create a **ComponentIdMap** from the created buttons.
+     */
     public function getMap(): ComponentIdMap
     {
         return $this->idCreator->exportIdMap();
