@@ -69,6 +69,11 @@ final class ObjectCache implements ArrayAccess
         $this->set($name, $value);
     }
 
+    /**
+     * This method is called by {@see \var_dump() var_dump()} when dumping an object to get the properties that should be shown.
+     *
+     * @return array<string|int, WeakReference<TValue>>
+     */
     public function __debugInfo(): array
     {
         return $this->_internalCache;
