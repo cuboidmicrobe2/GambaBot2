@@ -9,16 +9,16 @@ use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-global $gatchaBot;
+global $gachaBot;
 
-$gatchaBot->discord->listenCommand('roulette', function (ApplicationCommand $interaction) use ($gatchaBot): void {
+$gachaBot->discord->listenCommand('roulette', function (ApplicationCommand $interaction) use ($gachaBot): void {
     if (! permissionToRun($interaction)) {
         return;
     }
 
     $message = MessageBuilder::new()->setContent('Something went wrong');
 
-    $gatchaBot->gamba->roulette(
+    $gachaBot->gamba->roulette(
         uid: getUserId($interaction),
         wager: getOptionValue('amount', $interaction),
         bet: (int) getOptionValue('color', $interaction),

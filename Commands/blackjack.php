@@ -19,9 +19,9 @@ use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-global $gatchaBot;
+global $gachaBot;
 
-$gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $interaction) use ($gatchaBot): void {
+$gachaBot->discord->listenCommand('blackjack', function (ApplicationCommand $interaction) use ($gachaBot): void {
 
     if (! permissionToRun($interaction)) {
         return;
@@ -30,7 +30,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
     $bet = (int) getOptionValue('bet', $interaction);
     $uid = getUserId($interaction);
 
-    $inventory = $gatchaBot->gamba->inventoryManager->getInventory($uid);
+    $inventory = $gachaBot->gamba->inventoryManager->getInventory($uid);
     $coins = $inventory->getCoins();
 
     if ($bet > $coins) {
@@ -39,17 +39,17 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
         return;
     }
 
-    $game = new BlackJack($bet, decks: 2, player: new Player($uid, $gatchaBot->gamba->inventoryManager, $gatchaBot->discord));
+    $game = new BlackJack($bet, decks: 2, player: new Player($uid, $gachaBot->gamba->inventoryManager, $gachaBot->discord));
     $buttonFactory = new ButtonFactory($interaction);
     $canSplit = $game->splitCheck();
 
     $canPickCard = $game->getCurrentHand()->playable;
 
-    $gameLogic = function (string $action) use ($gatchaBot, $interaction): void {
+    $gameLogic = function (string $action) use ($gachaBot, $interaction): void {
 
         /** @var BlackJack */
-        $game = $gatchaBot->gamba->games->getGame($interaction->id);
-        $gameData = $gatchaBot->gamba->games->getGameData($game);
+        $game = $gachaBot->gamba->games->getGame($interaction->id);
+        $gameData = $gachaBot->gamba->games->getGameData($game);
 
         switch ($action) {
             case 'hit':
@@ -108,7 +108,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
 
         $otherHands ??= '';
 
-        $embed = new Embed($gatchaBot->discord)
+        $embed = new Embed($gachaBot->discord)
             ->setTitle($dealer)
             ->setDescription($player.PHP_EOL.$otherHandsString)
             ->setFooter('Starting bet: '.$game->bet)
@@ -147,7 +147,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
 
             $embed->setDescription($resultString);
 
-            $gatchaBot->gamba->games->closeGame($game);
+            $gachaBot->gamba->games->closeGame($game);
 
             $game->player->inventory->setCoins(
                 $game->player->inventory->getCoins() + $returnCoins
@@ -158,7 +158,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
             return;
         }
 
-        $interaction->updateOriginalResponse(MessageBuilder::new()->addComponent($gatchaBot->gamba->games->getNewActionRow($game))->addEmbed($embed));
+        $interaction->updateOriginalResponse(MessageBuilder::new()->addComponent($gachaBot->gamba->games->getNewActionRow($game))->addEmbed($embed));
     };
 
     $buttonFactory->create(Button::STYLE_SECONDARY, 'hit')->setLabel('Hit')->setDisabled(! $canPickCard)->setListener(function (MessageComponent $buttonInteraction) use ($gameLogic): void {
@@ -167,7 +167,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
         }
 
         $gameLogic('hit');
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
     $buttonFactory->create(Button::STYLE_SECONDARY, 'stand')->setLabel('Stand')->setListener(function (MessageComponent $buttonInteraction) use ($gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
@@ -175,7 +175,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
         }
 
         $gameLogic('stand');
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
     $buttonFactory->create(Button::STYLE_SECONDARY, 'double')->setLabel('Double')->setDisabled(! $canPickCard)->setListener(function (MessageComponent $buttonInteraction) use ($gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
@@ -183,7 +183,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
         }
 
         $gameLogic('double');
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
     $buttonFactory->create(Button::STYLE_SECONDARY, 'split')->setLabel('Split')->setDisabled((! $canSplit))->setListener(function (MessageComponent $buttonInteraction) use ($gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction)) {
@@ -191,13 +191,13 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
         }
 
         $gameLogic('split');
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
-    $gatchaBot->gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
+    $gachaBot->gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
 
     if ($game->dealerBlackJack()) {
         $interaction->respondWithMessage(MessageBuilder::new()->setContent(Format::italic('Dealer has blackjack! (bet was refunded)')), ephemeral: true);
-        $gatchaBot->gamba->games->closeGame($game);
+        $gachaBot->gamba->games->closeGame($game);
 
         return;
     }
@@ -207,7 +207,7 @@ $gatchaBot->discord->listenCommand('blackjack', function (ApplicationCommand $in
     $dealer = $game->showDealerHand();
     $player = $game->showPlayerHand();
 
-    $interaction->respondWithMessage(MessageBuilder::new()->addComponent($buttonFactory->createActionRow())->addEmbed(new Embed($gatchaBot->discord)
+    $interaction->respondWithMessage(MessageBuilder::new()->addComponent($buttonFactory->createActionRow())->addEmbed(new Embed($gachaBot->discord)
         ->setTitle($dealer)
         ->setDescription($player)
         ->setFooter('Starting bet: '.$game->bet)

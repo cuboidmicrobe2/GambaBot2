@@ -135,7 +135,7 @@ namespace GambaBot\Interaction {
 
         if (get('botIsRunning') === false) {
             $interaction->respondWithMessage(MessageBuilder::new()
-                ->setContent('The bot is about to shut down, no new intaractions are allowed.'),
+                ->setContent('The bot is about to shut down, no new interactions are allowed.'),
                 ephemeral: true);
 
             $isRunning = false;
@@ -148,7 +148,7 @@ namespace GambaBot\Interaction {
 namespace GambaBot\Discord {
 
     /**
-     * Create dicord @user from user id
+     * Create discord @user from user id
      *
      * @deprecated use the abstract Format class
      */
@@ -210,12 +210,20 @@ namespace GambaBot\Discord\TextStyle {
 namespace GambaBot\Tools {
 
     use ReflectionClass;
+    use stdClass;
 
     function isImplementing(object $object, string $interface): bool
     {
         return in_array($interface, class_implements($object));
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param object $object
+     * @param class-string $trait 
+     * @return boolean
+     */
     function isUsing(object $object, string $trait): bool
     {
         return in_array($trait, class_uses($object));
@@ -228,13 +236,20 @@ namespace GambaBot\Tools {
         return $array[$key];
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param object|class-string<object> $class
+     * @param class-string<Attribute> $attributeName
+     * @return boolean
+     */
     function hasAttribute(object|string $class, string $attributeName): bool
     {
         $reflection = new ReflectionClass($class);
 
         $attributes = $reflection->getAttributes($attributeName);
 
-        return count($attributes) > 0;
+        return count($attributes) > 0; 
     }
 
     /**
@@ -287,7 +302,7 @@ namespace GambaBot {
     // use Throwable;
 
     // /**
-    //  * Throw an exeption and log the error
+    //  * Throw an exception and log the error
     //  *
     //  * @throws mixed
     //  */

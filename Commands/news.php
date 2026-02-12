@@ -7,9 +7,9 @@ use Discord\Parts\Interactions\ApplicationCommand;
 
 use function GambaBot\Interaction\getCommandStrings;
 
-global $gatchaBot;
+global $gachaBot;
 
-$gatchaBot->discord->listenCommand('news', function (ApplicationCommand $interaction): void {
+$gachaBot->discord->listenCommand('news', function (ApplicationCommand $interaction): void {
 
     $news = getCommandStrings($interaction);
 

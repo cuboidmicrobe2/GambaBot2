@@ -10,14 +10,14 @@ use Tools\Discord\Text\Format;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-global $gatchaBot;
+global $gachaBot;
 
-$gatchaBot->discord->listenCommand('stats', function (ApplicationCommand $interaction) use ($gatchaBot): void {
+$gachaBot->discord->listenCommand('stats', function (ApplicationCommand $interaction) use ($gachaBot): void {
     if (! permissionToRun($interaction)) {
         return;
     }
 
-    $stats = $gatchaBot->gamba->getUserStats(getUserId($interaction));
+    $stats = $gachaBot->gamba->getUserStats(getUserId($interaction));
     $goldMaxPity = GOLD_PITY_CAP;
     $purpleMaxPity = PURPLE_PITY_CAP;
 
@@ -25,7 +25,7 @@ $gatchaBot->discord->listenCommand('stats', function (ApplicationCommand $intera
     $goldPity = Format::code((string) $stats['goldPity'] ?? '$error');
     $purplePity = Format::code((string) $stats['purplePity'] ?? '$error');
 
-    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($gatchaBot->discord)
+    $interaction->respondWithMessage(MessageBuilder::new()->addEmbed(new Embed($gachaBot->discord)
         ->setTitle('Stats')
         ->setDescription(<<<DESC
         **Coins** {$coins}

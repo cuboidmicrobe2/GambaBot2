@@ -22,9 +22,9 @@ use function GambaBot\Interaction\getOptionValue;
 use function GambaBot\Interaction\getUserId;
 use function GambaBot\Interaction\permissionToRun;
 
-global $gatchaBot;
+global $gachaBot;
 
-$gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($gatchaBot): void {
+$gachaBot->discord->listenCommand('rps', function (ApplicationCommand $interaction) use ($gachaBot): void {
     if (! permissionToRun($interaction)) {
         return;
     }
@@ -40,25 +40,25 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
 
     $bet = getOptionValue('bet', $interaction);
 
-    $p1Inv = $gatchaBot->gamba->inventoryManager->getInventory($p1);
-    $p2Inv = $gatchaBot->gamba->inventoryManager->getInventory($p2);
+    $p1Inv = $gachaBot->gamba->inventoryManager->getInventory($p1);
+    $p2Inv = $gachaBot->gamba->inventoryManager->getInventory($p2);
 
     if ($p1Inv->getCoins() < $bet || $p2Inv->getCoins() < $bet) {
         $interaction->respondWithMessage(MessageBuilder::new()->setContent('One or two players does not have enough coins to play'), ephemeral: true);
 
         return;
     }
-    $game = new RockPaperScissors($gatchaBot->discord, $gatchaBot->gamba->inventoryManager, $p1, $p2, $bet);
+    $game = new RockPaperScissors($gachaBot->discord, $gachaBot->gamba->inventoryManager, $p1, $p2, $bet);
     $startGameOptions = new ActionRow;
     $buttonFactory = new ButtonFactory($interaction);
 
-    $gameLogic = function (RpsMove $move, MessageComponent $buttonInteraction) use ($interaction, $gatchaBot, $p1, $p2): void {
+    $gameLogic = function (RpsMove $move, MessageComponent $buttonInteraction) use ($interaction, $gachaBot, $p1, $p2): void {
         $player = buttonPresserId($buttonInteraction);
 
         /**
          * @var ?RockPaperScissors
          */
-        $game = $gatchaBot->gamba->games->getGame($interaction->id);
+        $game = $gachaBot->gamba->games->getGame($interaction->id);
 
         $player1 = $game->getPlayerById($p1);
         $player2 = $game->getPlayerById($p2);
@@ -74,7 +74,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
 
                 if ($winner = $game->checkWinner()) {
 
-                    $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($gatchaBot->discord)
+                    $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($gachaBot->discord)
                         ->setTitle($player1->name.' '.$p1Move?->getEmoji().' ['.Format::code($player1->data->points.' - '.$player2->data->points).'] '.$p2Move?->getEmoji().' '.$player2->name)
                         ->setDescription('Round: '.Format::code((string) ($game->round - 1)))
                         ->setColor(EMBED_COLOR_PINK)
@@ -99,7 +99,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
                         $p2MoveHistory .= $player2->data->moves[$i]?->getEmoji().' ';
                     }
 
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($gatchaBot->discord)
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($gachaBot->discord)
                         ->setTitle($winnerUsername.' winns '.$scoreFormatted)
                         ->setDescription('Coins: '.Format::code((string) $game->bet))
                         ->setColor(EMBED_COLOR_GREEN)
@@ -121,11 +121,11 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
                         )
                     ));
 
-                    $gatchaBot->gamba->games->closeGame($game);
+                    $gachaBot->gamba->games->closeGame($game);
 
                     return;
                 }
-                $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($gatchaBot->discord)
+                $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($gachaBot->discord)
                     ->setTitle(Format::italic($player1->name).' '.$p1Move?->getEmoji().' ['.Format::code($player1->data->points.' - '.$player2->data->points).'] '.$p2Move?->getEmoji().' '.Format::italic($player2->name))
                     ->setDescription('Round: '.Format::code((string) $game->round))
                     ->setColor(EMBED_COLOR_PINK)
@@ -145,7 +145,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
             $p1NameStyled = ($player1->data->move === null) ? Format::italic($player1->name) : $player1->name;
             $p2NameStyled = ($player2->data->move === null) ? Format::italic($player2->name) : $player2->name;
 
-            $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($gatchaBot->discord)
+            $interaction->updateOriginalResponse(MessageBuilder::new()->addEmbed(new Embed($gachaBot->discord)
                 ->setTitle($p1NameStyled.$p1Move.' ['.Format::code($player1->data->points.' - '.$player2->data->points).'] '.$p2Move.$p2NameStyled)
                 ->setDescription('Round: '.Format::code((string) $game->round))
                 ->setColor(EMBED_COLOR_PINK)
@@ -153,7 +153,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
         }
     };
 
-    $buttonStart = $buttonFactory->create(Button::STYLE_SUCCESS, 'accept')->setLabel('Accept')->setListener(function (MessageComponent $buttonInteraction) use ($p1, $p2, $gatchaBot, $interaction, $bet): void {
+    $buttonStart = $buttonFactory->create(Button::STYLE_SUCCESS, 'accept')->setLabel('Accept')->setListener(function (MessageComponent $buttonInteraction) use ($p1, $p2, $gachaBot, $interaction, $bet): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
@@ -161,7 +161,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
         /**
          * @var ?RockPaperScissors
          */
-        $game = $gatchaBot->gamba->games->getGame($interaction->id);
+        $game = $gachaBot->gamba->games->getGame($interaction->id);
         $player1 = $game->getPlayerById($p1);
         $player2 = $game->getPlayerById($p2);
 
@@ -170,7 +170,7 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
 
         if ($p1Coins < $bet || $p2Coins < $bet) {
             $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('A player no longer has enough coins to play'));
-            $gatchaBot->gamba->games->closeGame($game);
+            $gachaBot->gamba->games->closeGame($game);
 
             return;
         }
@@ -178,53 +178,53 @@ $gatchaBot->discord->listenCommand('rps', function (ApplicationCommand $interact
         $player1->inventory->setCoins($p1Coins);
         $player2->inventory->setCoins($p2Coins);
 
-        $gameData = $gatchaBot->gamba->games->getGameData($game);
+        $gameData = $gachaBot->gamba->games->getGameData($game);
         $gameData->removeButton('decline');
         $gameData->removeButton('accept');
-        $gameOptions = $gatchaBot->gamba->games->getNewActionRow($game);
+        $gameOptions = $gachaBot->gamba->games->getNewActionRow($game);
 
         $game->renew();
         $game->started = true;
 
-        $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('')->addComponent($gameOptions)->addEmbed(new Embed($gatchaBot->discord)
+        $interaction->updateOriginalResponse(MessageBuilder::new()->setContent('')->addComponent($gameOptions)->addEmbed(new Embed($gachaBot->discord)
             ->setTitle(Format::italic($player1->name).' ['.Format::code('0 - 0').'] '.Format::italic($player2->name))
             ->setDescription('Round: '.Format::code((string) $game->round))
             ->setColor(EMBED_COLOR_PINK)
         ));
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
-    $buttonDecline = $buttonFactory->create(Button::STYLE_SUCCESS, 'accept')->setLabel('Decline')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gatchaBot, $interaction): void {
+    $buttonDecline = $buttonFactory->create(Button::STYLE_SUCCESS, 'accept')->setLabel('Decline')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gachaBot, $interaction): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
-        $game = $gatchaBot->gamba->games->getGame($interaction->id);
-        $gatchaBot->gamba->games->closeGame($game);
+        $game = $gachaBot->gamba->games->getGame($interaction->id);
+        $gachaBot->gamba->games->closeGame($game);
 
         $interaction->updateOriginalResponse(MessageBuilder::new()->setContent(Format::italic('The match was declined')));
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
-    $buttonFactory->create(Button::STYLE_SECONDARY, 'rock')->setEmoji(new Emoji($gatchaBot->discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
+    $buttonFactory->create(Button::STYLE_SECONDARY, 'rock')->setEmoji(new Emoji($gachaBot->discord, ['id' => null, 'name' => '🪨']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::ROCK, $buttonInteraction);
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
-    $buttonFactory->create(Button::STYLE_SECONDARY, 'paper')->setEmoji(new Emoji($gatchaBot->discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
+    $buttonFactory->create(Button::STYLE_SECONDARY, 'paper')->setEmoji(new Emoji($gachaBot->discord, ['id' => null, 'name' => '📰']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::PAPER, $buttonInteraction);
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
-    $buttonFactory->create(Button::STYLE_SECONDARY, 'scissors')->setEmoji(new Emoji($gatchaBot->discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
+    $buttonFactory->create(Button::STYLE_SECONDARY, 'scissors')->setEmoji(new Emoji($gachaBot->discord, ['id' => null, 'name' => '✂️']))->setLabel(' ')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gameLogic): void {
         if (! buttonPressedByOwner($buttonInteraction) && ! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
         $gameLogic(RpsMove::SCISSORS, $buttonInteraction);
-    }, $gatchaBot->discord);
+    }, $gachaBot->discord);
 
-    $gatchaBot->gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
+    $gachaBot->gamba->games->addGame($game, GameData::create($interaction, $buttonFactory->createCollection(), $buttonFactory->getMap()));
 
     $startGameOptions->addComponent($buttonStart);
     $startGameOptions->addComponent($buttonDecline);
