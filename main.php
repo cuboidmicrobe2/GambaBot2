@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use GatchaBot\GatchaBot;
+use Application\Process;
+use GachaBot\GachaBot;
 use Debug\Console\CMDOutput;
 use Debug\Console\FontColor;
 use Discord\WebSockets\Intents;
@@ -13,7 +14,7 @@ require_once __DIR__.'/functions.php';
 require_once __DIR__.'/defines.php';
 
 if (PHP_VERSION_ID < 80500) {
-    echo CMDOutput::create(FontColor::YELLOW, 'You are running an old version of php ('.PHP_VERSION.'), GachaBot requires version 8.5.0 or later!'), PHP_EOL;
+    echo CMDOutput::create(FontColor::YELLOW, 'You are running an old version of php ('.PHP_VERSION.'), GatchaBot requires version 8.5.0 or later!'), PHP_EOL;
     sleep(10);
     exit();
 }
@@ -25,14 +26,20 @@ set_exception_handler(function (Throwable $e) {
 $dotenv = new Dotenv;
 $dotenv->load(__DIR__.'/.env');
 
-$gatchaBot = new GatchaBot(
+const PROCESS = new Process;
+
+$gachaBot = new GachaBot(
     botToken: $_ENV['DISCORD_TOKEN'],
     databaseHost: $_ENV['DB_HOSTNAME'],
     databaseUsername: $_ENV['DB_USERNAME'],
     databasePassword: $_ENV['DB_PASSWORD'],
     gambaDatabaseName: 'gamba',
     inventoryDatabaseName: 'gamba_inventories',
-    intents: Intents::getDefaultIntents() | Intents::GUILDS | Intents::GUILD_MEMBERS
+    intents: Intents::getDefaultIntents() | Intents::GUILDS | Intents::GUILD_MEMBERS,
+    requireFrom: 'Commands'
 );
 
-$gatchaBot->run();
+$gachaBot->attachObserver(PROCESS);
+$gachaBot->observeEmitter(PROCESS);
+
+$gachaBot->run();
