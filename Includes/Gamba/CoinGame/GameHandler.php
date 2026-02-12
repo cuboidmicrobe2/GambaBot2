@@ -10,6 +10,8 @@ use Deprecated;
 use Discord\Builders\Components\ActionRow;
 use Exception;
 use Gamba\CoinGame\Attributes\LogOnClose;
+use Gamba\CoinGame\Tools\Players\PlayerFactory;
+use Gamba\Loot\Item\InventoryManager;
 use InvalidArgumentException;
 use NoDiscard;
 use TimedGameInstance;
@@ -31,7 +33,7 @@ final class GameHandler
         }
     }
 
-    // private SplObjectStorage $games;
+    public private(set) PlayerFactory $playerFactory;
 
     /**
      * @var array<string, GameInstance>
@@ -43,9 +45,10 @@ final class GameHandler
      */
     private WeakMap $gameData;
 
-    public function __construct()
+    public function __construct(InventoryManager $inventoryManager)
     {
-        $this->gameData = new WeakMap; // data is stored in a WeakMap beacuse SplObjectSotrage uses SeekableIterator and prob wont work async but is needed to prevent obj from gc
+        $this->gameData = new WeakMap; // data is stored in a WeakMap because SplObjectStorage uses SeekableIterator and prob wont work async but is needed to prevent obj from gc
+        $this->playerFactory = new PlayerFactory($inventoryManager);
     }
 
     /**
@@ -147,8 +150,16 @@ final class GameHandler
     {
         $row = new ActionRow;
 
-        foreach ($this->gameData[$game]->buttons as $button) {
-            $row->addComponent($button);
+        // foreach ($this->gameData[$game]->buttons as $button) {
+        //     $row->addComponent($button);
+        // }
+
+        $buttons = ($this->gameData[$game] ?? null)?->buttons;
+
+        if ($buttons !== null) {
+            foreach ($buttons as $button) {
+                $row->addComponent($button);
+            }
         }
 
         return $row;

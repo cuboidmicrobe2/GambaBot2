@@ -139,7 +139,7 @@ final class InventoryManager
     /**
      * Clear the Inventory cache from old data
      */
-    public function clearChace(): void
+    public function clearCache(): void
     {
         $this->inventoryCache->clean();
     }

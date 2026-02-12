@@ -23,7 +23,7 @@ use Tools\Discord\Text\Format;
 use WeakReference;
 
 /**
- * @todo ? create item factory method like: createItem(string|int $itemId): Item (check cach) | get item query only gets item id?
+ * @todo ? create item factory method like: createItem(string|int $itemId): Item (check cache) | get item query only gets item id?
  */
 final class Gamba
 {
@@ -48,7 +48,7 @@ final class Gamba
     /**
      * @var ObjectCache<int, Item>
      */
-    private ObjectCache $itemCach;
+    private ObjectCache $itemCache;
 
     public function __construct(
         string $gambaDsn,
@@ -60,8 +60,8 @@ final class Gamba
     ) {
         $this->gambaConn = PersistentConnection::connect('GambaConnection', $gambaDsn, $username, $password, $gambaOptions);
         $this->inventoryManager = new InventoryManager($inventoryManagerDsn, $username, $password, $inventoryManagerOptions);
-        $this->games = new GameHandler;
-        $this->itemCach = new ObjectCache;
+        $this->games = new GameHandler($this->inventoryManager);
+        $this->itemCache = new ObjectCache;
     }
 
     public function getHistory(string $uid, int $amount): ItemCollection
@@ -78,7 +78,7 @@ final class Gamba
         $items = new ItemCollection($amount);
         $i = 0;
         while ($row = $result->fetch(Mysql::FETCH_ASSOC)) {
-            $item = $this->itemCach->get($row['id']);
+            $item = $this->itemCache->get($row['id']);
 
             if (! $item instanceof Item) {
                 $item = new Item(
@@ -87,7 +87,7 @@ final class Gamba
                     id: $row['id'],
                     description: $row['descr']
                 );
-                $this->itemCach->set($item->id, $item);
+                $this->itemCache->set($item->id, $item);
             }
             $items[$i] = $item;
             $i++;
@@ -158,7 +158,7 @@ final class Gamba
             $fetchRandItem->execute(['rarity' => $itemRarity->value]);
             $result = $fetchRandItem->fetch(Mysql::FETCH_ASSOC);
 
-            $item = $this->itemCach->get($result['id']);
+            $item = $this->itemCache->get($result['id']);
             if (! $item instanceof Item) {
                 $item = new Item(
                     name: $result['name'],
@@ -167,7 +167,7 @@ final class Gamba
                     description: $result['descr']
                 );
 
-                $this->itemCach->set($item->id, $item);
+                $this->itemCache->set($item->id, $item);
             }
 
             $items[$i] = $item;

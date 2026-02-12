@@ -14,6 +14,12 @@ final class PersistentConnection
 {
     use Debug;
 
+    public PDO $connection {
+        get {
+            return $this->getConnection();
+        }
+    }
+
     private PDO $conn;
 
     public function __construct(
