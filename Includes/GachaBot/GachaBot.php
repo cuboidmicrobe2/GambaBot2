@@ -14,6 +14,7 @@ use Ewn\Ovent\Event;
 use Ewn\Ovent\Interface\EventInterface;
 use Ewn\Ovent\trait\EventTrait;
 use Infrastructure\FileManager;
+use Discord\Parts\User\Activity;
 use function GambaBot\set;
 use function GambaBot\get;
 use function GambaBot\isSafeToTerminate;
@@ -26,7 +27,7 @@ final class GachaBot implements EventInterface
 
     public readonly Gamba $gamba;
 
-    public private(set) bool $running;
+    public private(set) bool $running = false;
 
     /**
      * Constructor
@@ -64,39 +65,38 @@ final class GachaBot implements EventInterface
             username: $databaseUsername,
             password: $databasePassword,
         );
-        // $this->setCtrlHandler();
+
         $this->listenEvent('process.emit.ctrl-event', function (Event $event) {
+            $this->discord->updatePresence(new Activity($this->discord, [
+                'type' => Activity::TYPE_CUSTOM,
+                'name' => 'customStatus',
+                'state' => 'Shutting down...',
+            ]));
             $this->running = false;
             echo CMDOutput::new()->add(self::createConsoleMessage('Ctrl + C event registered, shutting down at next safe opportunity.', MessageType::INFO), FontColor::BRIGHT_GREEN), PHP_EOL;
+            $this->shutDownIfAllowed();
         });
+
         $this->discord->on('init', fn () => $this->onInit());
     }
     
     public function run(): void
     {
+        $this->running = true;
         set('botIsRunning', true);
         set('shutdownCondition', fn () => ! $this->gamba->inventoryManager->activeInventories && ! $this->gamba->games->hasActiveGames);
         $this->emitEvent('running');
         $this->discord->run();
     }
 
-    // private function setCtrlHandler(): void
-    // {
-    //     sapi_windows_set_ctrl_handler(function ($event) {
-    //         switch ($event) {
-    //             case PHP_WINDOWS_EVENT_CTRL_C:
-    //                 echo CMDOutput::new()->add(self::createConsoleMessage('Ctrl + C event registered, shutting down at next safe opportunity.', MessageType::INFO), FontColor::BRIGHT_GREEN), PHP_EOL;
-    //                 set('botIsRunning', false);
-    //                 $this->emitEvent('ctrl-c');
-    //                 return;
-    //             default:
-    //                 return;
-    //         }
-    //     });
-    // }
-
     private function onInit(): void
     {
+        $this->discord->updatePresence(new Activity($this->discord, [
+            'type' => Activity::TYPE_CUSTOM,
+            'name' => 'customStatus',
+            'state' => 'Gambling🥰😍',
+        ]));
+
         $this->emitEvent('discord-init');
         $this->discord->on('heartbeat', fn () => $this->onHeartbeat());
 
@@ -121,6 +121,11 @@ final class GachaBot implements EventInterface
 
         $this->emitEvent('discord-heartbeat');
 
+        $this->shutDownIfAllowed();
+    }
+
+    private function shutDownIfAllowed(): void
+    {
         if ($this->running === false) {
             isSafeToTerminate()?->endProcess(function () {
                 echo CMDOutput::new()->add(self::createConsoleMessage('No games or inventories found, shutting down...', MessageType::INFO), FontColor::BRIGHT_GREEN), PHP_EOL;
