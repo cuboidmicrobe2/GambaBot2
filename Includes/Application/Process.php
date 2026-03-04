@@ -7,17 +7,41 @@ namespace Application;
 use Ewn\Ovent\Event;
 use Ewn\Ovent\Interface\EventInterface;
 use Ewn\Ovent\Trait\EventTrait;
+use Ewn\Ovent\Listener;
+use InvalidArgumentException;
 
 final class Process implements EventInterface
 {
     use EventTrait;
 
+    public const string ACTION_END = 'process.action.end';
+
+    public readonly int $PID;
+
+    /**
+     * Undocumented variable
+     *
+     * @var array<string, Listener>
+     */
+    private array $listeners = [];
+
     public function __construct()
     {
+        $pid = getmypid();
+        $this->PID = $pid ? $pid : -1;
         $this->setCtrlHandler();
-        $this->listenEvent('process.action.end', function (Event $event) {
-            $this->end($event);
-        });
+        $this->on(self::ACTION_END, fn (Event $event) => $this->end($event));
+    }
+
+    public function updateListener(string $event, callable $callback): void
+    {
+        $listener = $this->listeners[$event] ?? null;
+
+        if ($listener === null) {
+            throw new InvalidArgumentException($event.' is not a valid event listener on this '.self::class);
+        }
+
+        $listener->replaceCallback($callback);
     }
     
     private function end(Event $event): never
@@ -42,5 +66,10 @@ final class Process implements EventInterface
                     return;
             }
         });
+    }
+
+    private function on(string $event, callable $callback): void
+    {
+        $this->listeners[$event] = $this->listenEvent($event, $callback);
     }
 }
