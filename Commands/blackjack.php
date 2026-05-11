@@ -62,7 +62,7 @@ $gachaBot->discord->listenCommand('blackjack', function (ApplicationCommand $int
                 $coins = $game->player->inventory->getCoins();
 
                 if ($coins < $game->bet) {
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(Format::italic('Insufficent coins for this action, try another button!')), ephemeral: true);
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(Format::italic('Insufficient coins for this action, try another button!')), ephemeral: true);
                     break;
                 }
 
@@ -73,7 +73,7 @@ $gachaBot->discord->listenCommand('blackjack', function (ApplicationCommand $int
                 $coins = $game->player->inventory->getCoins();
 
                 if ($coins < $game->bet) {
-                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(Format::italic('Insufficent coins for this action, try another button!')), ephemeral: true);
+                    $interaction->sendFollowUpMessage(MessageBuilder::new()->setContent(Format::italic('Insufficient coins for this action, try another button!')), ephemeral: true);
                     break;
                 }
 
