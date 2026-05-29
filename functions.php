@@ -133,7 +133,13 @@ namespace GambaBot\Interaction {
     {
         $isRunning = true;
 
-        if (get('botIsRunning') === false) {
+        // -- temp fix --
+        global $gachaBot;
+        $botIsRunning = $gachaBot->running;
+        //---------------
+
+        // if (get('botIsRunning') === false) {
+        if ($botIsRunning === false) {
             $interaction->respondWithMessage(MessageBuilder::new()
                 ->setContent('The bot is about to shut down, no new interactions are allowed.'),
                 ephemeral: true);
