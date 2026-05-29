@@ -100,7 +100,7 @@ $gachaBot->discord->listenCommand('rps', function (ApplicationCommand $interacti
                     }
 
                     $interaction->sendFollowUpMessage(MessageBuilder::new()->addEmbed(new Embed($gachaBot->discord)
-                        ->setTitle($winnerUsername.' winns '.$scoreFormatted)
+                        ->setTitle($winnerUsername.' wins '.$scoreFormatted)
                         ->setDescription('Coins: '.Format::code((string) $game->bet))
                         ->setColor(EMBED_COLOR_GREEN)
                         ->addFieldValues(
