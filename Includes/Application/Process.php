@@ -29,7 +29,10 @@ final class Process implements EventInterface
     {
         $pid = getmypid();
         $this->PID = $pid ? $pid : -1;
-        $this->setCtrlHandler();
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->setCtrlHandler();
+        }
+        
         $this->on(self::ACTION_END, fn (Event $event) => $this->end($event));
     }
 
