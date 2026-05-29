@@ -48,9 +48,11 @@ final class GachaBot implements EventInterface
         #[\SensitiveParameter] ?string $databasePassword,
         string $gambaDatabaseName,
         string $inventoryDatabaseName,
+        int $intents,
         private ?string $requireFrom = null,
-        int $intents
     ) {
+        $this->attachObserver($this);
+
         date_default_timezone_set(TIME_ZONE);
 
         $this->discord = new Discord([
@@ -59,9 +61,29 @@ final class GachaBot implements EventInterface
             'intents' => $intents,
         ]);
 
+        // $discord = $this->discord;
+
+        // error_log('PHP version: ' . PHP_VERSION);
+        // error_log('DiscordPHP version: ' . \Discord\Discord::VERSION);
+        // error_log('ENV DISCORD_TOKEN: ' . (getenv('DISCORD_TOKEN') ? 'present' : 'missing'));
+        // error_log('ENV DISCORD_INTENTS: ' . var_export(getenv('DISCORD_INTENTS'), true));
+
+        // $discord->on('raw', function ($payload) {
+        //     error_log('RAW: ' . json_encode($payload));
+        // });
+
+        // $discord->on('ready', function ($discord) {
+        //     error_log('READY fired, setting test listener');
+        //     $discord->on('messageCreate', function ($message) {
+        //         error_log('MSG recv: ' . $message->content);
+        //         if ($message->author->bot) return;
+        //         $message->reply('Container echo: ' . substr($message->content, 0, 100));
+        //     });
+        // });
+
         $this->gamba = new Gamba(
-            gambaDsn: 'mysql:host='.$databaseHost.';dbname='.$gambaDatabaseName,
-            inventoryManagerDsn: 'mysql:host='.$databaseHost.';dbname='.$inventoryDatabaseName,
+            gambaDsn: 'mysql:host='.$databaseHost.';port=3306;dbname='.$gambaDatabaseName,
+            inventoryManagerDsn: 'mysql:host='.$databaseHost.';port=3306;dbname='.$inventoryDatabaseName,
             username: $databaseUsername,
             password: $databasePassword,
         );
