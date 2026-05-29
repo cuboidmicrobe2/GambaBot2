@@ -7,7 +7,7 @@ namespace Gamba\Loot\Item;
 use Database\PersistentConnection;
 use Debug\Debug;
 use Generator;
-use HTTP\Request;
+use Http\Request;
 use Infrastructure\ObjectCache;
 use NoDiscard;
 use OutOfRangeException;

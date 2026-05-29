@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace HTTP;
+namespace Http;
 
 use CurlMultiHandle;
 use Exception;
@@ -72,13 +72,13 @@ final class Request
             throw new Exception('Cannot fetch before executing requests');
         }
 
-        if (count($this->curls) === 1) {
-            $ch = $this->curls->current();
-            $data = curl_exec($ch);
-            $this->curls->offsetUnset($ch);
+        // if (count($this->curls) === 1) {
+        //     $ch = $this->curls->current();
+        //     $data = curl_exec($ch);
+        //     $this->curls->offsetUnset($ch);
 
-            return $data;
-        }
+        //     return $data;
+        // }
 
         while ($this->curls->valid()) {
             $ch = $this->curls->current();
