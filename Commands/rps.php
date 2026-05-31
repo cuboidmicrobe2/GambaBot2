@@ -193,7 +193,7 @@ $gachaBot->discord->listenCommand('rps', function (ApplicationCommand $interacti
         ));
     }, $gachaBot->discord);
 
-    $buttonDecline = $buttonFactory->create(Button::STYLE_SUCCESS, 'accept')->setLabel('Decline')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gachaBot, $interaction): void {
+    $buttonDecline = $buttonFactory->create(Button::STYLE_SUCCESS, 'decline')->setLabel('Decline')->setListener(function (MessageComponent $buttonInteraction) use ($p2, $gachaBot, $interaction): void {
         if (! buttonPressedByUser($p2, $buttonInteraction)) {
             return;
         }
