@@ -31,6 +31,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-dev --no-interaction --optimize-autoloader
 
 CMD ["php", "main.php"]
