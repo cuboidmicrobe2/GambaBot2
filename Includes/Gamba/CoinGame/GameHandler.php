@@ -178,9 +178,25 @@ final class GameHandler
 
             if ($game->expired()) {
                 echo self::createUpdateMessage('', 'removed old game '.json_encode($data)), PHP_EOL;
-                unset($this->games[$data->id]);
+                $this->closeGame($game);
+                // unset($this->games[]);
             }
         }
+    }
+
+    public function getFromMultiLink(string $linkId): ?GameInstance
+    {
+        $gameM = null;
+
+        foreach ($this->games as $game) {
+            if (isUsing($game, MultiInteractionLink::class)) {
+                if ($game->linkId === $linkId) {
+                    return $game;
+                }
+            }
+        }
+
+        return $gameM;
     }
 
     public function dump(): void

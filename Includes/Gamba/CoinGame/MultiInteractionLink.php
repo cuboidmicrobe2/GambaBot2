@@ -16,7 +16,7 @@ trait MultiInteractionLink
 {
     private readonly string $host;
 
-    private readonly string $linkId;
+    public readonly string $linkId;    
 
     /**
      * @var array<string, PlayerLink>
@@ -60,9 +60,10 @@ trait MultiInteractionLink
 
     protected function createLink(ApplicationCommand $hostInteraction, Player $hostPlayer): void
     {
-        $this->linkId = $hostInteraction->id.'\\'.hrtime(true);
+        // $this->linkId = $hostInteraction->id.'\\'.hrtime(true);
+        $this->linkId = substr($hostInteraction->id, strlen($hostInteraction->id) - 6);
 
-        $this->links[$hostInteraction->id] = $hostPlayer;
+        $this->links[$hostPlayer->uid] = new PlayerLink($hostInteraction, $hostPlayer);
     }
 
     /**
@@ -73,5 +74,16 @@ trait MultiInteractionLink
         if (! isset($this->links[$id])) {
             throw new InvalidArgumentException($id.' is not linked to this game');
         }
+    }
+
+    public function getLinkedPlayerNames(): array
+    {
+        $names = [];
+
+        foreach ($this->links as $link) {
+            $names[] = $link->player->name;
+        }
+
+        return $names;
     }
 }

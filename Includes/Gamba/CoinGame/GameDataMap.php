@@ -41,4 +41,9 @@ final class GameDataMap
 
         return $this->data[$id];
     }
+
+    public function setType(string $type): void
+    {
+        // ...
+    }
 }

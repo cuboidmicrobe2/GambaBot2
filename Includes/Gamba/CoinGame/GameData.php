@@ -36,7 +36,7 @@ final class GameData implements JsonSerializable, Stringable
     /**
      * @var null|array<string, Button>
      */
-    public private(set) ?array $buttons;
+    public private(set) ?array $buttons = [];
 
     private ?MessageBuilder $lastMessage = null;
 
@@ -144,6 +144,12 @@ final class GameData implements JsonSerializable, Stringable
         }
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param MessageBuilder $message
+     * @return PromiseInterface<\Discord\Parts\Channel\Message>
+     */
     public function updateMessage(MessageBuilder $message): PromiseInterface
     {
         $this->lastMessage = $message;
